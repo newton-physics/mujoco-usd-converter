@@ -1,0 +1,8 @@
+# build environment
+.*venv
+
+# generated files
+*.pyc
+
+# installation artifacts
+dist

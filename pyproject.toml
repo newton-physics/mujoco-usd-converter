@@ -1,0 +1,23 @@
+[project]
+name = "mjc_usd_converter"
+version = "0.1.0-dev"
+description = "A MuJoCo to OpenUSD Data Converter"
+authors = [
+    {name = "Andrew Kaufman",email = "akaufman@nvidia.com"}
+]
+license = {text = "Apache-2.0"}
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "mujoco (>=3.3,<4.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [ { include = "mjc_usd_converter/*.py" } ]
+
+[tool.poetry.scripts]
+mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
