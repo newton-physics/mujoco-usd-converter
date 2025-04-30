@@ -6,9 +6,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BUILD_VENV=${SCRIPT_DIR}/.build_venv
 RUNTIME_VENV=${SCRIPT_DIR}/.runtime_venv
 
-if [ $# -gt 0 ] && [ "$1" = "-c" ] || [ "$1" = "--clean" ]; then
-    echo "Cleaning up..."
+if [ $# -gt 0 ] && [ "$1" = "-cc" ] || [ "$1" = "--clean-all" ]; then
+    echo "Cleaning everything..."
     rm -rf ${BUILD_VENV}
+    rm -rf ${RUNTIME_VENV}
+    rm -rf dist
+elif [ $# -gt 0 ] && [ "$1" = "-c" ] || [ "$1" = "--clean" ]; then
+    echo "Cleaning distro & runtime..."
     rm -rf ${RUNTIME_VENV}
     rm -rf dist
 fi
