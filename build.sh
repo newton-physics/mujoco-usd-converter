@@ -28,7 +28,7 @@ echo Using `poetry --version`
 if [ -d ${SCRIPT_DIR}/dist ]; then
     rm -rf ${SCRIPT_DIR}/dist
 fi
-poetry build
+poetry build --format=wheel
 
 # prepare the runtime environment
 if [ -d "${RUNTIME_VENV}" ]; then
