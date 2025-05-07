@@ -5,6 +5,7 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BUILD_VENV=${SCRIPT_DIR}/.build_venv
 RUNTIME_VENV=${SCRIPT_DIR}/.runtime_venv
+export PIP_INDEX_URL="https://REDACTED/simple"
 
 if [ $# -gt 0 ] && [ "$1" = "-cc" ] || [ "$1" = "--clean-all" ]; then
     echo "Cleaning everything..."
@@ -36,11 +37,13 @@ poetry build --format=wheel
 poetry lock
 
 # prepare the runtime environment
-if [ ! -d "${RUNTIME_VENV}" ]; then
+if [ -d "${RUNTIME_VENV}" ]; then
+    source ${RUNTIME_VENV}/bin/activate
+    # install the artifact to the runtime
+    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl --no-deps --force-reinstall
+else
     echo "Building: ${RUNTIME_VENV}"
     python -m venv ${RUNTIME_VENV}
+    source ${RUNTIME_VENV}/bin/activate
+    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl
 fi
-source ${RUNTIME_VENV}/bin/activate
-
-# install the artifact to the runtime
-poetry install
