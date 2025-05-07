@@ -36,11 +36,13 @@ poetry build --format=wheel
 poetry lock
 
 # prepare the runtime environment
-if [ ! -d "${RUNTIME_VENV}" ]; then
+if [ -d "${RUNTIME_VENV}" ]; then
+    source ${RUNTIME_VENV}/bin/activate
+    # install the artifact to the runtime
+    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl --no-deps --force-reinstall
+else
     echo "Building: ${RUNTIME_VENV}"
     python -m venv ${RUNTIME_VENV}
+    source ${RUNTIME_VENV}/bin/activate
+    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl
 fi
-source ${RUNTIME_VENV}/bin/activate
-
-# install the artifact to the runtime
-poetry install
