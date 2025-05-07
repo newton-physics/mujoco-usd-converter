@@ -3,6 +3,7 @@
 set "SCRIPT_DIR=%~dp0"
 set "BUILD_VENV=%SCRIPT_DIR%.build_venv"
 set "RUNTIME_VENV=%SCRIPT_DIR%.runtime_venv"
+set "PIP_INDEX_URL=https://REDACTED/simple"
 
 if "%1"=="-cc" (
     echo Cleaning everything...

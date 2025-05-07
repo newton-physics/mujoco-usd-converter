@@ -5,6 +5,7 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BUILD_VENV=${SCRIPT_DIR}/.build_venv
 RUNTIME_VENV=${SCRIPT_DIR}/.runtime_venv
+export PIP_INDEX_URL="https://REDACTED/simple"
 
 if [ $# -gt 0 ] && [ "$1" = "-cc" ] || [ "$1" = "--clean-all" ]; then
     echo "Cleaning everything..."
