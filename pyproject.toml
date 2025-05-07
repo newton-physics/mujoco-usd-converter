@@ -8,9 +8,10 @@ authors = [
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
-dependencies = [
-    "mujoco (>=3.3,<4.0)"
-]
+
+[tool.poetry.dependencies]
+mujoco = "^3.3"
+usd-exchange = "2.0.0.dev0+usd2502.mr113.632.37ab7d5d.gl"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -21,3 +22,8 @@ packages = [ { include = "mjc_usd_converter/*.py" } ]
 
 [tool.poetry.scripts]
 mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
+
+[[tool.poetry.source]]
+name = "internal"
+url = "https://REDACTED/simple"
+priority = "primary"
