@@ -30,12 +30,16 @@ cmd = "python -m unittest discover -v -s ./tests"
 
 [tool.poe.tasks.lint]
 help = "Run all lint tools on the code base"
-sequence = ["poetry-check", "lint-black", "lint-ruff"]
+sequence = ["poetry-check", "lint-license", "lint-black", "lint-ruff"]
 ignore_fail = "return_non_zero"
 
 [tool.poe.tasks.poetry-check]
 help = "Run poetry check on code base"
 cmd  = "poetry check"
+
+[tool.poe.tasks.lint-license]
+help = "Run license conformance checks on code base"
+cmd  = "python tools/license_format.py --check"
 
 [tool.poe.tasks.lint-ruff]
 help = "Run ruff check on code base"
@@ -47,8 +51,12 @@ cmd  = "black . --check --diff"
 
 [tool.poe.tasks.format]
 help = "Run all formatting tools on the code base"
-sequence = ["format-ruff", "format-black"]
+sequence = ["format-license", "format-ruff", "format-black"]
 ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.format-license]
+help = "Run license conformance checks on code base"
+cmd  = "python tools/license_format.py --fix"
 
 [tool.poe.tasks.format-ruff]
 help = "Run ruff fixer on code base"
