@@ -3,17 +3,12 @@
     "files.trimTrailingWhitespace": true,
     "files.trimFinalNewlines": true,
     "diffEditor.ignoreTrimWhitespace": false,
-    "python.defaultInterpreterPath": "",
     "python.analysis.extraPaths": [
-        ".runtime_venv/lib/python3.10/site-packages",
-        ".runtime_venv/Lib/site-packages",
-],
+        ".venv/lib/python3.10/site-packages",
+        ".venv/Lib/site-packages",
+    ],
     "python.languageServer": "Pylance",
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": ["--line-length", "150"],
     "isort.args": ["--profile", "black"],
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": false,
     "flake8.args": [
         "--max-line-length=150",
         "--ignore=F405"
