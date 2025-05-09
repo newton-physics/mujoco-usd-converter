@@ -3,28 +3,21 @@
 set -e
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-BUILD_VENV=${SCRIPT_DIR}/.build_venv
-RUNTIME_VENV=${SCRIPT_DIR}/.runtime_venv
-export PIP_INDEX_URL="https://REDACTED/simple"
+VENV=${SCRIPT_DIR}/.venv
 
-if [ $# -gt 0 ] && [ "$1" = "-cc" ] || [ "$1" = "--clean-all" ]; then
-    echo "Cleaning everything..."
-    rm -rf ${BUILD_VENV}
-    rm -rf ${RUNTIME_VENV}
-    rm -rf dist
-elif [ $# -gt 0 ] && [ "$1" = "-c" ] || [ "$1" = "--clean" ]; then
-    echo "Cleaning distro & runtime..."
-    rm -rf ${RUNTIME_VENV}
+if [ $# -gt 0 ] && [ "$1" = "-c" ] || [ "$1" = "--clean" ]; then
+    echo "Cleaning..."
+    rm -rf ${VENV}
     rm -rf dist
 fi
 
 # setup the build environment
-if [ -d "${BUILD_VENV}" ]; then
-    source ${BUILD_VENV}/bin/activate
+if [ -d "${VENV}" ]; then
+    source ${VENV}/bin/activate
 else
-    echo "Building: ${BUILD_VENV}"
-    python -m venv ${BUILD_VENV}
-    source ${BUILD_VENV}/bin/activate
+    echo "Building: ${VENV}"
+    python -m venv ${VENV}
+    source ${VENV}/bin/activate
     python -m pip install poetry
 fi
 
@@ -35,15 +28,4 @@ if [ -d ${SCRIPT_DIR}/dist ]; then
 fi
 poetry build --format=wheel
 poetry lock
-
-# prepare the runtime environment
-if [ -d "${RUNTIME_VENV}" ]; then
-    source ${RUNTIME_VENV}/bin/activate
-    # install the artifact to the runtime
-    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl --no-deps --force-reinstall
-else
-    echo "Building: ${RUNTIME_VENV}"
-    python -m venv ${RUNTIME_VENV}
-    source ${RUNTIME_VENV}/bin/activate
-    python -m pip install ${SCRIPT_DIR}/dist/mjc_usd_converter-*.whl
-fi
+poetry install

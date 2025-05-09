@@ -2,22 +2,16 @@
 name = "mjc_usd_converter"
 version = "0.1.0-dev"
 description = "A MuJoCo to OpenUSD Data Converter"
-authors = [
-    {name = "Andrew Kaufman",email = "akaufman@nvidia.com"}
-]
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 
 [tool.poetry.dependencies]
 mujoco = "^3.3"
-usd-exchange = "2.0.0.dev0+usd2502.mr113.632.37ab7d5d.gl"
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+usd-exchange = "2.0.0.dev0+usd2502.main.641.43f697a8.gl"
 
 [tool.poetry]
+authors = ["NVIDIA"]
 packages = [ { include = "mjc_usd_converter/*.py" } ]
 
 [tool.poetry.scripts]
@@ -27,3 +21,82 @@ mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
 name = "internal"
 url = "https://REDACTED/simple"
 priority = "primary"
+
+# Dev Tools
+
+[tool.poe.tasks.test]
+help = "Run the unittests"
+cmd = "python -m unittest discover -v -s ./tests"
+
+[tool.poe.tasks.lint]
+help = "Run all lint tools on the code base"
+sequence = ["lint-black", "lint-ruff"]
+ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.lint-ruff]
+help = "Run ruff check on code base"
+cmd  = "ruff check"
+
+[tool.poe.tasks.lint-black]
+help = "Run black check on the code base"
+cmd  = "black . --check --diff"
+
+[tool.poe.tasks.format]
+help = "Run all formatting tools on the code base"
+sequence = ["format-ruff", "format-black"]
+ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.format-ruff]
+help = "Run ruff fixer on code base"
+cmd  = "ruff check . --fix-only"
+
+[tool.poe.tasks.format-black]
+help = "Run black on the code base"
+cmd  = "black ."
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+poethepoet = "^0.34"
+ruff = "^0.11"
+black = "^25.1"
+
+[tool.ruff]
+line-length = 150
+exclude = [".venv", "dist"]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",     # error
+    "F",     # pyflakes
+    "I",     # isort
+    "W",     # warning
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "YTT",   # flake8-2020
+    "ASYNC", # flake8-async
+    "C4",    # flake8-comprehensions
+    "T10",   # flake8-debugger
+    "G",     # flake8-logging-format
+    "PIE",   # flake8-pie
+    "PYI",   # flake8-pyi
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "SIM",   # flake8-simplify
+    "TCH",   # flake8-type-checking
+    "PTH",   # flake8-use-pathlib
+    "PGH",   # pygrep-hooks
+    "PERF",  # perflint
+    "RUF",   # ruff-specific rules
+]
+ignore = [
+    "PT009",  # unittest-style asserts are fine
+]
+
+[tool.black]
+line-length = 150
+exclude = "(.venv|dist)"
+target-version = ['py310']

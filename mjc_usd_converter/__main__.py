@@ -2,7 +2,6 @@ import sys
 
 import mujoco
 import usdex.core
-
 from pxr import Usd
 
 
@@ -21,5 +20,5 @@ def cli_main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(cli_main())
