@@ -1,6 +1,6 @@
 import pathlib
-import unittest
 import site
+import unittest
 
 import mujoco
 import usdex.core
