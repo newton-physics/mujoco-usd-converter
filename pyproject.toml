@@ -1,21 +1,21 @@
 [project]
-name = "mjc_usd_converter"
-version = "0.1.0-dev"
+name = "mjc-usd-converter"
+version = "0.1.0.dev0"
 description = "A MuJoCo to OpenUSD Data Converter"
+authors = [{name = "NVIDIA"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
+dependencies = [
+    "mujoco>=3.3",
+    "usd-exchange==2.0.0.dev0+usd2502.main.641.43f697a8.gl",
+]
 
-[tool.poetry.dependencies]
-mujoco = "^3.3"
-usd-exchange = "2.0.0.dev0+usd2502.main.641.43f697a8.gl"
+[project.scripts]
+mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
 
 [tool.poetry]
-authors = ["NVIDIA"]
 packages = [ { include = "mjc_usd_converter/*.py" } ]
-
-[tool.poetry.scripts]
-mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
 
 [[tool.poetry.source]]
 name = "internal"
@@ -30,8 +30,12 @@ cmd = "python -m unittest discover -v -s ./tests"
 
 [tool.poe.tasks.lint]
 help = "Run all lint tools on the code base"
-sequence = ["lint-black", "lint-ruff"]
+sequence = ["poetry-check", "lint-black", "lint-ruff"]
 ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.poetry-check]
+help = "Run poetry check on code base"
+cmd  = "poetry check"
 
 [tool.poe.tasks.lint-ruff]
 help = "Run ruff check on code base"
