@@ -714,4 +714,4 @@ reference = "internal"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "e9e682326c67be4afad640fc8f04c22953c9a2cf0897fccad235529017dca0ee"
+content-hash = "2a055547446d7209100bdcdb10242fe8b451e8db1e6bb92bd9af88b272b9bdd2"
