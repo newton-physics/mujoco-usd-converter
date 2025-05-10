@@ -98,7 +98,6 @@ select = [
     "PT",    # flake8-pytest-style
     "Q",     # flake8-quotes
     "SIM",   # flake8-simplify
-    "TCH",   # flake8-type-checking
     "PTH",   # flake8-use-pathlib
     "PGH",   # pygrep-hooks
     "PERF",  # perflint
