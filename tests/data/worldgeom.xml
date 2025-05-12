@@ -1,0 +1,8 @@
+<mujoco model="worldgeom">
+    <worldbody>
+        <geom type="plane" size="0 0 .1" pos="0 0 -.1"/>
+        <geom type="capsule" size="0.1" fromto="0 0 0 0 1 1"/>
+        <geom type="box" size="0.1" fromto=".5 1 0 .5 0 1"/>
+        <geom type="cylinder" size="0.1" fromto="1 0 0 1 0.5 1"/>
+    </worldbody>
+</mujoco>

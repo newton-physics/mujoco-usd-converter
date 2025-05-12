@@ -1,18 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+import pathlib
+import shutil
 import unittest
 from unittest.mock import patch
 
-from mjc_usd_converter.__main__ import cli_main
+from mjc_usd_converter import run
 
 
 class TestCli(unittest.TestCase):
-    @patch("builtins.print")
-    def test_cli_main(self, mock_print):
-        cli_main()
+    def tearDown(self):
+        if pathlib.Path("tests/output").exists():
+            shutil.rmtree("tests/output")
 
-        # Verify that print was called 4 times (header + 3 version prints)
-        self.assertEqual(mock_print.call_count, 4)
-
-        # Verify the first print was the header
-        mock_print.assert_any_call("Running mjc_usd_converter")
+    def test_run(self):
+        with patch("sys.argv", ["mjc_usd_converter", "tests/data/worldgeom.xml", "tests/output/worldgeom"]):
+            self.assertEqual(run(), 0)
+        self.assertTrue(pathlib.Path("tests/output/worldgeom/worldgeom.usda").exists())
