@@ -33,16 +33,34 @@ cache:
     - .pip-cache
     - .venv
 
+.default_job:
+  timeout: 10 minutes
+  interruptible: true
+  # Only retry on Gitlab failures (not on script failures for example)
+  retry:
+    max: 2
+    when:
+      - api_failure
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - scheduler_failure
+      - unknown_failure
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+
 .osec:stage_base:
   stage: check # setup all osec jobs as checks
 
 check_code_format:
+  extends: [.default_job]
   stage: check
   script:
     - poetry install
     - poetry run poe lint
 
 .build_base:
+  extends: [.default_job]
   stage: build
   needs: [] # do not wait for checks
   script:
@@ -53,25 +71,26 @@ check_code_format:
       - dist/
 
 build_linux_x86:
-  extends: [.build_base]
+  extends: [.build_base, .omni_nvks_micro_runner]
 
 build_windows_x86:
-  extends: [.build_base]
+  extends: [.build_base, .runner-build-windows-x86_64]
 
 .test_base:
+  extends: [.default_job]
   stage: test
   script:
     - poetry install
     - poetry run poe test
 
 test_linux_x86:
-  extends: [.test_base]
+  extends: [.test_base, .omni_nvks_micro_runner]
 
 test_windows_x86:
-  extends: [.test_base]
+  extends: [.test_base, .runner-build-windows-x86_64]
 
 deploy:
-  extends: [.omni_nvks_micro_runner, .osec:vault:v3:prod_token_job]
+  extends: [.default_job, .omni_nvks_micro_runner, .osec:vault:v3:prod_token_job]
   stage: deploy
   rules:
     - if: $CI_COMMIT_TAG
