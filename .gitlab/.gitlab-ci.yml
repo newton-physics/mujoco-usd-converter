@@ -34,6 +34,7 @@ cache:
     - .venv
 
 .default_job:
+  extends: [.omni_nvks_micro_runner]
   timeout: 10 minutes
   interruptible: true
   # Only retry on Gitlab failures (not on script failures for example)
@@ -71,7 +72,7 @@ check_code_format:
       - dist/
 
 build_linux:
-  extends: [.build_base, .omni_nvks_small_runner_with_docker]
+  extends: [.build_base]
 
 build_windows:
   extends: [.build_base, .runner-build-windows-x86_64]
@@ -84,13 +85,13 @@ build_windows:
     - poetry run poe test
 
 test_linux:
-  extends: [.test_base, .omni_nvks_micro_runner]
+  extends: [.test_base]
 
 test_windows:
   extends: [.test_base, .runner-build-windows-x86_64]
 
 deploy:
-  extends: [.default_job, .omni_nvks_micro_runner, .osec:vault:v3:prod_token_job]
+  extends: [.default_job, .osec:vault:v3:prod_token_job]
   stage: deploy
   rules:
     - if: $CI_COMMIT_TAG
