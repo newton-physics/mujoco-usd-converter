@@ -1,8 +1,12 @@
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
+include:
+  - project: 'omniverse/sectools/vault'
+    file: 'templates/v3/linux/artifactory.gitlab-ci.yml'
+  - project: 'omniverse/devplat/gitlab/templates/runners'
+    file: 'modules/include.yml'
+    ref: v2_latest
+  - project: 'omniverse/devplat/gitlab/templates/common/compliance'
+    file: 'modules/omniverse-repo-compliance.gitlab-ci.yml'
+    ref: v1_latest
 
 stages:
   - check
@@ -10,22 +14,37 @@ stages:
   - test
   - deploy
 
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG # Run for tagged releases
+    - if: $CI_COMMIT_REF_PROTECTED == "true" # Run for main and release/* maintenance branches
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run for MRs
+
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  OSEC_NSPECT_ID: NSPECT-DRJJ-1IL9
+  OSEC_SONARQUBE_ENABLED: true
+  OSEC_OMNI_SANITIZER_ENABLED: true
+  OSEC_CHECKMARX_ENABLED: false
+  OSEC_OMNI_PULSE_ENABLED: false
 
 cache:
   paths:
     - .pip-cache
     - .venv
 
-.check:
+.osec:stage_base:
+  stage: check # setup all osec jobs as checks
+
+check_code_format:
   stage: check
   script:
     - poetry install
     - poetry run poe lint
 
-.build:
+.build_base:
   stage: build
+  needs: [] # do not wait for checks
   script:
     - poetry install
     - poetry build
@@ -33,17 +52,32 @@ cache:
     paths:
       - dist/
 
-.test:
+build_linux_x86:
+  extends: [.build_base]
+
+build_windows_x86:
+  extends: [.build_base]
+
+.test_base:
   stage: test
   script:
     - poetry install
     - poetry run poe test
 
-.deploy:
+test_linux_x86:
+  extends: [.test_base]
+
+test_windows_x86:
+  extends: [.test_base]
+
+deploy:
+  extends: [.omni_nvks_micro_runner, .osec:vault:v3:prod_token_job]
   stage: deploy
-  script:
-    - echo "Deploying version ${CI_COMMIT_SHA}"
   rules:
     - if: $CI_COMMIT_TAG
       when: always
     - when: manual
+  before_script:
+    - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
+  script:
+    - poetry publish --repository https://REDACTED -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
