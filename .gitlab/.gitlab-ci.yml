@@ -74,7 +74,7 @@ build_linux:
   extends: [.build_base, .omni_nvks_small_runner_with_docker]
 
 build_windows:
-  extends: [.build_base, .runner-build-windows-x86_64, .osec:vault:v3:windows]
+  extends: [.build_base, .runner-build-windows-x86_64]
 
 .test_base:
   extends: [.default_job]
