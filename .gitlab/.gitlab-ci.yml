@@ -70,11 +70,11 @@ check_code_format:
     paths:
       - dist/
 
-build_linux_x86:
-  extends: [.build_base, .omni_nvks_micro_runner]
+build_linux:
+  extends: [.build_base, .omni_nvks_small_runner_with_docker]
 
-build_windows_x86:
-  extends: [.build_base, .runner-build-windows-x86_64]
+build_windows:
+  extends: [.build_base, .runner-build-windows-x86_64, .osec:vault:v3:windows]
 
 .test_base:
   extends: [.default_job]
@@ -83,10 +83,10 @@ build_windows_x86:
     - poetry install
     - poetry run poe test
 
-test_linux_x86:
+test_linux:
   extends: [.test_base, .omni_nvks_micro_runner]
 
-test_windows_x86:
+test_windows:
   extends: [.test_base, .runner-build-windows-x86_64]
 
 deploy:
