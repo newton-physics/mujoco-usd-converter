@@ -1,12 +1,4 @@
 include:
-  - project: 'omniverse/sectools/vault'
-    file: 'templates/v3/linux/artifactory.gitlab-ci.yml'
-  - project: 'omniverse/devplat/gitlab/templates/runners'
-    file: 'modules/include.yml'
-    ref: v2_latest
-  - project: 'omniverse/devplat/gitlab/templates/common/compliance'
-    file: 'modules/omniverse-repo-compliance.gitlab-ci.yml'
-    ref: v1_latest
   - local: '.gitlab/templates.yml'
 
 stages:
