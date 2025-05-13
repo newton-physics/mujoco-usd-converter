@@ -11,10 +11,6 @@ include:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
 
-cache:
-  paths:
-    - .pip-cache
-
 .setup_linux:
   extends: [.omni_nvks_micro_runner]
   before_script:

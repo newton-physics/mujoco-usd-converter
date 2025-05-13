@@ -23,7 +23,6 @@ variables:
 check_code_format:
   extends: [.default_job]
   stage: check
-  cache: {} # Override default cache, no need to cache for this linting job
   script:
     - poetry install
     - poetry run poe lint
