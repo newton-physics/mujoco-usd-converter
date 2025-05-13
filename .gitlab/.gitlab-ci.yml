@@ -1,4 +1,5 @@
 include:
+  - local: '.gitlab/templates.yml'
   - project: 'omniverse/sectools/vault'
     file: 'templates/v3/linux/artifactory.gitlab-ci.yml'
   - project: 'omniverse/devplat/gitlab/templates/runners'
@@ -33,26 +34,6 @@ cache:
     - .pip-cache
     - .venv
 
-.default_job:
-  extends: [.omni_nvks_micro_runner]
-  timeout: 10 minutes
-  interruptible: true
-  # Only retry on Gitlab failures (not on script failures for example)
-  retry:
-    max: 2
-    when:
-      - api_failure
-      - runner_system_failure
-      - stuck_or_timeout_failure
-      - scheduler_failure
-      - unknown_failure
-  artifacts:
-    when: always
-    expire_in: 2 weeks
-
-.osec:stage_base:
-  stage: check # setup all osec jobs as checks
-
 check_code_format:
   extends: [.default_job]
   stage: check
@@ -64,31 +45,31 @@ check_code_format:
   extends: [.default_job]
   stage: build
   needs: [] # do not wait for checks
+  script:
+    - poetry install
+    - poetry build
   artifacts:
     paths:
       - dist/
 
 build_linux:
   extends: [.build_base]
-  script:
-    - ./build.sh
 
 build_windows:
-  extends: [.build_base, .runner-build-windows-x86_64]
-  script:
-    - ./build.bat
+  extends: [.build_base, .setup_windows]
 
 .test_base:
   extends: [.default_job]
   stage: test
   script:
+    - poetry install
     - poetry run poe test
 
 test_linux:
   extends: [.test_base]
 
 test_windows:
-  extends: [.test_base, .runner-build-windows-x86_64]
+  extends: [.test_base, .setup_windows]
 
 deploy:
   extends: [.default_job, .osec:vault:v3:prod_token_job]
