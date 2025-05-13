@@ -31,52 +31,17 @@ cache:
 
 .setup_windows:
   extends: [.runner-build-windows-x86_64]
-  rules:
-    - when: never # tmp disabled until we have a windows runner with python 3.10
-  # before_script:
-  #   # Ensure system Python (3.12 assumed) pip is upgraded and install Poetry locally
-  #   - python -m pip install --upgrade pip
-  #   - $env:POETRY_LOCAL_INSTALL_DIR = "$($env:CI_PROJECT_DIR)\.poetry-install"
-  #   - python -m pip install --upgrade poetry --target "$env:POETRY_LOCAL_INSTALL_DIR"
-  #   - $env:PATH = "$($env:POETRY_LOCAL_INSTALL_DIR)\bin;" + $env:PATH
-  #   - poetry --version
+  before_script:
+    - powershell -ExecutionPolicy ByPass -c {$env:UV_INSTALL_DIR = "${env:CI_PROJECT_DIR}\uv";irm https://astral.sh/uv/install.ps1 | iex}
+    - $env:Path = "${env:CI_PROJECT_DIR}\uv;$env:Path"
+    - uv python install --managed-python --verbose --install-dir "${env:CI_PROJECT_DIR}\python"
+    - $env:Path = "${env:CI_PROJECT_DIR}\python;$env:Path"
+    - uv pip install poetry
+    - uv python --version
+    - uv pip --version
+    - uv poetry --version
+    - echo "Windows Python/Poetry setup complete."
 
-  #   # Download and set up Python 3.10
-  #   - $env:PYTHON310_VERSION = "3.10.11" # Using a specific, known-good version
-  #   - $env:PYTHON310_DOWNLOAD_URL = "https://www.python.org/ftp/python/$($env:PYTHON310_VERSION)/python-$($env:PYTHON310_VERSION)-embed-amd64.zip"
-  #   - $env:PYTHON310_ZIP_PATH = "$($env:CI_PROJECT_DIR)\python-$($env:PYTHON310_VERSION)-embed-amd64.zip"
-  #   - $env:PYTHON310_EXTRACT_PATH = "$($env:CI_PROJECT_DIR)\python-$($env:PYTHON310_VERSION)-embed-amd64"
-  #   - echo "Downloading Python $($env:PYTHON310_VERSION)..."
-  #   - Invoke-WebRequest -Uri $env:PYTHON310_DOWNLOAD_URL -OutFile $env:PYTHON310_ZIP_PATH
-  #   - echo "Extracting Python $($env:PYTHON310_VERSION)..."
-  #   - Expand-Archive -Path $env:PYTHON310_ZIP_PATH -DestinationPath $env:PYTHON310_EXTRACT_PATH -Force
-  #   - $env:PYTHON310_EXECUTABLE_PATH = Join-Path -Path $env:PYTHON310_EXTRACT_PATH -ChildPath "python.exe"
-
-  #   # Modify ._pth file for the embedded Python 3.10 to enable site packages (crucial for venv creation)
-  #   - $pythonMajor = $env:PYTHON310_VERSION.Split('.')[0]
-  #   - $pythonMinor = $env:PYTHON310_VERSION.Split('.')[1]
-  #   - $pthFileName = "python$($pythonMajor)$($pythonMinor)._pth" # e.g., python310._pth
-  #   - $pthFilePath = Join-Path -Path $env:PYTHON310_EXTRACT_PATH -ChildPath $pthFileName
-  #   - |
-  #     if (Test-Path $pthFilePath) {
-  #       (Get-Content $pthFilePath) -replace '#import site', 'import site' | Set-Content $pthFilePath
-  #     } else {
-  #       echo "Warning: $pthFilePath not found. Python 3.10 virtual environment creation might fail or lack full functionality."
-  #     }
-
-  #   # Verify Python 3.10 executable and configure Poetry
-  #   - |
-  #     if (-not (Test-Path $env:PYTHON310_EXECUTABLE_PATH)) {
-  #       echo "ERROR: Python 3.10 executable not found at $($env:PYTHON310_EXECUTABLE_PATH)."
-  #       echo "Contents of $($env:PYTHON310_EXTRACT_PATH):"
-  #       Get-ChildItem -Path $env:PYTHON310_EXTRACT_PATH
-  #       exit 1
-  #     }
-  #   - "& '$($env:PYTHON310_EXECUTABLE_PATH)' --version"
-  #   - echo "Configuring Poetry to use downloaded Python 3.10..."
-  #   - poetry env use $env:PYTHON310_EXECUTABLE_PATH
-  #   - poetry config virtualenvs.in-project true --local
-  #   - echo "Windows environment setup complete."
 
 .default_job:
   extends: [.setup_linux]
