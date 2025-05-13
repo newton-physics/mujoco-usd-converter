@@ -31,7 +31,6 @@ variables:
     - uv pip install poetry
     - echo "Windows Python/Poetry setup complete."
 
-
 .default_job:
   extends: [.setup_linux]
   timeout: 10 minutes
@@ -60,4 +59,5 @@ variables:
     ARTIFACTORY_KEY: $ARTIFACTORY_KEY
     ARTIFACTORY_URL: "https://urm.nvidia.com/artifactory/api/pypi/$ARTIFACTORY_REPO"
   before_script:
+    - !reference [.default_job, before_script]
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
