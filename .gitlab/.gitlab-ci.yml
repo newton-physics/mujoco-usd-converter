@@ -9,9 +9,9 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_COMMIT_TAG # Run for tagged releases
-    - if: $CI_COMMIT_REF_PROTECTED == "true" # Run for main and release/* maintenance branches
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run for MRs
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 variables:
   OSEC_NSPECT_ID: NSPECT-DRJJ-1IL9
