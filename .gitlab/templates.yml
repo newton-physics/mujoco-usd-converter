@@ -97,3 +97,13 @@ cache:
 
 .osec:stage_base:
   stage: check # setup all osec jobs as checks
+
+.deploy_job:
+  extends: [.default_job, .osec:vault:v3:prod_token_job]
+  variables:
+    ARTIFACTORY_REPO: "ct-omniverse-pypi"
+    ARTIFACTORY_USERNAME: $ARTIFACTORY_USERNAME
+    ARTIFACTORY_KEY: $ARTIFACTORY_KEY
+    ARTIFACTORY_URL: "https://urm.nvidia.com/artifactory/api/pypi/$ARTIFACTORY_REPO"
+  before_script:
+    - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
