@@ -34,8 +34,9 @@ cache:
   before_script:
     - powershell -ExecutionPolicy ByPass -c {$env:UV_INSTALL_DIR = "${env:CI_PROJECT_DIR}\uv";irm https://astral.sh/uv/install.ps1 | iex}
     - $env:Path = "${env:CI_PROJECT_DIR}\uv;$env:Path"
-    - uv python install --managed-python --verbose --install-dir "${env:CI_PROJECT_DIR}\python"
+    - uv python install 3.10 --managed-python --verbose --install-dir "${env:CI_PROJECT_DIR}\python"
     - $env:Path = "${env:CI_PROJECT_DIR}\python;$env:Path"
+    - uv venv --python "${env:CI_PROJECT_DIR}\python\python.exe"
     - uv pip install poetry
     - uv python --version
     - uv pip --version
