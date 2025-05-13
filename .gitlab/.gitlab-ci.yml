@@ -32,11 +32,11 @@ variables:
 cache:
   paths:
     - .pip-cache
-    - .venv
 
 check_code_format:
   extends: [.default_job]
   stage: check
+  cache: {} # Override default cache, no need to cache for this linting job
   script:
     - poetry install
     - poetry run poe lint
@@ -67,9 +67,11 @@ build_windows:
 
 test_linux:
   extends: [.test_base]
+  needs: ["build_linux"]
 
 test_windows:
   extends: [.test_base, .setup_windows]
+  needs: ["build_windows"]
 
 deploy:
   extends: [.default_job, .osec:vault:v3:prod_token_job]
