@@ -60,12 +60,21 @@ test_windows:
   extends: [.test_base, .setup_windows]
   needs: ["build_windows"]
 
-deploy:
+deploy_tagged:
   extends: [.default_job, .osec:vault:v3:prod_token_job]
   stage: deploy
   rules:
     - if: $CI_COMMIT_TAG
       when: always
+  before_script:
+    - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
+  script:
+    - poetry publish --repository https://REDACTED -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
+
+deploy_preview:
+  extends: [.default_job, .osec:vault:v3:prod_token_job]
+  stage: deploy
+  rules:
     - when: manual
   before_script:
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
