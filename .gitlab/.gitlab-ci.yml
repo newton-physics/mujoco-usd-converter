@@ -24,16 +24,16 @@ check_code_format:
   extends: [.default_job]
   stage: check
   script:
-    - uv run poetry install
-    - uv run poe lint
+    - poetry install
+    - poetry run poe lint
 
 .build_base:
   extends: [.default_job]
   stage: build
   needs: [] # do not wait for checks
   script:
-    - uv run poetry install
-    - uv run poetry build
+    - poetry install
+    - poetry build
   artifacts:
     paths:
       - dist/
@@ -48,8 +48,8 @@ build_windows:
   extends: [.default_job]
   stage: test
   script:
-    - uv run poetry install
-    - uv run poe test
+    - poetry install
+    - poetry run poe test
 
 test_linux:
   extends: [.test_base]
@@ -65,7 +65,7 @@ deploy_tagged:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - uv run poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
+    - poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
 
 deploy_preview:
   extends: [.deploy_job]
@@ -74,4 +74,4 @@ deploy_preview:
   rules:
     - if: '$CI_COMMIT_TAG == null'
   script:
-    - uv run poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
+    - poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
