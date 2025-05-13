@@ -9,7 +9,9 @@ include:
     ref: v1_latest
 
 variables:
+  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.poetry-cache"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
 
 .setup_linux:
   extends: [.omni_nvks_micro_runner]
