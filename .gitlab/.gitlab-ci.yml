@@ -64,18 +64,19 @@ check_code_format:
   extends: [.default_job]
   stage: build
   needs: [] # do not wait for checks
-  script:
-    - poetry install
-    - poetry build
   artifacts:
     paths:
       - dist/
 
 build_linux:
   extends: [.build_base]
+  script:
+    - ./build.sh
 
 build_windows:
   extends: [.build_base, .runner-build-windows-x86_64]
+  script:
+    - ./build.bat
 
 .test_base:
   extends: [.default_job]
