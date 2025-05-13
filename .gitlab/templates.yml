@@ -8,6 +8,13 @@ include:
     file: 'modules/omniverse-repo-compliance.gitlab-ci.yml'
     ref: v1_latest
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+
+cache:
+  paths:
+    - .pip-cache
+
 .setup_linux:
   extends: [.omni_nvks_micro_runner]
   before_script:

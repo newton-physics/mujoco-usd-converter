@@ -14,16 +14,11 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run for MRs
 
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
   OSEC_NSPECT_ID: NSPECT-DRJJ-1IL9
   OSEC_SONARQUBE_ENABLED: true
   OSEC_OMNI_SANITIZER_ENABLED: true
   OSEC_CHECKMARX_ENABLED: false
   OSEC_OMNI_PULSE_ENABLED: false
-
-cache:
-  paths:
-    - .pip-cache
 
 check_code_format:
   extends: [.default_job]
