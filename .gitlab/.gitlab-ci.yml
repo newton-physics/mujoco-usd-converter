@@ -75,7 +75,7 @@ deploy_preview:
   extends: [.default_job, .osec:vault:v3:prod_token_job]
   stage: deploy
   rules:
-    - when: manual
+    - if: '$CI_COMMIT_TAG == null'
   before_script:
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
   script:
