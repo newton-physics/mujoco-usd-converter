@@ -82,7 +82,6 @@ build_windows:
   extends: [.default_job]
   stage: test
   script:
-    - poetry install
     - poetry run poe test
 
 test_linux:
