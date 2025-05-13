@@ -29,7 +29,7 @@ variables:
     - powershell -ExecutionPolicy ByPass -c {$env:UV_INSTALL_DIR = "${env:CI_PROJECT_DIR}\uv";irm https://astral.sh/uv/install.ps1 | iex}
     - $env:Path = "${env:CI_PROJECT_DIR}\uv;$env:Path"
     - uv venv --managed-python
-    - source .venv/Scripts/activate
+    - call .venv/Scripts/activate
     - uv pip install poetry
     - echo "Windows Python/Poetry setup complete."
 
