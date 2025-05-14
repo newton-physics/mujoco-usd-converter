@@ -1,0 +1,77 @@
+include:
+  - local: '.gitlab/templates.yml'
+
+stages:
+  - check
+  - build
+  - test
+  - deploy
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+variables:
+  OSEC_NSPECT_ID: NSPECT-DRJJ-1IL9
+  OSEC_SONARQUBE_ENABLED: true
+  OSEC_OMNI_SANITIZER_ENABLED: true
+  OSEC_CHECKMARX_ENABLED: false
+  OSEC_OMNI_PULSE_ENABLED: false
+
+check_code_format:
+  extends: [.default_job]
+  stage: check
+  script:
+    - poetry install
+    - poetry run poe lint
+
+.build_base:
+  extends: [.default_job]
+  stage: build
+  needs: [] # do not wait for checks
+  script:
+    - poetry install
+    - poetry build
+  artifacts:
+    paths:
+      - dist/
+
+build_linux:
+  extends: [.build_base]
+
+build_windows:
+  extends: [.build_base, .setup_windows]
+
+.test_base:
+  extends: [.default_job]
+  stage: test
+  script:
+    - poetry install
+    - poetry run poe test
+
+test_linux:
+  extends: [.test_base]
+  needs: ["build_linux"]
+
+test_windows:
+  extends: [.test_base, .setup_windows]
+  needs: ["build_windows"]
+
+.deploy_base:
+  extends: [.default_job]
+  stage: deploy
+  script:
+    - poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
+
+deploy_tagged:
+  extends: [.deploy_base]
+  rules:
+    - if: $CI_COMMIT_TAG
+
+deploy_preview:
+  extends: [.deploy_base]
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_TAG == null && $CI_COMMIT_REF_PROTECTED == "true"'
