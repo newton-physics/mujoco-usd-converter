@@ -1,5 +1,8 @@
 # build environment
 .*venv
+.coverage
+coverage.xml
+test-results.xml
 
 # generated files
 *.pyc

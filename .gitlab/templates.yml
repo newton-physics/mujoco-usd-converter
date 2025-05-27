@@ -22,6 +22,7 @@ include:
 
 .setup_windows:
   extends: [.runner-build-windows-x86_64]
+  image: null # override the default image from .setup_linux
   before_script:
     - powershell -ExecutionPolicy ByPass -c {$env:UV_INSTALL_DIR = "${env:CI_PROJECT_DIR}\uv";irm https://astral.sh/uv/install.ps1 | iex}
     - $env:Path = "${env:CI_PROJECT_DIR}\uv;$env:Path"
