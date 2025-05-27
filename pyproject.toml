@@ -28,6 +28,22 @@ priority = "primary"
 help = "Run the unittests"
 cmd = "python -m unittest discover -v -s ./tests"
 
+[tool.poe.tasks.test-ci]
+help = "Run the unittests with results and coverage reporting printed to console (for CI)"
+sequence = ["test-report", "generate-coverage-xml", "show-coverage-report"]
+
+[tool.poe.tasks.test-report]
+help = "Run the unittests with coverage tracking and generate test report"
+cmd = "coverage run --source=mjc_usd_converter -m xmlrunner discover -v -s ./tests --output-file=test-results.xml"
+
+[tool.poe.tasks.generate-coverage-xml]
+help = "Generate coverage XML report"
+cmd = "coverage xml"
+
+[tool.poe.tasks.show-coverage-report]
+help = "Show coverage report in terminal"
+cmd = "coverage report -m"
+
 [tool.poe.tasks.lint]
 help = "Run all lint tools on the code base"
 sequence = ["poetry-check", "lint-license", "lint-black", "lint-ruff"]
@@ -74,6 +90,8 @@ build-backend = "poetry.core.masonry.api"
 poethepoet = "^0.34"
 ruff = "^0.11"
 black = "^25.1"
+coverage = "^7.4"
+unittest-xml-reporting = "^3.2.0"
 
 [tool.ruff]
 line-length = 150
