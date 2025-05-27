@@ -60,10 +60,11 @@ test_windows:
   needs: ["build_windows"]
 
 .deploy_base:
-  extends: [.default_job]
+  extends: [.deploy_job]
   stage: deploy
   script:
-    - poetry publish --repository $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_KEY --verbose dist/*.whl
+    - poetry config repositories.${ARTIFACTORY_REPO} ${ARTIFACTORY_URL}
+    - poetry publish --repository ${ARTIFACTORY_REPO} -u ${ARTIFACTORY_USERNAME} -p ${ARTIFACTORY_KEY} --verbose
 
 deploy_tagged:
   extends: [.deploy_base]
