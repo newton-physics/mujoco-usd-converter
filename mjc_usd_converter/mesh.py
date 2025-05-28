@@ -64,7 +64,7 @@ def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
             f"Mesh {mesh.name} from file {mesh_file} has unsupported content_type {mesh.content_type} or extension {mesh_file.suffix}"
         )
 
-    set_transform(mesh_prim, mesh, data.spec, suffix="ref")
+    set_transform(mesh_prim, mesh, data.spec)
 
     # Store concept gaps as custom attributes
     prim.CreateAttribute("mjc:mesh:inertia", Sdf.ValueTypeNames.Int, custom=True).Set(int(mesh.inertia))

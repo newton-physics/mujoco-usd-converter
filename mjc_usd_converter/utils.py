@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import mujoco
 import numpy as np
+import usdex.core
 from pxr import Gf, Sdf, UsdGeom
 
 from .numpy import convert_quat, convert_vec3d
@@ -38,14 +39,14 @@ def get_fromto_vectors(geom: mujoco.MjsGeom) -> tuple[Gf.Vec3d | None, Gf.Vec3d 
 
 def set_transform(
     prim: UsdGeom.Xformable,
-    mjc_object: mujoco.MjsBody | mujoco.MjsFrame | mujoco.MjsGeom | mujoco.MjsMesh,
+    mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsMesh,
     spec: mujoco.MjSpec,
-    suffix: str = "",
-    prepend: bool = False,
 ) -> None:
-    # respect existing ops which likely came from referenced meshes
-    orig_ops = prim.GetOrderedXformOps()
-    new_ops = []
+    # get the current transform (including any inherited via references)
+    current_transform: Gf.Transform = usdex.core.getLocalTransform(prim.GetPrim())
+    # check for a local frame not represented in the prim hierarchy
+    frame_transform: Gf.Transform = __get_frame_transform(mjc_object, spec)
+    local_transform: Gf.Transform = frame_transform * current_transform
 
     # fromto overrides position and orientation
     pos = None
@@ -61,40 +62,43 @@ def set_transform(
             pos = convert_vec3d(mjc_object.pos)
         elif hasattr(mjc_object, "refpos"):
             pos = convert_vec3d(mjc_object.refpos)
-    transform_op = prim.AddTranslateOp(opSuffix=suffix)
-    transform_op.Set(pos)
-    new_ops.append(transform_op)
 
     # orientation always exists
     if quat is None:
-        orient_type = mujoco.mjtOrientation.mjORIENTATION_QUAT
-        if hasattr(mjc_object, "alt"):
-            orient_type = mjc_object.alt.type
-        if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
-            if hasattr(mjc_object, "quat"):
-                quat = convert_quat(mjc_object.quat)
-            elif hasattr(mjc_object, "refquat"):
-                quat = convert_quat(mjc_object.refquat)
-        else:
-            quat = Gf.Quatf(*spec.resolve_orientation(degree=spec.compiler.degree, sequence=spec.compiler.eulerseq, orientation=mjc_object.alt))
-
-    orient = quat.GetNormalized()
-    orient_op = prim.AddOrientOp(opSuffix=suffix)
-    orient_op.Set(orient)
-    new_ops.append(orient_op)
+        quat = __get_orientation(mjc_object, spec)
 
     # additional scale is optional
-    scale = None
+    scale = Gf.Vec3d(1)
     if hasattr(mjc_object, "scale"):
         scale = convert_vec3d(mjc_object.scale)
-        scale_op = prim.AddScaleOp(opSuffix=suffix)
-        scale_op.Set(scale)
-        new_ops.append(scale_op)
 
-    if prepend:
-        prim.SetXformOpOrder(new_ops + orig_ops)
-    else:
-        prim.SetXformOpOrder(orig_ops + new_ops)
+    # compute the final transform
+    new_transform: Gf.Transform = Gf.Transform()
+    new_transform.SetTranslation(pos)
+    new_transform.SetRotation(Gf.Rotation(quat))
+    new_transform.SetScale(scale)
+
+    # Special case for Cubes, which may have a scale applied already,
+    # that needs to be considered part of the new transform rather than
+    # the pre-existing local transform. Cubes never have reference arcs,
+    # and neither MjsGeom nor MjsFrame have scale, so we can safely
+    # transfer scale across and avoid multiplying it in the next step.
+    if prim.GetPrim().IsA(UsdGeom.Cube):
+        new_transform.SetScale(local_transform.GetScale())
+        local_transform.SetScale(Gf.Vec3d(1))
+
+    final_transform: Gf.Transform = new_transform * local_transform
+
+    # extract the translation, orientation, and scale so we can set them as components
+    pos = final_transform.GetTranslation()
+    orient = Gf.Quatf(final_transform.GetRotation().GetQuat())
+    scale = final_transform.GetScale()
+
+    # FUTURE: call usdex.core.setLocalTransform once it supports orient
+    prim.ClearXformOpOrder()
+    prim.AddTranslateOp().Set(pos)
+    prim.AddOrientOp().Set(orient)
+    prim.AddScaleOp().Set(scale)
 
 
 def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
@@ -120,4 +124,43 @@ def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
             cross[0] * np.sin(ang / 2.0),
             cross[1] * np.sin(ang / 2.0),
             cross[2] * np.sin(ang / 2.0),
-        )
+        ).GetNormalized()
+
+
+def __get_orientation(
+    mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsFrame,
+    spec: mujoco.MjSpec,
+) -> Gf.Quatf:
+    orient_type = mujoco.mjtOrientation.mjORIENTATION_QUAT
+    if hasattr(mjc_object, "alt"):
+        orient_type = mjc_object.alt.type
+    if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
+        if hasattr(mjc_object, "quat"):
+            quat = convert_quat(mjc_object.quat)
+        elif hasattr(mjc_object, "refquat"):
+            quat = convert_quat(mjc_object.refquat)
+    else:
+        quat = Gf.Quatf(*spec.resolve_orientation(degree=spec.compiler.degree, sequence=spec.compiler.eulerseq, orientation=mjc_object.alt))
+    return quat.GetNormalized()
+
+
+def __get_frame_transform(
+    mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsFrame,
+    spec: mujoco.MjSpec,
+) -> Gf.Transform:
+    if not hasattr(mjc_object, "frame"):
+        return Gf.Transform()
+
+    if callable(mjc_object.frame):
+        frame: mujoco.MjsFrame = mjc_object.frame()
+    else:
+        frame: mujoco.MjsFrame = mjc_object.frame
+
+    if frame is None:
+        return Gf.Transform()
+
+    transform = Gf.Transform()
+    transform.SetTranslation(convert_vec3d(frame.pos))
+    transform.SetRotation(Gf.Rotation(__get_orientation(frame, spec)))
+    # FUTURE: recursive frames
+    return transform
