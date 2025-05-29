@@ -9,6 +9,8 @@ requires-python = ">=3.10,<3.12"
 dependencies = [
     "mujoco>=3.3",
     "usd-exchange==2.0.0.dev0+usd2502.main.641.43f697a8.gl",
+    "numpy-stl>=3.2",
+    "tinyobjloader>=2.0.0rc13",
 ]
 
 [project.scripts]

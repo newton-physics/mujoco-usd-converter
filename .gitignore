@@ -6,6 +6,7 @@ test-results.xml
 
 # generated files
 *.pyc
+tests/output/*
 
 # installation artifacts
 dist

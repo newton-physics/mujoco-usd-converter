@@ -625,6 +625,31 @@ url = "https://REDACTED/simple"
 reference = "internal"
 
 [[package]]
+name = "numpy-stl"
+version = "3.2.0"
+description = "Library to make reading, writing and modifying both binary and ascii STL files easy."
+optional = false
+python-versions = ">3.9.0"
+groups = ["main"]
+files = [
+    {file = "numpy_stl-3.2.0-py3-none-any.whl", hash = "sha256:697c81b107231362460aaedf4647e81ba54f54f59c896772fea7904c9c439da5"},
+    {file = "numpy_stl-3.2.0.tar.gz", hash = "sha256:5a20c3f79cddaa0abc6a4b99f5486aceed4f88152f29b19a57acc844e183fd4d"},
+]
+
+[package.dependencies]
+numpy = "*"
+python-utils = ">=3.4.5"
+
+[package.extras]
+docs = ["mock", "python-utils", "sphinx"]
+tests = ["Sphinx", "cov-core", "coverage", "cython", "docutils", "execnet", "flake8", "numpy", "pep8", "py", "pyflakes", "pytest", "pytest-cache", "pytest-cov", "python-utils", "wheel"]
+
+[package.source]
+type = "legacy"
+url = "https://REDACTED/simple"
+reference = "internal"
+
+[[package]]
 name = "packaging"
 version = "25.0"
 description = "Core utilities for Python packages"
@@ -740,6 +765,31 @@ url = "https://REDACTED/simple"
 reference = "internal"
 
 [[package]]
+name = "python-utils"
+version = "3.9.1"
+description = "Python Utils is a module with some convenient utilities not included with the standard Python install"
+optional = false
+python-versions = ">=3.9.0"
+groups = ["main"]
+files = [
+    {file = "python_utils-3.9.1-py2.py3-none-any.whl", hash = "sha256:0273d7363c7ad4b70999b2791d5ba6b55333d6f7a4e4c8b6b39fb82b5fab4613"},
+    {file = "python_utils-3.9.1.tar.gz", hash = "sha256:eb574b4292415eb230f094cbf50ab5ef36e3579b8f09e9f2ba74af70891449a0"},
+]
+
+[package.dependencies]
+typing_extensions = ">3.10.0.2"
+
+[package.extras]
+docs = ["mock", "python-utils", "sphinx"]
+loguru = ["loguru"]
+tests = ["blessings", "loguru", "loguru-mypy", "mypy-ipython", "pyright", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mypy", "ruff", "sphinx", "types-setuptools"]
+
+[package.source]
+type = "legacy"
+url = "https://REDACTED/simple"
+reference = "internal"
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -833,6 +883,103 @@ files = [
     {file = "ruff-0.11.8-py3-none-win_amd64.whl", hash = "sha256:6e70d11043bef637c5617297bdedec9632af15d53ac1e1ba29c448da9341b0c4"},
     {file = "ruff-0.11.8-py3-none-win_arm64.whl", hash = "sha256:304432e4c4a792e3da85b7699feb3426a0908ab98bf29df22a31b0cdd098fac2"},
     {file = "ruff-0.11.8.tar.gz", hash = "sha256:6d742d10626f9004b781f4558154bb226620a7242080e11caeffab1a40e99df8"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://REDACTED/simple"
+reference = "internal"
+
+[[package]]
+name = "tinyobjloader"
+version = "2.0.0rc13"
+description = "Tiny but powerful Wavefront OBJ loader"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f8191da641e1fe2e474120f3e24c57adf3f0ccb3018e8dd1fe7edb40a87d2a41"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:30cee637c75b2fd5f81f6911012a9149eac1d868018cba0ae237dba73f7f45f1"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e64e71afae1c006c15a27dcb5d504f72cb6866c7ded03a3ee65bc57da6be3625"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:44819cf5d8174fb038b4fc507a324a1bc1126a945982a8114f5f8d636f0288d8"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0c89db8f9646ce7ec4ddfe41b238f8e8ab2c8fe9b8aacaaef59dcc65cea16a4f"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:080961a82e62739658901d766dc1359c6340ce27813753499549362fc91a33b7"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:5555489992515bc973b4d735d0247320834bf726e058d6d86e8984e535dc98c4"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:c0f8f33705284a0873dfe79ef1c220ef102523c3c9361079debbea3d4edf989a"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:3cf9cf580d4f84b207bec169980491fde264494e7f97063d8fafd41634402606"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-win32.whl", hash = "sha256:256df5a0c6160fca95dc455ba39acdfb05f05033bd4ab9a2cf5e6605350e11b9"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-win_amd64.whl", hash = "sha256:470028d15bd7c06e5a9cd8d4df194843e8bc91df42a17015b1020cb074d470ec"},
+    {file = "tinyobjloader-2.0.0rc13-cp310-cp310-win_arm64.whl", hash = "sha256:cc994669e6ef7130ac000404e59e2389ee5652ad5321be347fe362405f711faf"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:bcb7f1114dea2c13e5f8506da00a0ae0b0aa5940c6766f7c390ce5ac992c96f2"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:43632e318765eb5ede950e7a57e7b5e3903ad059d8bb7b0f3467d27f225fa9af"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:22c82ab63e054eea824495d90f5b5cbdc5a47146dee50f815b341116d2707847"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:64f6097c32e6ab9ead2c884993efad9d66ab2bae08f40e01f540044c7a7c08d6"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c4a280e92f8e0c3e1aa646218320943f60d41066beffdb19932e9c01d3c08050"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:333986396b1c49bedac2cd9e1f4401819d9bea64b34bd220faffda1cd698da7e"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:ba70cb51809d27bd5f3f3c1a39118b28a74f459ce2276f97b94caaf723e7477d"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:1754d4eb01a4cead9bb6f2e1fb967d1b328bcb781481b4aafcbba82179e25941"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:9d0bc1e8f1878888b584aaeadbb03ca155432e7c7fbbdf6a9bbe6f17c9ebd510"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-win32.whl", hash = "sha256:37457b9f80246fae0f8a12feb6a0c1d39fab09520db8bb679742a6adb6e6b6ac"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-win_amd64.whl", hash = "sha256:d5458372d0db083ad92fb83ab298f8615766c40723127b1f0208c633c4d7fa90"},
+    {file = "tinyobjloader-2.0.0rc13-cp311-cp311-win_arm64.whl", hash = "sha256:d066d905dc920599855c1e719b7cc87c19af25e82801683d4c8d7a724c46531d"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:f87ddfb29fa80639f10f6db8878a328dd7cdc15fb4dcc50b21d00a791f3e6400"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:5f251208894efc931d685121b8515fe30c5bf6b44e0770e0776a5a574a38230c"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:efa02a09ed326976bad318e5fe00d514a4ecc1ec9885ad775fe1c9f7fa04cebb"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:be84b0f4015027e5d44e9474995d992ef3b45e026d86bdc60cedfe8cff123959"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:13ed0a0b8993f2ef8074f990565b14e7409494238ca56ff45ac711932c1e7f67"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:81433d5828bfe5c88a1dabf1185a6e7e73dcde15b66c5a65bcce51340fd444b7"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:b3a90068c596667ee98feeb66e02eddeb479ad2d0cdff5a6adc0f7a2ff987c8e"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:b2db221fb55606bd7f1465960d0e1fbd5b3e4058822babc739847e5e9bd33824"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:5b443659b8b864414f326a5de5c774ba98d90257963cd6eecdb956c687ebb39a"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-win32.whl", hash = "sha256:ec77d26d7b4877e3a82cd2d594c1f4ae5283842b55f360679f9ab2c1bfceb0ae"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-win_amd64.whl", hash = "sha256:044c3deb2603b6df021d642a99737ffcf15340e23204c2335c5c380003daa221"},
+    {file = "tinyobjloader-2.0.0rc13-cp312-cp312-win_arm64.whl", hash = "sha256:66d36b1a45bed07556b2e9c0375b05b991771fcf1bc1fca79be9517400130730"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:779996a86c3e7575ed742f387ec63aba2829f97f2a037486c7ae7671b1192d61"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:39ee56c62067c2821c7b1fd069ac79ba6ecd905c6126d13caffe8d0bc68169d7"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:307a15deac386437d3d34a83924996a16dc79f969320128fdbc7307a8b8cef24"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:868704be818f43c7d9ce0479cf46329de396278b8a81aab4abf8da49739fc159"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-musllinux_1_1_aarch64.whl", hash = "sha256:6982cfa48be5112d6286471e8bee431bd7dcd035e449236dd1f0456e12235a15"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-musllinux_1_1_i686.whl", hash = "sha256:45a818f1ae9a402da7c3436b10f649e24cb516b69280c05636753b55ba16ca99"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-musllinux_1_1_x86_64.whl", hash = "sha256:156f91573cffd806377c80b5c904dbcbb5cb3be52601fc5b93da5fa0b55b3b49"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-win32.whl", hash = "sha256:95081ab0e10187ff4d73b6aabeebe509b01a18e87929425d317436bc140a377a"},
+    {file = "tinyobjloader-2.0.0rc13-cp36-cp36m-win_amd64.whl", hash = "sha256:f267c6abcde05beadb526b0c31dd1629a8d1e8aee7dbad169a440fdbfd2c842d"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:e24de999bf889feb91d5a96dab48b8835755c6944582da4ec98b427a03afae84"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9ce0eb5f42889a5408447e574a8552ccceb742172e3f253d6eca6c0024acb494"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e41dbeba21c98404d2dcb735c471991ecc2ff02dda98f0b8dc046e0453e5e2c8"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4c1d5529ef19d665c8c205136115dee35593a5190b8ea5e95101b99c6317a357"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-musllinux_1_1_aarch64.whl", hash = "sha256:d11ecf34d7962f2dbb647ee133087d317122a62393afa20212749e90cfa953b1"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-musllinux_1_1_i686.whl", hash = "sha256:796970ec29846b974c30d5d48df10d189c51d39b25721df117ab0fdc8a02791e"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:fa301a5e775fae051f3326dae43a3b5fe06947318f8fb79b01b857684a7acac8"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-win32.whl", hash = "sha256:e0a7517953d3388e2b2e3cee4436bea668acb4ac8add6e2394702108a985d927"},
+    {file = "tinyobjloader-2.0.0rc13-cp37-cp37m-win_amd64.whl", hash = "sha256:be05a18956d2c27307257e9f0b935090f58585cdec1d8f4508c9654187ec5656"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:b166f3c18b717fd2ec3188646e61678457130be2d4d3ce76aa16f3734583b4a2"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:c93e3e214d5cca7d7f919d3cfe3f71b0647db5cf95bdc269903703fcb6a20272"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:4b9ca74738936d907a2a355d9773859c10d9d8416f3e115274fc3c28de9ab18d"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f1b1374d74c0efd2cf03a3322c27bfe9c781974700877bf8911334470e0b6dd0"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9f962842847b16e7dc320b1c3fd298fd9e1befd518f8f3e27183373bc293f81f"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c343c80c4f6e6d41c176bf2a29476845697a4f0377d5467e0dbfdc98c4f64413"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:fd71dd3a1b20431c50ae2070768995952a3ce861790cc6783d044de2a3bd4353"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:5d58e8e5e703880ecb1c6aef761d64829e903b8bd251f897a7492d80c8b5503e"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:599bf457ac276748e3836e85af09d45d57b58dc5d17c321becc11f061fd9121c"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-win32.whl", hash = "sha256:8ab517224e3db8ccc85e9b452d91c251ea2aaa66f12df49e846d04606c1a68c5"},
+    {file = "tinyobjloader-2.0.0rc13-cp38-cp38-win_amd64.whl", hash = "sha256:c4b2fd45381403e48336852efb1a193212e83062ac461826782233b50e45f3c9"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:be7a49b761a4665c15bc38dc44d25f4c975b1bfdeabbcb9118cd0ed5228dc1e5"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:12810d469a83a9a45a8ed4fa5391b10e65c81e95e033bb54a7ee9aa98eb4e837"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:19e3e9c91743c470db459371c12b29d05e28adf68f4611eae684681b6f999291"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6045eade8308a4f0199cf04a1ecac063665f9c0c445ab157c5ea77631b03ee2f"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6c530c8479cce5565fc8dfc2b45b1ac6132ac738d6bf7a309206ad4908996da9"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a02d034982f9418bd5b4d1d5bc64d7ea073a953273f0fc95e6bf5d021c82791c"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:424f1110981cb7043e5a7d0c4f828b25b3778f56c1a2074a41d726af802a2176"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:1692bb1bd23c20901083044b369ca28e9c4064db44536c17d86f2d4b47327f4e"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:459350561f72dd46c151a974349857b36328afd04690ef96a97f217e61d1be3a"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-win32.whl", hash = "sha256:cf43db7c89fd1fb3ff9d23ab06ab86044a82acce39be28bd33a39e6c17962cc1"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-win_amd64.whl", hash = "sha256:3b2e8667dde0f05dc8c97b532519d05ac1fefc9451e723a9d548567c39d9ae4e"},
+    {file = "tinyobjloader-2.0.0rc13-cp39-cp39-win_arm64.whl", hash = "sha256:9448968965c0f43fce1eb25fbcc17545107cc4ef0691165249ba398fbda7c956"},
+    {file = "tinyobjloader-2.0.0rc13-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5805881548104e7cebe76e7e68d6ea29c9b5ff40a8a637eedbbcfac87843b176"},
+    {file = "tinyobjloader-2.0.0rc13-pp37-pypy37_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:acf7904a4c7bf3a9b4679a0171a8d30a84dd418de7e1ac99b4e617488a4e64dd"},
+    {file = "tinyobjloader-2.0.0rc13-pp38-pypy38_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:138ca56084b6c9d3c317f33a7bb5bb77713723c0d40b9f2f44a35ea92c5294a7"},
+    {file = "tinyobjloader-2.0.0rc13-pp39-pypy39_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e131c90e31d06c99a826d3494e8e142fe727edf45c443cc5a699ec84feccddd9"},
+    {file = "tinyobjloader-2.0.0rc13.tar.gz", hash = "sha256:409cd5f2a02d0393fc30b9aed8a440c7f68db59f650033045c2ef8b04b7ac8ea"},
 ]
 
 [package.source]
@@ -973,4 +1120,4 @@ reference = "internal"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "0a12cf1b3a1c0b68ac52aecd0de7a412b7974a340a48ce0ecb8786ca8f2fa914"
+content-hash = "15e03a92f0dbb2d3f3db456b39434b4bb412701f9ead8fec7306033f78dfa6e3"
