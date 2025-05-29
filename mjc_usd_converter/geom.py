@@ -84,6 +84,11 @@ def __convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conv
     if not ref_mesh:
         Tf.RaiseRuntimeError(f"Mesh '{geom.meshname}' not found in Geometry Library {data.libraries[Tokens.Geometry].GetRootLayer().identifier}")
     prim = defineRelativeReference(parent, ref_mesh, name)
+    # the reference mesh may have an invalid source name, and thus a display name
+    # however, the prim name may already be valid and override this, in which case
+    # we need to block the referenced display name
+    if prim.GetPrim().GetName() != ref_mesh.GetPrim().GetName():
+        usdex.core.blockDisplayName(prim.GetPrim())
     return UsdGeom.Mesh(prim)
 
 
