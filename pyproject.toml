@@ -36,11 +36,11 @@ sequence = ["test-report", "generate-coverage-xml", "show-coverage-report"]
 
 [tool.poe.tasks.test-report]
 help = "Run the unittests with coverage tracking and generate test report"
-cmd = "coverage run --source=mjc_usd_converter -m xmlrunner discover -v -s ./tests --output-file=test-results.xml"
+cmd = "coverage run --source=mjc_usd_converter -m xmlrunner discover -v -s ./tests --output-file=.results.xml"
 
 [tool.poe.tasks.generate-coverage-xml]
 help = "Generate coverage XML report"
-cmd = "coverage xml"
+cmd = "coverage xml -o .coverage.xml"
 
 [tool.poe.tasks.show-coverage-report]
 help = "Show coverage report in terminal"
