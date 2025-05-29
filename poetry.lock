@@ -1075,16 +1075,16 @@ reference = "internal"
 
 [[package]]
 name = "usd-exchange"
-version = "2.0.0.dev0+usd2502.main.641.43f697a8.gl"
+version = "2.0.0.dev0+usd2502.main.680.2509e158.gl"
 description = "OpenUSD Exchange provides higher-level convenience functions as a companion to lower-level OpenUSD concepts"
 optional = false
 python-versions = ">=3.10,<3.12"
 groups = ["main"]
 files = [
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.641.43f697a8.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:9c47fa1ec2da448d4cb055dbd951f15c61ee2c06be5172b741eaadbe6bca0c6f"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.641.43f697a8.gl-cp310-cp310-win_amd64.whl", hash = "sha256:7d31e2eaa8d46a3c31f22f396e56aa07c15be6111c60ed4830ec8e2db2338f2e"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.641.43f697a8.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:c64bd043c1aaac30d6f962ace41f2b26cc1165b0d3714c3bf760f1edbfdff3e5"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.641.43f697a8.gl-cp311-cp311-win_amd64.whl", hash = "sha256:3b9274c16f94ede5aedff934ee697f44504746c59a3af21059411e07269c8e09"},
+    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:c1a1060158bff654dad65958b9e61e985d0c226d5f21d95a4dada879a323f96d"},
+    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp310-cp310-win_amd64.whl", hash = "sha256:14d50a27165b8950e6c9faeb0911d1f90229a4bae675131f55b62b4cc905d5bd"},
+    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:e0091fc4d37cf0a41b8e768c8dd0d6bf8ff19c7e9d733947221684137adae040"},
+    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp311-cp311-win_amd64.whl", hash = "sha256:eb5db2ac2a41d4230c62906bb2e140707860492c37d45729791189ad4706d59d"},
 ]
 
 [package.source]
@@ -1120,4 +1120,4 @@ reference = "internal"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "15e03a92f0dbb2d3f3db456b39434b4bb412701f9ead8fec7306033f78dfa6e3"
+content-hash = "208fc3ade713c4cd88038b277ea4a3167d95ad605162c284b8234f03d92bbda7"
