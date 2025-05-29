@@ -55,11 +55,11 @@ build_windows:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage.xml
-      junit: test-results.xml
+        path: .coverage.xml
+      junit: .results.xml
     paths:
-      - coverage.xml
-      - test-results.xml
+      - .coverage.xml
+      - .results.xml
     expire_in: 1 week
 
 test_linux:
