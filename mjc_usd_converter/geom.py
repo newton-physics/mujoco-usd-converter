@@ -61,7 +61,7 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
     # FUTURE: specialize from class (asset: spot (type, group, scale, pos), shadow_hand (type, material, group, scale), barkour (rgba))
 
     set_purpose(geom_prim, geom.group)
-    set_transform(geom_prim, geom, data.spec, prepend=True)
+    set_transform(geom_prim, geom, data.spec)
     if source_name and geom_prim.GetPrim().GetName() != source_name:
         usdex.core.setDisplayName(geom_prim.GetPrim(), source_name)
 

@@ -37,7 +37,6 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     if name != body.name:
         usdex.core.setDisplayName(body_prim, body.name)
 
-    # FUTURE: account for frame-local geom
     safe_names = data.name_cache.getPrimNames(body_prim, [get_geom_name(x) for x in body.geoms])
     for geom, safe_name in zip(body.geoms, safe_names):
         convert_geom(parent=body_prim, name=safe_name, geom=geom, data=data)
