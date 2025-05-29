@@ -1,0 +1,17 @@
+<mujoco model="invalid names">
+    <compiler meshdir="assets"/>
+    <asset>
+        <material name="Material 1" rgba="1 0 0 1"/>
+        <mesh name="Mesh 1" file="box.stl"/>
+        <mesh name="Mesh 2" file="box.obj"/>
+    </asset>
+    <worldbody>
+    <body name="Body 1">
+        <geom name="Geom 1" type="box" size="0.1 0.5 0.1" pos="1 0 0"/>
+        <body name="Body 2" pos="1 0 0">
+            <joint name="Joint 1" type="hinge" axis="0 1 0"/>
+            <geom name="Geom 2" type="sphere" size="0.1" pos="1 1 0"/>
+        </body>
+    </body>
+    </worldbody>
+</mujoco>
