@@ -488,38 +488,32 @@ reference = "internal"
 
 [[package]]
 name = "mujoco"
-version = "3.3.1"
+version = "3.3.3.dev764394280"
 description = "MuJoCo Physics Simulator"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "mujoco-3.3.1-cp310-cp310-macosx_10_16_x86_64.whl", hash = "sha256:893f81a17bd4ebaefbc69cfc21fc766a28427260f4e4f1be128a8f93029bdcd5"},
-    {file = "mujoco-3.3.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:acdf62c14890a0081a62c2adcbdb55a398cf08c8a53d767259e203d4c6b52174"},
-    {file = "mujoco-3.3.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c34c48cb95c8a1687cf187a595deb73ce87babc09768e2ae4b22a2ff67dc2206"},
-    {file = "mujoco-3.3.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cfa05a01b2bded5d6a32c8ea97ef9e4995c1791a9d7a485112ff74fc5aee2e9d"},
-    {file = "mujoco-3.3.1-cp310-cp310-win_amd64.whl", hash = "sha256:a044081c6cbebbebe37f0fda599cff3ece5bc6e0072510fc05b78a74bd8fdcf6"},
-    {file = "mujoco-3.3.1-cp311-cp311-macosx_10_16_x86_64.whl", hash = "sha256:470e80c13fb173c714b7537b310df33c0153fc1db182dfa8d690d0e35a2e2b1b"},
-    {file = "mujoco-3.3.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a8c0190b27df6dee211c33c42622469a821734732dce6269d28641747233a120"},
-    {file = "mujoco-3.3.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f3a3394457fee780557c002045386a806ba171f79251b8e4cdc40a481deb0198"},
-    {file = "mujoco-3.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1100f9c2f490392c5f31dcfe6f45ca52e6d517f7397117e5401108860416d086"},
-    {file = "mujoco-3.3.1-cp311-cp311-win_amd64.whl", hash = "sha256:80e95063e73df11dd340c0797b96e12d721ca4a71f678ff1c67f241ab7c0d0ef"},
-    {file = "mujoco-3.3.1-cp312-cp312-macosx_10_16_x86_64.whl", hash = "sha256:cbe86cf309873e14a5b638fb16f0333140afd6fe983c42f8df6c3b5c633ecad8"},
-    {file = "mujoco-3.3.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:3e97a9b1f9ef0930e5a8174bd18e5d9813e9e0b131fe15e9f5f2ad760cdfd5dd"},
-    {file = "mujoco-3.3.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:37ea284cdddc86bf647790f9dd5f53270bdc17c76783fb2f06146425085fbb50"},
-    {file = "mujoco-3.3.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4e7381d186402cc7591de49078f3c911b1fea2a9f7b5156db0e1aa934d7bcd24"},
-    {file = "mujoco-3.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:1ba998d07adbe059a8de9617bb7a245e71967b9bd4afe87626ccb5dcc47f5a65"},
-    {file = "mujoco-3.3.1-cp313-cp313-macosx_10_16_x86_64.whl", hash = "sha256:5681e7eeba84bb2b9d3218e2174495cf7ae77a13024f384df01d0f7710ada1ae"},
-    {file = "mujoco-3.3.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:75c91a5798d85bc5be03386a6e578ad877cf30b4b21b148a2ff01d8644628dd9"},
-    {file = "mujoco-3.3.1-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:80ee579188db7a32417bafff72f0df95a7cca1059bc6ee986cd1762996c56871"},
-    {file = "mujoco-3.3.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ed276d31599939b2ebf43c86f38e8c73a63fe8cc1db7af5977fdfcfffc940754"},
-    {file = "mujoco-3.3.1-cp313-cp313-win_amd64.whl", hash = "sha256:245e2b34150397959ff2eba929c3f66e392d2cb4841a351f911dda908a0eb870"},
-    {file = "mujoco-3.3.1-cp39-cp39-macosx_10_16_x86_64.whl", hash = "sha256:632e8ee0a75774c7e2341083da501aa883fd938653b07542c2cea23cc41f4ba1"},
-    {file = "mujoco-3.3.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:ac8cb280a56f9e88a946accf80e5cb2ad583ad337a166c8c0400807e82ce4a1d"},
-    {file = "mujoco-3.3.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1654ddf3828a5d6ac707640a32bcd68fd44451ae840857d7099d1907344f2ce5"},
-    {file = "mujoco-3.3.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e428aaef3abf88b35e1fd6cee67a544e3491a15e5aa370af96e7de24e9b894f6"},
-    {file = "mujoco-3.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:d554d289f2662ac3223f367f2e3c21ec951ae4853d317889a47cb304f6141d7f"},
-    {file = "mujoco-3.3.1.tar.gz", hash = "sha256:5214a35c1567822c0c8b80e8657ebe28726bcb94e78bd53283ff917d2d881028"},
+    {file = "mujoco-3.3.3.dev764394280-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:69028a7c1261bf936b19121fbc0bff45ab42a368d5488c75fa45fb08cbd98ae6"},
+    {file = "mujoco-3.3.3.dev764394280-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8caeae360450c24d47b678f9c9ad77a6842c5078082ae6303d2b955b15acdb53"},
+    {file = "mujoco-3.3.3.dev764394280-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:097c3cabc6254a95909fa9068289e393e458741b706e6cdbb15fa23fa8e735cc"},
+    {file = "mujoco-3.3.3.dev764394280-cp310-cp310-win_amd64.whl", hash = "sha256:5c4ce525464e8094a9f75c5509e7d445260c7a6ecb020cab565f423d5aa07b6f"},
+    {file = "mujoco-3.3.3.dev764394280-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:cd90d9056c100b180e6ea16cebcaead84b59605821bc643838236cd939ac4a3f"},
+    {file = "mujoco-3.3.3.dev764394280-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:434f3f350c75fa25fcdb8f6fe49f94d5a565a0bd364aad4a2f1f169eaa918b95"},
+    {file = "mujoco-3.3.3.dev764394280-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:09462c6995335a60f990e62ca7f2f0dd92b2317c207c777793240cd9b66df6b6"},
+    {file = "mujoco-3.3.3.dev764394280-cp311-cp311-win_amd64.whl", hash = "sha256:6ab3ae1407668e9564edd3d3e8b7cb2fadd7d7b1cae06293ff93ba3b8d42b11e"},
+    {file = "mujoco-3.3.3.dev764394280-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:3b33e1df531b0b6f4440ed20af894372c48eb38f2c3d9e2a36e79bd67d830b9c"},
+    {file = "mujoco-3.3.3.dev764394280-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3cabafd75347b9ac2698a3d3f381c9b482907f3dd89d3ebc25fbf643cde0bc2f"},
+    {file = "mujoco-3.3.3.dev764394280-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3aadb188562b2ae56ec7099487ab53304def36bc7fa4b5de9261e2c31f497564"},
+    {file = "mujoco-3.3.3.dev764394280-cp312-cp312-win_amd64.whl", hash = "sha256:01b89c84c275b0cdba7286248c7348f1060d0601f6840e8c94cf305856c31577"},
+    {file = "mujoco-3.3.3.dev764394280-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:984b8b1aa15d014ff1810ac383fe6796c8d12e321f36638867c15b787622a2e6"},
+    {file = "mujoco-3.3.3.dev764394280-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:70f4797c324993c0973a0aad3cb014e79a70a3b1b071087bbc7641749c0c9423"},
+    {file = "mujoco-3.3.3.dev764394280-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6da2fa0b15e8e86b3c1be0e3f47bdd45870cef1402002489627ceb892d52d28d"},
+    {file = "mujoco-3.3.3.dev764394280-cp313-cp313-win_amd64.whl", hash = "sha256:4bfa11b719c282cbfa03b1a0ebe4cc753c84c5438de995873c57cf91e73b3614"},
+    {file = "mujoco-3.3.3.dev764394280-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:d0722274528612ba64e7811746a1fac07a2a4ac4188bccba34550842931c159a"},
+    {file = "mujoco-3.3.3.dev764394280-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:710d9929d2ab4195df3390599f0f22bb04225fd06a106279c386c225d7d52962"},
+    {file = "mujoco-3.3.3.dev764394280-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3518b988555ea1847be7c68876a7fc366ec2bef81f4ad6e397ba6b31e8fa2b8d"},
+    {file = "mujoco-3.3.3.dev764394280-cp39-cp39-win_amd64.whl", hash = "sha256:3855e2d6d44226d59a558ab5e93121112622158345a1410fcbb56f31c91424d5"},
 ]
 
 [package.dependencies]
@@ -534,8 +528,8 @@ usd = ["pillow", "usd-core"]
 
 [package.source]
 type = "legacy"
-url = "https://REDACTED/simple"
-reference = "internal"
+url = "https://py.mujoco.org"
+reference = "mujoco"
 
 [[package]]
 name = "mypy-extensions"
@@ -1120,4 +1114,4 @@ reference = "internal"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "208fc3ade713c4cd88038b277ea4a3167d95ad605162c284b8234f03d92bbda7"
+content-hash = "6bada031913cdef5b11a1a997d178c2dc0663feb3402f24a00b1cc1157bcd019"
