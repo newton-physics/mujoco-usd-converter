@@ -5,6 +5,8 @@ import shutil
 import unittest
 from unittest.mock import patch
 
+# workaround for Windows not locating the USD libs, because of the way plugInfo.json in usdex is structured
+import usdex.core  # noqa: F401
 from pxr import Sdf
 
 from mjc_usd_converter import run
