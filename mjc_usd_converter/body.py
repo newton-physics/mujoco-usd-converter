@@ -3,7 +3,7 @@
 
 import mujoco
 import usdex.core
-from pxr import Sdf, Usd, UsdGeom
+from pxr import Sdf, Usd, UsdGeom, UsdPhysics
 
 from ._future import Tokens
 from .data import ConversionData
@@ -44,10 +44,18 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     # FUTURE: camera
     # FUTURE: light
 
-    # FUTURE: author physics using MjcPhysics schemas
-    # Store concept gaps as custom attributes
-    body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
-    body_over.CreateAttribute("mjc:body:gravcomp", Sdf.ValueTypeNames.Float, custom=True).Set(body.gravcomp)
+    if body != data.spec.worldbody:
+        body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
+        rbd: UsdPhysics.RigidBodyAPI = UsdPhysics.RigidBodyAPI.Apply(body_over)
+        # when the parent body is kinematic, the child body must also be kinematic
+        if __is_kinematic(body, body_over):
+            rbd.CreateKinematicEnabledAttr().Set(True)
+
+        # Store concept gaps as custom attributes
+        # FUTURE: use MjcPhysics schemas
+        if body.gravcomp != 0:
+            body_over.CreateAttribute("mjc:body:gravcomp", Sdf.ValueTypeNames.Float, custom=True).Set(body.gravcomp)
+
     # FUTURE: intertial
     # FUTURE: joints
 
@@ -55,9 +63,16 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     for child_body, safe_name in zip(body.bodies, safe_names):
         child_body_prim = __convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
         if child_body_prim and body == data.spec.worldbody:
-            # FUTURE: articulation root
+            child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
+            UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
             # FUTURE: consider freejoint
-            # FUTURE: mocap -> kinematicEnabled (recursive)
-            pass
 
     return body_prim
+
+
+def __is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
+    if body.mocap:
+        return True
+
+    kinematicAttr = UsdPhysics.RigidBodyAPI(physics_prim.GetParent()).GetKinematicEnabledAttr()
+    return kinematicAttr and kinematicAttr.Get()
