@@ -1,0 +1,9 @@
+<mujoco model="sites">
+    <worldbody>
+        <site name="worldsite" type="sphere" pos="0 0 0" group="1"/>
+        <body name="body">
+            <geom name="geom" type="sphere" size="0.1" pos="0 0 2" group="0"/>
+            <site name="site" type="box" size="0.1 0.2 0.3" pos="0 1 0" group="0"/>
+        </body>
+    </worldbody>
+</mujoco>
