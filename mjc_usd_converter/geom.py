@@ -40,7 +40,7 @@ def get_geom_name(geom: mujoco.MjsGeom) -> str:
         return ""
 
 
-def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> Usd.Prim:
+def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Gprim:
     source_name = get_geom_name(geom)
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         geom_prim = __convert_mesh(parent, name, geom, data)

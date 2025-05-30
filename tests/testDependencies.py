@@ -9,7 +9,7 @@ import usdex.core
 from pxr import Usd
 
 
-class DependencyTest(unittest.TestCase):
+class TestDependencies(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

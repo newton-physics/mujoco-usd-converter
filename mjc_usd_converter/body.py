@@ -15,35 +15,34 @@ __all__ = ["convert_bodies"]
 
 def convert_bodies(data: ConversionData):
     geo_scope = data.content[Tokens.Geometry].GetDefaultPrim().GetChild(Tokens.Geometry).GetPrim()
-    safe_names = data.name_cache.getPrimNames(geo_scope, [x.name for x in data.spec.worldbody.bodies])
-    for body, safe_name in zip(data.spec.worldbody.bodies, safe_names):
-        __convert_body(parent=geo_scope, name=safe_name, body=body, data=data)
-        # FUTURE: articulation root
-        # FUTURE: consider freejoint
-        # FUTURE: mocap -> kinematicEnabled (recursive)
-
-    safe_names = data.name_cache.getPrimNames(geo_scope, [get_geom_name(x) for x in data.spec.worldbody.geoms])
-    for geom, safe_name in zip(data.spec.worldbody.geoms, safe_names):
-        convert_geom(parent=geo_scope, name=safe_name, geom=geom, data=data)
-
-    # FUTURE: lights, cameras, sites
+    __convert_body(parent=geo_scope, name=data.spec.modelname, body=data.spec.worldbody, data=data)
 
 
 def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: ConversionData) -> UsdGeom.Xform:
-    body_xform = usdex.core.defineXform(parent, name)
-    body_prim = body_xform.GetPrim()
-    set_transform(body_xform, body, data.spec)
-    # FUTURE: specialize from childclass (asset: spot, cassie)
-    if name != body.name:
-        usdex.core.setDisplayName(body_prim, body.name)
+    if body == data.spec.worldbody:
+        # the worldbody is already converted as the default prim and
+        # its children need to be nested under the geometry scope
+        body_prim = parent
+    else:
+        body_xform = usdex.core.defineXform(parent, name)
+        body_prim = body_xform.GetPrim()
+        set_transform(body_xform, body, data.spec)
+        # FUTURE: specialize from childclass (asset: spot, cassie)
+        if name != body.name:
+            usdex.core.setDisplayName(body_prim, body.name)
 
     safe_names = data.name_cache.getPrimNames(body_prim, [get_geom_name(x) for x in body.geoms])
     for geom, safe_name in zip(body.geoms, safe_names):
         convert_geom(parent=body_prim, name=safe_name, geom=geom, data=data)
 
+    # sites are specialized geoms used as frame markers, so we convert them as guide Gprims
+    safe_names = data.name_cache.getPrimNames(body_prim, [get_geom_name(x) for x in body.sites])
+    for site, safe_name in zip(body.sites, safe_names):
+        if site_prim := convert_geom(parent=body_prim, name=safe_name, geom=site, data=data):
+            site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
+
     # FUTURE: camera
     # FUTURE: light
-    # FUTURE: site
 
     # FUTURE: author physics using MjcPhysics schemas
     # Store concept gaps as custom attributes
@@ -54,4 +53,11 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
 
     safe_names = data.name_cache.getPrimNames(body_prim, [x.name for x in body.bodies])
     for child_body, safe_name in zip(body.bodies, safe_names):
-        __convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
+        child_body_prim = __convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
+        if child_body_prim and body == data.spec.worldbody:
+            # FUTURE: articulation root
+            # FUTURE: consider freejoint
+            # FUTURE: mocap -> kinematicEnabled (recursive)
+            pass
+
+    return body_prim
