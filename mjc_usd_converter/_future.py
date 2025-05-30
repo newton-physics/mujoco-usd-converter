@@ -9,10 +9,20 @@ from pxr import Ar, Kind, Sdf, Usd, UsdGeom
 # N802 will be disabled throughout this file as usdex functions prefer camelCase
 
 
+########################################################
+# General
+########################################################
+
+
 def getLayerAuthoringMetadata(layer: Sdf.Layer) -> str:  # noqa: N802
     if usdex.core.hasLayerAuthoringMetadata(layer):
         return layer.customLayerData["creator"]
     return ""
+
+
+########################################################
+# Asset Structure
+########################################################
 
 
 def addAssetInterface(stage: Usd.Stage, source: Usd.Stage) -> None:  # noqa: N802

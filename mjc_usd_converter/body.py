@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import numpy as np
-
 import mujoco
+import numpy as np
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
 from ._future import Tokens
 from .data import ConversionData
 from .geom import convert_geom, get_geom_name
+from .joint import convert_joints
 from .numpy import convert_quat, convert_vec3d
 from .utils import set_transform
 
@@ -71,14 +71,14 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
                 mass_api.CreatePrincipalAxesAttr().Set(quat)
                 mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
-    # FUTURE: joints
+        convert_joints(parent=body_over, body=body, data=data)
+
     safe_names = data.name_cache.getPrimNames(body_prim, [x.name for x in body.bodies])
     for child_body, safe_name in zip(body.bodies, safe_names):
         child_body_prim = __convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
         if child_body_prim and body == data.spec.worldbody:
             child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
             UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
-            # FUTURE: consider freejoint
 
     return body_prim
 
