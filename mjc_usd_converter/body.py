@@ -87,8 +87,8 @@ def __is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
     if body.mocap:
         return True
 
-    kinematicAttr = UsdPhysics.RigidBodyAPI(physics_prim.GetParent()).GetKinematicEnabledAttr()
-    return kinematicAttr and kinematicAttr.Get()
+    kinematic_attr = UsdPhysics.RigidBodyAPI(physics_prim.GetParent()).GetKinematicEnabledAttr()
+    return kinematic_attr and kinematic_attr.Get()
 
 
 def __extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
