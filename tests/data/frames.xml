@@ -1,0 +1,21 @@
+<mujoco model="frames">
+    <compiler meshdir="assets"/>
+
+    <asset>
+        <mesh name="ObjBox" file="box.obj" scale="0.2 0.2 0.8"/>
+    </asset>
+
+    <worldbody>
+        <body name="mainBody">
+            <geom name="originBox" type="box" size="0.1 0.1 0.1" pos="0 0 0"/>
+            <frame pos="0 0 1" euler="0 0 45">
+                <geom name="framedGeom" type="box" size="0.1 0.1 0.4" pos="0 -1 -1" quat="0.9238795 0 0 0.3826834"/>
+            </frame>
+            <frame pos="0 0 1" euler="0 0 45">
+                <body name="framedBody">
+                    <geom type="mesh" mesh="ObjBox" pos="-1 0 -1" quat="0.9238795 0 0 0.3826834"/>
+                </body>
+            </frame>
+        </body>
+    </worldbody>
+</mujoco>

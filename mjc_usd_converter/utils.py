@@ -43,10 +43,13 @@ def set_transform(
     spec: mujoco.MjSpec,
 ) -> None:
     # get the current transform (including any inherited via references)
-    current_transform: Gf.Transform = usdex.core.getLocalTransform(prim.GetPrim())
+    pos, pivot, orient, scale = usdex.core.getLocalTransformComponentsQuat(prim.GetPrim())
+    current_transform = Gf.Transform(translation=pos, rotation=Gf.Rotation(orient), scale=Gf.Vec3d(scale), pivotPosition=pivot)
+
     # check for a local frame not represented in the prim hierarchy
     frame_transform: Gf.Transform = __get_frame_transform(mjc_object, spec)
-    local_transform: Gf.Transform = frame_transform * current_transform
+
+    local_transform: Gf.Transform = __multiply_transforms_preserve_scale(frame_transform, current_transform)
 
     # fromto overrides position and orientation
     pos = None
@@ -87,18 +90,14 @@ def set_transform(
         new_transform.SetScale(local_transform.GetScale())
         local_transform.SetScale(Gf.Vec3d(1))
 
-    final_transform: Gf.Transform = new_transform * local_transform
+    final_transform: Gf.Transform = __multiply_transforms_preserve_scale(new_transform, local_transform)
 
     # extract the translation, orientation, and scale so we can set them as components
     pos = final_transform.GetTranslation()
     orient = Gf.Quatf(final_transform.GetRotation().GetQuat())
-    scale = final_transform.GetScale()
+    scale = Gf.Vec3f(final_transform.GetScale())
 
-    # FUTURE: call usdex.core.setLocalTransform once it supports orient
-    prim.ClearXformOpOrder()
-    prim.AddTranslateOp().Set(pos)
-    prim.AddOrientOp().Set(orient)
-    prim.AddScaleOp().Set(scale)
+    usdex.core.setLocalTransform(prim.GetPrim(), pos, orient, scale)
 
 
 def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
@@ -164,3 +163,46 @@ def __get_frame_transform(
     transform.SetRotation(Gf.Rotation(__get_orientation(frame, spec)))
     # FUTURE: recursive frames
     return transform
+
+
+def __multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: Gf.Transform) -> Gf.Transform:
+    """
+    Multiply two Gf.Transform objects while preserving non-uniform scales.
+
+    This function uses matrix multiplication but then carefully decomposes the result
+    to extract and preserve the non-uniform scale components that would otherwise
+    be lost or corrupted in standard matrix decomposition.
+
+    Args:
+        transform1: The first transform (applied second in the composition)
+        transform2: The second transform (applied first in the composition)
+
+    Returns:
+        A new Gf.Transform representing transform1 * transform2 with preserved scales
+    """
+    # Extract scale components before matrix multiplication
+    s1 = transform1.GetScale()
+    s2 = transform2.GetScale()
+
+    # Create transforms without scale for matrix multiplication
+    transform1_no_scale = Gf.Transform()
+    transform1_no_scale.SetTranslation(transform1.GetTranslation())
+    transform1_no_scale.SetRotation(transform1.GetRotation())
+
+    transform2_no_scale = Gf.Transform()
+    transform2_no_scale.SetTranslation(transform2.GetTranslation())
+    transform2_no_scale.SetRotation(transform2.GetRotation())
+
+    # Multiply the transforms without scale using standard matrix multiplication
+    result_no_scale = transform1_no_scale * transform2_no_scale
+
+    # Compute the combined scale (component-wise multiplication)
+    combined_scale = Gf.CompMult(s1, s2)
+
+    # Create the final result with the preserved scale
+    result = Gf.Transform()
+    result.SetTranslation(result_no_scale.GetTranslation())
+    result.SetRotation(result_no_scale.GetRotation())
+    result.SetScale(combined_scale)
+
+    return result
