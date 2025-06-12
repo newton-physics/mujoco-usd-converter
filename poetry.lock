@@ -1069,16 +1069,18 @@ reference = "internal"
 
 [[package]]
 name = "usd-exchange"
-version = "2.0.0.dev0+usd2502.main.680.2509e158.gl"
+version = "2.0.0.dev0+usd2505.main.710.4f697158.gl"
 description = "OpenUSD Exchange provides higher-level convenience functions as a companion to lower-level OpenUSD concepts"
 optional = false
-python-versions = ">=3.10,<3.12"
+python-versions = ">=3.10,<3.13"
 groups = ["main"]
 files = [
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:c1a1060158bff654dad65958b9e61e985d0c226d5f21d95a4dada879a323f96d"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp310-cp310-win_amd64.whl", hash = "sha256:14d50a27165b8950e6c9faeb0911d1f90229a4bae675131f55b62b4cc905d5bd"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:e0091fc4d37cf0a41b8e768c8dd0d6bf8ff19c7e9d733947221684137adae040"},
-    {file = "usd_exchange-2.0.0.dev0+usd2502.main.680.2509e158.gl-cp311-cp311-win_amd64.whl", hash = "sha256:eb5db2ac2a41d4230c62906bb2e140707860492c37d45729791189ad4706d59d"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:714eb353476f292d1734e933f97a25e686909e259c407a739a640186aeb082b0"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp310-cp310-win_amd64.whl", hash = "sha256:fc3b723fcf1fff1105b8f1a8d90e1cabf68fff5309cddfdc24919f8e84d6bef8"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:6b07e9402340ebbf063d1722c0cd3cd0fc72ac0fd982ead753a4acc3c44e14fe"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp311-cp311-win_amd64.whl", hash = "sha256:de35fe6c435ae5eb0b92062d5b047a91edad453f4f7ad47e33c44aee06433d27"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp312-cp312-manylinux_2_35_x86_64.whl", hash = "sha256:807e1f102c76355f5ac3f7197d46d9ab5851326d936c95d5770fa1b015391302"},
+    {file = "usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp312-cp312-win_amd64.whl", hash = "sha256:81bab0a4837f2fe38dafc834bcea6da0249e55172982704c779cd4eb0670f4db"},
 ]
 
 [package.source]
@@ -1114,4 +1116,4 @@ reference = "internal"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "6bada031913cdef5b11a1a997d178c2dc0663feb3402f24a00b1cc1157bcd019"
+content-hash = "f3a609d7c36c2d03f0e7f7d2c50a645544f245300d930dc03ce7859cf3ab7240"

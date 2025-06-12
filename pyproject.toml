@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.10,<3.12"
 dependencies = [
     "mujoco>=3.3.3.dev764394280",
-    "usd-exchange==2.0.0.dev0+usd2502.main.680.2509e158.gl",
+    "usd-exchange==2.0.0.dev0+usd2505.main.710.4f697158.gl",
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",
 ]

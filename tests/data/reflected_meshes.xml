@@ -1,0 +1,20 @@
+<mujoco model="reflected_meshes">
+    <compiler meshdir="assets"/>
+
+    <asset>
+        <mesh name="complexCube" scale="0.1 0.1 0.1" file="complex_cube.obj" />
+        <mesh name="complexCubeMirror" scale="0.1 -0.1 0.1" file="complex_cube.obj"/>
+    </asset>
+
+  <worldbody>
+    <body name="body" pos="0 0 1.1">
+      <body name="bodyRegular" pos="0.021 0.07 0" xyaxes="0 0 -1 0 1 0">
+        <geom type="mesh" mesh="complexCube" euler="0 0 90"/>
+      </body>
+      <body name="bodyReflected" pos="0.021 -0.07 0" xyaxes="0 0 -1 0 1 0">
+        <geom type="mesh" mesh="complexCubeMirror" euler="0 0 -90"/>
+      </body>
+    </body>
+  </worldbody>
+
+</mujoco>
