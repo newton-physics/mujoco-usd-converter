@@ -1,0 +1,19 @@
+<mujoco model="hinge_joints">
+    <compiler angle="degree"/>
+    <worldbody>
+        <body name="body1" pos="0 0 1">
+            <geom type="box" name="box1" size="0.1 0.5 0.1" rgba="1 0 1 1"/>
+            <body name="body2" pos="0 0.5 0">
+                <joint type="hinge" pos="0 0.1 0" axis="1 0 0" range="-90 10"/>
+                <geom type="box" name="box2"size="0.05 0.5 0.05" pos="0 0.6 0" rgba="1 1 0 1"/>
+            </body>
+        </body>
+        <body name="body3" pos="0 0 1" euler="90 0 -90">
+            <geom type="box" name="box3" size="0.1 0.5 0.1" rgba="0 0 1 1"/>
+            <body name="body4" pos="0 0.5 0">
+                <joint type="hinge" pos="0 0.1 0" axis="0 0 1" range="-60 5"/>
+                <geom type="box" name="box4"size="0.05 0.5 0.05" pos="0 0.6 0" rgba="0 1 0 1"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>
