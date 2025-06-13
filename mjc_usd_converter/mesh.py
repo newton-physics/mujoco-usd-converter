@@ -104,6 +104,7 @@ def __convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
         Tf.RaiseRuntimeError(f'Invalid input_path: "{input_path}" could not be parsed. {reader.Error()}')
 
     shapes = reader.GetShapes()
+    # FUTURE: support multiple meshes in a single file (asset: leap_hand)
     if len(shapes) != 1:
         Tf.RaiseRuntimeError(f'Invalid input_path: "{input_path}" must contain a single mesh object')
 

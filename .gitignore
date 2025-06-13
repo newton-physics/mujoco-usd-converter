@@ -4,6 +4,9 @@
 .coverage.xml
 .results.xml
 
+# editor files
+.vscode/launch.json
+
 # generated files
 *.pyc
 tests/output/*
