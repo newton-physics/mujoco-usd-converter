@@ -92,8 +92,9 @@ def __convert_hinge_joint(parent: Usd.Prim, name: str, joint: mujoco.MjsJoint, d
 def __convert_slide_joint(parent: Usd.Prim, name: str, joint: mujoco.MjsJoint, data: ConversionData) -> UsdPhysics.PrismaticJoint:
     joint_prim: UsdPhysics.PrismaticJoint = UsdPhysics.PrismaticJoint.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
-    joint_prim.CreateLocalRot0Attr().Set(__align_vector_to_x_axis(joint.axis))
-    joint_prim.CreateLocalRot1Attr().Set(__align_vector_to_x_axis(joint.axis))
+    rotation = __align_vector_to_x_axis(joint.axis)
+    joint_prim.CreateLocalRot0Attr().Set(rotation)
+    joint_prim.CreateLocalRot1Attr().Set(rotation)
     if __is_limited(joint, data):
         joint_prim.CreateLowerLimitAttr().Set(joint.range[0])
         joint_prim.CreateUpperLimitAttr().Set(joint.range[1])
@@ -153,6 +154,9 @@ def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
 
     # Calculate the rotation axis (cross product of v_unit and x_axis)
     rotation_axis = np.cross(v_unit, x_axis)
+    # Ensure we get the shortest rotation path by checking the dot product
+    if np.dot(rotation_axis, np.array([0, 0, 1])) < 0:
+        rotation_axis = -rotation_axis
     rotation_axis_norm = np.linalg.norm(rotation_axis)
 
     # If rotation_axis_norm is zero, it means v_unit is parallel to x_axis.
