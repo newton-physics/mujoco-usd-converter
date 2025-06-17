@@ -36,7 +36,7 @@ def convert_quat(source: np.ndarray) -> Gf.Quatf:
     Raises:
         AssertionError: If the input array does not have shape (4,).
     """
-    assert source.shape == (4,) or source.shape == (4, 1)
+    assert source.shape == (4,)
     return Gf.Quatf(float(source[0]), Gf.Vec3f(float(source[1]), float(source[2]), float(source[3])))
 
 

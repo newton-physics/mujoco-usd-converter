@@ -102,15 +102,16 @@ def __extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
     mat[2, 0] = fullinertia[4]
     mat[1, 2] = fullinertia[5]
     mat[2, 1] = fullinertia[5]
-    mat = mat.reshape(9, 1)
 
-    eigval = np.zeros((3, 1))
-    eigvec = np.zeros((9, 1))
-    quat = np.zeros((4, 1))
+    # mju_eig3 expects flattened column-major matrix
+    flat_mat = mat.flatten("F")
+
+    eigval = np.zeros(3)
+    eigvec = np.zeros(9)
+    quat = np.zeros(4)
 
     # Call mju_eig3 to get principal axes and diagonal inertia
-    mujoco.mju_eig3(eigval, eigvec, quat, mat)
-    eigvec = eigvec.reshape(3, 3)
-    diag_inertia = Gf.Vec3d(eigvec[0, 0], eigvec[1, 1], eigvec[2, 2])
+    mujoco.mju_eig3(eigval, eigvec, quat, flat_mat)
+    diag_inertia = Gf.Vec3f(*eigval)
 
     return convert_quat(quat), diag_inertia
