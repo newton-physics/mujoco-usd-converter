@@ -66,8 +66,8 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
         self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
-        self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, 0.7071067690849304, 0)))
-        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, 0.7071067690849304, 0)))
+        self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
         self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), -60)
         self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 5)
 

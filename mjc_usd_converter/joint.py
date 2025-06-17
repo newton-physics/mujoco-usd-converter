@@ -121,18 +121,6 @@ def __is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
 
 
 def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
-    """
-    Calculates a quaternion (wxyz order) that rotates a given 3D vector
-    to align with the positive X-axis (1, 0, 0).
-
-    Args:
-        v (list or np.array): A 3-element list or numpy array representing the vector.
-
-    Returns:
-        Gf.Quatf: A 4-element numpy array representing the quaternion [w, x, y, z].
-                  Returns [1, 0, 0, 0] (identity quaternion) if the input vector is
-                  the zero vector or already aligned with the X-axis.
-    """
     v = np.array(v, dtype=float)
     x_axis = np.array([1.0, 0.0, 0.0])
 
@@ -140,29 +128,25 @@ def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
     v_norm = np.linalg.norm(v)
     if v_norm == 0:
         # If the input vector is a zero vector, no rotation is needed.
-        return Gf.Quatf(1.0, 0.0, 0.0, 0.0)
+        return Gf.Quatf.GetIdentity()
 
     v_unit = v / v_norm
 
     # If the vector is already aligned with the X-axis or directly opposite
     # Handle these edge cases to prevent division by zero or incorrect axis.
     if np.allclose(v_unit, x_axis):
-        return Gf.Quatf(1.0, 0.0, 0.0, 0.0)  # Already aligned
+        return Gf.Quatf.GetIdentity()
     elif np.allclose(v_unit, -x_axis):
         # If aligned with negative X-axis, rotate 180 degrees around Y-axis (or Z-axis)
         return Gf.Quatf(0.0, 0.0, 1.0, 0.0)  # Quaternion for 180 deg around Y-axis (w=0, x=0, y=sin(90), z=0)
 
-    # Calculate the rotation axis (cross product of v_unit and x_axis)
-    rotation_axis = np.cross(v_unit, x_axis)
-    # Ensure we get the shortest rotation path by checking the dot product
-    if np.dot(rotation_axis, np.array([0, 0, 1])) < 0:
-        rotation_axis = -rotation_axis
+    # Calculate the rotation axis (cross product of x_axis and v_unit)
+    rotation_axis = np.cross(x_axis, v_unit)
     rotation_axis_norm = np.linalg.norm(rotation_axis)
 
-    # If rotation_axis_norm is zero, it means v_unit is parallel to x_axis.
-    # This case is handled by the np.allclose checks above.
+    # This case should be handled by the np.allclose checks above.
     if rotation_axis_norm == 0:
-        return Gf.Quatf(1.0, 0.0, 0.0, 0.0)
+        return Gf.Quatf.GetIdentity()
 
     rotation_axis_unit = rotation_axis / rotation_axis_norm
 
@@ -171,7 +155,6 @@ def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
     angle = np.arccos(np.clip(dot_product, -1.0, 1.0))  # Clip to avoid floating point errors
 
     # Construct the quaternion (wxyz order)
-    # q = [cos(angle/2), sin(angle/2) * axis_x, sin(angle/2) * axis_y, sin(angle/2) * axis_z]
     w = np.cos(angle / 2.0)
     x = rotation_axis_unit[0] * np.sin(angle / 2.0)
     y = rotation_axis_unit[1] * np.sin(angle / 2.0)
