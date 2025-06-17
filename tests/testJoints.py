@@ -163,3 +163,51 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint0.GetAttribute("mjc:group").Get(), 0)
         joint2: Usd.Prim = stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/PhysicsRevoluteJoint")
         self.assertEqual(joint2.GetAttribute("mjc:group").Get(), 2)
+
+    def test_auto_limits(self):
+        # Test with autolimits="true"
+        model = pathlib.Path("./tests/data/joint_limits.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # Explicitly unlimited joint should not have limits
+        unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits/Geometry/body3/body4/unlimited_joint"))
+        self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
+
+        # Auto-limited joint should have limits
+        auto_limited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits/Geometry/body5/body6/auto_limited_joint"))
+        self.assertTrue(auto_limited_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertTrue(auto_limited_joint.GetUpperLimitAttr().HasAuthoredValue())
+        self.assertAlmostEqual(auto_limited_joint.GetLowerLimitAttr().Get(), -30)
+        self.assertAlmostEqual(auto_limited_joint.GetUpperLimitAttr().Get(), 30)
+
+        # Auto-limited joint with same range should be unlimited
+        auto_unlimited_same_range = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits/Geometry/body7/body8/auto_unlimited_same_range"))
+        self.assertFalse(auto_unlimited_same_range.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(auto_unlimited_same_range.GetUpperLimitAttr().HasAuthoredValue())
+
+    def test_no_autolimits(self):
+        # Test with autolimits="false"
+        model = pathlib.Path("./tests/data/joint_limits_no_autolimits.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # Explicitly limited joint should have limits
+        limited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body1/body2/limited_joint"))
+        self.assertTrue(limited_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertTrue(limited_joint.GetUpperLimitAttr().HasAuthoredValue())
+        self.assertAlmostEqual(limited_joint.GetLowerLimitAttr().Get(), -45)
+        self.assertAlmostEqual(limited_joint.GetUpperLimitAttr().Get(), 45)
+
+        # Explicitly unlimited joint should not have limits
+        unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body3/body4/unlimited_joint"))
+        self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
+
+        # Auto-limited joint should be unlimited when autolimits is false
+        auto_unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body5/body6/auto_unlimited_joint"))
+        self.assertFalse(auto_unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(auto_unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
