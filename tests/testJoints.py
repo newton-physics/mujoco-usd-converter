@@ -151,3 +151,15 @@ class TestJoints(unittest.TestCase):
         fixed_joint = UsdPhysics.FixedJoint(joint_prim)
         self.assertEqual(fixed_joint.GetBody0Rel().GetTargets(), [body3_prim.GetPath()])
         self.assertEqual(fixed_joint.GetBody1Rel().GetTargets(), [body4_prim.GetPath()])
+
+    def test_joint_group(self):
+        model = pathlib.Path("./tests/data/hinge_joints.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # Check that joint group is authored
+        joint0: Usd.Prim = stage.GetPrimAtPath("/hinge_joints/Geometry/body1/body2/PhysicsRevoluteJoint")
+        self.assertEqual(joint0.GetAttribute("mjc:group").Get(), 0)
+        joint2: Usd.Prim = stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/PhysicsRevoluteJoint")
+        self.assertEqual(joint2.GetAttribute("mjc:group").Get(), 2)
