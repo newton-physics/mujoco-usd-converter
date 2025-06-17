@@ -123,3 +123,31 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint2.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0.0, 0.0, 0.7071067690849304)))
         self.assertAlmostEqual(joint2.GetLowerLimitAttr().Get(), 0)
         self.assertAlmostEqual(joint2.GetUpperLimitAttr().Get(), 0.25)
+
+    def test_fixed_and_free_joints(self):
+        model = pathlib.Path("./tests/data/fixed_vs_free_joints.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # A body without an explicit MJC joint has a fixed joint in USD
+        body1_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body1")
+        body2_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body1/body2")
+        joint_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body1/body2/PhysicsFixedJoint")
+        self.assertTrue(joint_prim.IsA(UsdPhysics.FixedJoint))
+        fixed_joint = UsdPhysics.FixedJoint(joint_prim)
+        self.assertEqual(fixed_joint.GetBody0Rel().GetTargets(), [body1_prim.GetPath()])
+        self.assertEqual(fixed_joint.GetBody1Rel().GetTargets(), [body2_prim.GetPath()])
+
+        # A free floating body has no joint in USD
+        body3_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3")
+        for child in body3_prim.GetChildren():
+            self.assertFalse(child.IsA(UsdPhysics.Joint))
+
+        # Its child is still fixed to the parent
+        body4_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3/body4")
+        joint_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3/body4/PhysicsFixedJoint")
+        self.assertTrue(joint_prim.IsA(UsdPhysics.FixedJoint))
+        fixed_joint = UsdPhysics.FixedJoint(joint_prim)
+        self.assertEqual(fixed_joint.GetBody0Rel().GetTargets(), [body3_prim.GetPath()])
+        self.assertEqual(fixed_joint.GetBody1Rel().GetTargets(), [body4_prim.GetPath()])
