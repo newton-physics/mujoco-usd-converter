@@ -14,7 +14,7 @@ class TestJoints(unittest.TestCase):
         if pathlib.Path("tests/output").exists():
             shutil.rmtree("tests/output")
 
-    def assert_rotation_almost_equal(self, rot1: Gf.Rotation, rot2: Gf.Rotation, tolerance: float):
+    def assert_rotation_almost_equal(self, rot1: Gf.Rotation, rot2: Gf.Rotation, tolerance: float = 1e-6):
         self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance))
         self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance))
 
@@ -70,6 +70,25 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
         self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), -60)
         self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 5)
+
+        # it has an extra joint with a 90 degree rotation between body4 and body5
+        body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body5"))
+        self.assertTrue(body5)
+        self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body5/PhysicsRevoluteJoint"))
+        self.assertTrue(joint)
+
+        self.assertEqual(joint.GetBody0Rel().GetTargets(), [body4.GetPrim().GetPath()])
+        self.assertEqual(joint.GetBody1Rel().GetTargets(), [body5.GetPrim().GetPath()])
+
+        self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        self.assert_rotation_almost_equal(Gf.Rotation(joint.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.5, Gf.Vec3f(0.5, -0.5, 0.5))))
+        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), -90)
+        self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 0)
 
     def test_slide_joints(self):
         model = pathlib.Path("./tests/data/slide_joints.xml")

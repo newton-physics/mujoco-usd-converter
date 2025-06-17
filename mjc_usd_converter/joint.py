@@ -53,15 +53,27 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         joint_prim.CreateBody0Rel().SetTargets(["../.."])
         joint_prim.CreateBody1Rel().SetTargets([".."])
 
+        # force joints to be x-aligned
+        joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
+
         # set the joint local position relative to the parent body
         joint_pos = convert_vec3d(joint.pos)
         if not np.array_equal(joint.pos, data.spec.default.joint.pos):
             joint_prim.CreateLocalPos1Attr().Set(joint_pos)
 
+        # align the joint axis with the x-axis of the parent body
+        joint_rotation = __align_vector_to_x_axis(joint.axis)
+        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
+
         # set the joint local position relative to the grandparent body
-        parent_xform = usdex.core.getLocalTransform(data.content[Tokens.Geometry].GetPrimAtPath(parent.GetPath()))
-        offset = parent_xform.GetTranslation() + joint_pos
-        joint_prim.CreateLocalPos0Attr().Set(offset)
+        parent_xform: Gf.Transform = usdex.core.getLocalTransform(data.content[Tokens.Geometry].GetPrimAtPath(parent.GetPath()))
+        parent_rot: Gf.Rotation = parent_xform.GetRotation()
+        grandparent_pos_offset = parent_xform.GetTranslation() + parent_rot.TransformDir(joint_pos)
+        joint_prim.CreateLocalPos0Attr().Set(grandparent_pos_offset)
+
+        # align the joint axis with the x-axis of the grandparent body
+        grandparent_rot_offset = Gf.Quatf(parent_rot.GetQuat()) * joint_rotation
+        joint_prim.CreateLocalRot0Attr().Set(grandparent_rot_offset)
 
         # author the group as a custom attribute so it is retained in a roundtrip
         joint_prim.GetPrim().CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True).Set(joint.group)
@@ -78,10 +90,6 @@ def __define_fixed_joint(parent: Usd.Prim, name: str, body0: Usd.Prim, body1: Us
 
 def __convert_hinge_joint(parent: Usd.Prim, name: str, joint: mujoco.MjsJoint, data: ConversionData) -> UsdPhysics.RevoluteJoint:
     joint_prim: UsdPhysics.RevoluteJoint = UsdPhysics.RevoluteJoint.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-    joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
-    rotation = __align_vector_to_x_axis(joint.axis)
-    joint_prim.CreateLocalRot0Attr().Set(rotation)
-    joint_prim.CreateLocalRot1Attr().Set(rotation)
     if __is_limited(joint, data):
         limits = joint.range if data.spec.compiler.degree else [np.degrees(joint.range[0]), np.degrees(joint.range[1])]
         joint_prim.CreateLowerLimitAttr().Set(limits[0])
@@ -91,10 +99,6 @@ def __convert_hinge_joint(parent: Usd.Prim, name: str, joint: mujoco.MjsJoint, d
 
 def __convert_slide_joint(parent: Usd.Prim, name: str, joint: mujoco.MjsJoint, data: ConversionData) -> UsdPhysics.PrismaticJoint:
     joint_prim: UsdPhysics.PrismaticJoint = UsdPhysics.PrismaticJoint.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-    joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
-    rotation = __align_vector_to_x_axis(joint.axis)
-    joint_prim.CreateLocalRot0Attr().Set(rotation)
-    joint_prim.CreateLocalRot1Attr().Set(rotation)
     if __is_limited(joint, data):
         joint_prim.CreateLowerLimitAttr().Set(joint.range[0])
         joint_prim.CreateUpperLimitAttr().Set(joint.range[1])
