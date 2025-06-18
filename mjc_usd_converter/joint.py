@@ -59,9 +59,6 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         joint_prim.CreateBody0Rel().SetTargets(["../.."])
         joint_prim.CreateBody1Rel().SetTargets([".."])
 
-        # force joints to be x-aligned
-        joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
-
         __set_joint_frame(joint_prim, convert_vec3d(joint.pos), convert_vec3d(joint.axis), data)
 
         # author the group as a custom attribute so it is retained in a roundtrip
@@ -117,9 +114,19 @@ def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_a
     # set the joint local position relative to the parent body
     joint_prim.CreateLocalPos1Attr().Set(joint_pos)
 
-    # align the joint axis with the x-axis of the parent body
-    joint_rotation = __align_vector_to_x_axis(joint_axis)
-    joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
+    # if joint is already axis aligned, respect it, otherwise force joints to be x-aligned (this is the default)
+    if axis_alignment := __get_axis_alignment(joint_axis):
+        joint_rotation = Gf.Quatf.GetIdentity()
+        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
+    else:
+        axis_alignment = UsdPhysics.Tokens.x
+        # align the joint axis with the x-axis of the parent body
+        joint_rotation = __align_vector_to_x_axis(joint_axis)
+        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
+
+    # fixed joints don't have an axis attribute
+    if hasattr(joint_prim, "CreateAxisAttr"):
+        joint_prim.CreateAxisAttr().Set(axis_alignment)
 
     # set the joint local position relative to the grandparent body
     parent_xform: Gf.Transform = usdex.core.getLocalTransform(data.content[Tokens.Geometry].GetPrimAtPath(joint_prim.GetPrim().GetParent().GetPath()))
@@ -130,6 +137,22 @@ def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_a
     # align the joint axis with the x-axis of the grandparent body
     grandparent_rot_offset = Gf.Quatf(parent_rot.GetQuat()) * joint_rotation
     joint_prim.CreateLocalRot0Attr().Set(grandparent_rot_offset)
+
+
+def __get_axis_alignment(v: np.ndarray) -> str | None:
+    v = np.array(v, dtype=float)
+    x_axis = np.array([1.0, 0.0, 0.0])
+    y_axis = np.array([0.0, 1.0, 0.0])
+    z_axis = np.array([0.0, 0.0, 1.0])
+
+    if np.allclose(v, x_axis) or np.allclose(v, -x_axis):
+        return UsdPhysics.Tokens.x
+    elif np.allclose(v, y_axis) or np.allclose(v, -y_axis):
+        return UsdPhysics.Tokens.y
+    elif np.allclose(v, z_axis) or np.allclose(v, -z_axis):
+        return UsdPhysics.Tokens.z
+    else:
+        return None
 
 
 def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
