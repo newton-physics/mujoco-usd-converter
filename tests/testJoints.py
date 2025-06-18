@@ -143,6 +143,25 @@ class TestJoints(unittest.TestCase):
         self.assertAlmostEqual(joint2.GetLowerLimitAttr().Get(), 0)
         self.assertAlmostEqual(joint2.GetUpperLimitAttr().Get(), 0.25)
 
+        # it has an extra joint with a 90 degree rotation between body4 and body5
+        body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4/body5"))
+        self.assertTrue(body5)
+        self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        joint3 = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4/body5/PhysicsPrismaticJoint"))
+        self.assertTrue(joint3)
+
+        self.assertEqual(joint3.GetBody0Rel().GetTargets(), [body4.GetPrim().GetPath()])
+        self.assertEqual(joint3.GetBody1Rel().GetTargets(), [body5.GetPrim().GetPath()])
+
+        self.assertEqual(joint3.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        self.assertEqual(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertEqual(joint3.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        self.assert_rotation_almost_equal(Gf.Rotation(joint3.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.5, Gf.Vec3f(0.5, -0.5, 0.5))))
+        self.assertEqual(joint3.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertAlmostEqual(joint3.GetLowerLimitAttr().Get(), 0)
+        self.assertAlmostEqual(joint3.GetUpperLimitAttr().Get(), 0.25)
+
     def test_ball_joints(self):
         model = pathlib.Path("./tests/data/ball_joints.xml")
         model_name = pathlib.Path(model).stem
