@@ -58,8 +58,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         # set the joint local position relative to the parent body
         joint_pos = convert_vec3d(joint.pos)
-        if not np.array_equal(joint.pos, data.spec.default.joint.pos):
-            joint_prim.CreateLocalPos1Attr().Set(joint_pos)
+        joint_prim.CreateLocalPos1Attr().Set(joint_pos)
 
         # align the joint axis with the x-axis of the parent body
         joint_rotation = __align_vector_to_x_axis(joint.axis)
