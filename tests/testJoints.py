@@ -143,6 +143,77 @@ class TestJoints(unittest.TestCase):
         self.assertAlmostEqual(joint2.GetLowerLimitAttr().Get(), 0)
         self.assertAlmostEqual(joint2.GetUpperLimitAttr().Get(), 0.25)
 
+    def test_ball_joints(self):
+        model = pathlib.Path("./tests/data/ball_joints.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # first ball joint is aligned with the x-axis
+        body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body1"))
+        self.assertTrue(body1)
+        self.assertTrue(body1.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        body2 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body1/body2"))
+        self.assertTrue(body2)
+        self.assertFalse(body2.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        joint = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body1/body2/PhysicsSphericalJoint"))
+        self.assertTrue(joint)
+
+        self.assertEqual(joint.GetBody0Rel().GetTargets(), [body1.GetPrim().GetPath()])
+        self.assertEqual(joint.GetBody1Rel().GetTargets(), [body2.GetPrim().GetPath()])
+
+        self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertAlmostEqual(joint.GetConeAngle0LimitAttr().Get(), 90)
+        self.assertAlmostEqual(joint.GetConeAngle1LimitAttr().Get(), 90)
+
+        # second ball joint is aligned with the y-axis
+        body3 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3"))
+        self.assertTrue(body3)
+        self.assertTrue(body3.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        body4 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4"))
+        self.assertTrue(body4)
+        self.assertFalse(body4.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        joint2 = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/PhysicsSphericalJoint"))
+        self.assertTrue(joint2)
+
+        self.assertEqual(joint2.GetBody0Rel().GetTargets(), [body3.GetPrim().GetPath()])
+        self.assertEqual(joint2.GetBody1Rel().GetTargets(), [body4.GetPrim().GetPath()])
+
+        self.assertEqual(joint2.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        self.assertEqual(joint2.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertEqual(joint2.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        self.assertEqual(joint2.GetLocalRot0Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertEqual(joint2.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertAlmostEqual(joint2.GetConeAngle0LimitAttr().Get(), 45)
+        self.assertAlmostEqual(joint2.GetConeAngle1LimitAttr().Get(), 45)
+
+        # it has an extra joint with a 90 degree rotation between body4 and body5
+        body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/body5"))
+        self.assertTrue(body5)
+        self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+
+        joint3 = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/body5/PhysicsSphericalJoint"))
+        self.assertTrue(joint3)
+
+        self.assertEqual(joint3.GetBody0Rel().GetTargets(), [body4.GetPrim().GetPath()])
+        self.assertEqual(joint3.GetBody1Rel().GetTargets(), [body5.GetPrim().GetPath()])
+
+        self.assertEqual(joint3.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        self.assertEqual(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertEqual(joint3.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        self.assert_rotation_almost_equal(Gf.Rotation(joint3.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.5, Gf.Vec3f(0.5, -0.5, 0.5))))
+        self.assertEqual(joint3.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0, -0.7071067690849304, 0)))
+        self.assertAlmostEqual(joint3.GetConeAngle0LimitAttr().Get(), 90)
+        self.assertAlmostEqual(joint3.GetConeAngle1LimitAttr().Get(), 90)
+
     def test_fixed_and_free_joints(self):
         model = pathlib.Path("./tests/data/fixed_vs_free_joints.xml")
         model_name = pathlib.Path(model).stem
