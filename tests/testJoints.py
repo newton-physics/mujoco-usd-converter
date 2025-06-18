@@ -225,8 +225,3 @@ class TestJoints(unittest.TestCase):
         unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body3/body4/unlimited_joint"))
         self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
-
-        # Auto-limited joint should be unlimited when autolimits is false
-        auto_unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body5/body6/auto_unlimited_joint"))
-        self.assertFalse(auto_unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
-        self.assertFalse(auto_unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())

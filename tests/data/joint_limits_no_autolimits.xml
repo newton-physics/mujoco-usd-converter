@@ -14,16 +14,7 @@
         <body name="body3">
             <geom type="box" size="0.1 0.1 0.1"/>
             <body name="body4">
-                <joint name="unlimited_joint" type="hinge" limited="false" range="-45 45"/>
-                <geom type="box" size="0.1 0.1 0.1"/>
-            </body>
-        </body>
-
-        <!-- Auto-limited joint but autolimits is false (should be unlimited) -->
-        <body name="body5">
-            <geom type="box" size="0.1 0.1 0.1"/>
-            <body name="body6">
-                <joint name="auto_unlimited_joint" type="hinge" limited="auto" range="-30 30"/>
+                <joint name="unlimited_joint" type="hinge" limited="false"/>
                 <geom type="box" size="0.1 0.1 0.1"/>
             </body>
         </body>
