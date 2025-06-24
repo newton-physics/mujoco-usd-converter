@@ -214,7 +214,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mujoco", specifier = "==3.3.3.dev764394280", index = "https://py.mujoco.org/" },
+    { name = "mujoco", specifier = ">=3.3.3.dev764394280", index = "https://py.mujoco.org/" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
     { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2505.main.710.4f697158.gl", index = "https://REDACTED/simple" },

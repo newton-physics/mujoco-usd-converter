@@ -46,17 +46,23 @@ def __get_material_name(material: mujoco.MjsMaterial) -> str:
 
 def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
     color, opacity = convert_color(material.rgba)
-    specular_roughness = 1.0 - material.shininess
+
+    # Build kwargs for material properties
+    material_kwargs = {
+        "color": color,
+        "opacity": opacity,
+    }
+
+    # Only add roughness if shininess is not the default -1.0
+    if material.shininess != -1.0:
+        material_kwargs["roughness"] = 1.0 - material.shininess
+
+    # Only add metallic if it's not the default -1.0
+    if material.metallic != -1.0:
+        material_kwargs["metallic"] = material.metallic
 
     # FUTURE: use UsdMtlx
-    material_prim = usdex.core.definePreviewMaterial(
-        parent,
-        name,
-        color=color,
-        opacity=opacity,
-        roughness=specular_roughness,
-        metallic=material.metallic,
-    )
+    material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
 
     specular_color = material.specular
     # We ignore spec.default.material.specular because materials default specular enabled in MuJoCo
