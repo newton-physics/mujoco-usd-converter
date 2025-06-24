@@ -1,0 +1,19 @@
+<mujoco model="physics_materials">
+    <asset>
+        <material name="visual_mat_1" rgba="1 0 0 1"/>
+        <material name="visual_mat_2" rgba="0 1 0 1"/>
+    </asset>
+    <worldbody>
+        <!-- Case 1: Geom with custom friction and a visual material. -->
+        <geom name="custom_friction_1" type="box" size="0.1 0.1 0.1" friction="0.8 0.1 0.05" material="visual_mat_1"/>
+
+        <!-- Case 2: Another geom with the same friction and visual material. Should reuse both. -->
+        <geom name="custom_friction_2" type="box" size="0.1 0.1 0.1" pos="1 0 0" friction="0.8 0.1 0.05" material="visual_mat_1"/>
+
+        <!-- Case 3: Geom with different friction and a different visual material. -->
+        <geom name="different_friction" type="capsule" size="0.1 0.2" pos="2 0 0" friction="0.5 0.2 0.1" material="visual_mat_2"/>
+
+        <!-- Case 4: Geom with default friction and no visual material. -->
+        <geom name="default_friction" type="sphere" size="0.1" pos="3 0 0" friction="1 0.005 0.0001" />
+    </worldbody>
+</mujoco>
