@@ -4,6 +4,7 @@
     <asset>
         <mesh name="StlBox" file="box.stl" scale="0.1 0.8 0.1"/>
         <mesh name="ObjBox" file="box.obj" scale="0.08 0.2 0.08"/>
+        <mesh file="box.obj" scale="0.08 0.2 0.08"/>
     </asset>
 
     <worldbody>
@@ -12,6 +13,7 @@
             <body name="body2">
                 <joint type="hinge" axis="0 1 0"/>
                 <geom type="mesh" mesh="ObjBox" pos="0 0.9 0"/>
+                <geom type="mesh" mesh="box" pos="0 0.9 1"/>
             </body>
         </body>
     </worldbody>

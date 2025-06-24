@@ -22,7 +22,7 @@ def convert_materials(data: ConversionData):
     data.references[Tokens.Materials] = {}
 
     materials_scope = data.libraries[Tokens.Materials].GetDefaultPrim()
-    source_names = [__get_material_name(x) for x in data.spec.materials]
+    source_names = [x.name for x in data.spec.materials]
     safe_names = data.name_cache.getPrimNames(materials_scope, source_names)
     for material, source_name, safe_name in zip(data.spec.materials, source_names, safe_names):
         material_prim = __convert_material(materials_scope, safe_name, material, data).GetPrim()
@@ -35,13 +35,6 @@ def convert_materials(data: ConversionData):
 
     # setup a content layer for referenced materials
     data.content[Tokens.Materials] = addAssetContent(data.content[Tokens.Contents], Tokens.Materials, format="usda")
-
-
-def __get_material_name(material: mujoco.MjsMaterial) -> str:
-    if material.name:
-        return material.name
-    else:
-        return f"Material_{material.id}"
 
 
 def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
