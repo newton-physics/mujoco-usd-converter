@@ -4,7 +4,7 @@ import pathlib
 import shutil
 import unittest
 
-from pxr import Sdf, Usd, UsdPhysics, UsdShade
+from pxr import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 import mjc_usd_converter
 
@@ -28,10 +28,12 @@ class TestGeom(unittest.TestCase):
         # Enabled by default, so attribute should not be authored
         self.assertFalse(collider_api.GetCollisionEnabledAttr().HasAuthoredValue())
         self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_geom(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
         self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_mass(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual_with_mass")
@@ -42,6 +44,7 @@ class TestGeom(unittest.TestCase):
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
         self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual_with_density")
@@ -52,17 +55,25 @@ class TestGeom(unittest.TestCase):
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 2000)
         self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_in_range_no_mass(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual_in_range_no_mass")
         self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+
+    def test_guide_visual(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_visual")
+        self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
 
     def test_mesh_collider(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/mesh_collider")
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         mesh_collider_api = UsdPhysics.MeshCollisionAPI(prim)
         self.assertEqual(mesh_collider_api.GetApproximationAttr().Get(), UsdPhysics.Tokens.convexHull)
+        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
 
     def test_explicit_mass(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/explicit_mass")
