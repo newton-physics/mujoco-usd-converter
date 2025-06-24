@@ -24,16 +24,14 @@ check_code_format:
   extends: [.default_job]
   stage: check
   script:
-    - poetry install
-    - poetry run poe lint
+    - uv run --group dev poe lint
 
 .build_base:
   extends: [.default_job]
   stage: build
   needs: [] # do not wait for checks
   script:
-    - poetry install
-    - poetry build
+    - uv build
   artifacts:
     paths:
       - dist/
@@ -48,8 +46,7 @@ build_windows:
   extends: [.default_job]
   stage: test
   script:
-    - poetry install
-    - poetry run poe test-ci
+    - uv run --group dev poe test-ci
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   artifacts:
     reports:
@@ -74,8 +71,7 @@ test_windows:
   extends: [.deploy_job]
   stage: deploy
   script:
-    - poetry config repositories.${ARTIFACTORY_REPO} ${ARTIFACTORY_URL}
-    - poetry publish --repository ${ARTIFACTORY_REPO} -u ${ARTIFACTORY_USERNAME} -p ${ARTIFACTORY_KEY} --verbose
+    - uv publish --index-url ${ARTIFACTORY_URL} --username ${ARTIFACTORY_USERNAME} --password ${ARTIFACTORY_KEY} --verbose
 
 deploy_tagged:
   extends: [.deploy_base]
