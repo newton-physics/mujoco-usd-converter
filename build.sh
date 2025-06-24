@@ -11,21 +11,20 @@ if [ $# -gt 0 ] && [ "$1" = "-c" ] || [ "$1" = "--clean" ]; then
     rm -rf dist
 fi
 
-# setup the build environment
-if [ -d "${VENV}" ]; then
-    source ${VENV}/bin/activate
-else
-    echo "Building: ${VENV}"
-    python -m venv ${VENV}
-    source ${VENV}/bin/activate
-    python -m pip install poetry
+# Ensure uv is available (for local development)
+if ! command -v uv &> /dev/null; then
+    echo "ERROR: uv is not installed. Please install uv first:"
+    echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    exit 1
 fi
 
-# do the build
-echo Using `poetry --version`
+# Install dependencies and build
+echo "Installing dependencies with uv..."
+uv sync --group dev
+
+echo "Using uv version: $(uv --version)"
 if [ -d ${SCRIPT_DIR}/dist ]; then
     rm -rf ${SCRIPT_DIR}/dist
 fi
-poetry build --format=wheel
-poetry lock
-poetry install
+echo "Building wheel..."
+uv build --wheel

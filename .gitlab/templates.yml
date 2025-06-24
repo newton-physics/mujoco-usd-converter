@@ -15,10 +15,7 @@ include:
     - export UV_INSTALL_DIR="$CI_PROJECT_DIR/uv"
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - export PATH="$UV_INSTALL_DIR:$PATH"
-    - uv venv --managed-python
-    - source .venv/bin/activate
-    - uv pip install poetry
-    - echo "Linux Python/Poetry setup complete."
+    - echo "uv installed and available"
 
 .setup_windows:
   extends: [.runner-build-windows-x86_64]
@@ -26,10 +23,7 @@ include:
   before_script:
     - powershell -ExecutionPolicy ByPass -c {$env:UV_INSTALL_DIR = "${env:CI_PROJECT_DIR}\uv";irm https://astral.sh/uv/install.ps1 | iex}
     - $env:Path = "${env:CI_PROJECT_DIR}\uv;$env:Path"
-    - uv venv --managed-python
-    - .venv/Scripts/activate
-    - uv pip install poetry
-    - echo "Windows Python/Poetry setup complete."
+    - echo "uv installed and available"
 
 .default_job:
   extends: [.setup_linux]

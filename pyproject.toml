@@ -7,7 +7,7 @@ license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 dependencies = [
-    "mujoco>=3.3.3.dev764394280",
+    "mujoco==3.3.3.dev764394280",
     "usd-exchange==2.0.0.dev0+usd2505.main.710.4f697158.gl",
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",
@@ -16,18 +16,31 @@ dependencies = [
 [project.scripts]
 mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
 
-[tool.poetry]
-packages = [ { include = "mjc_usd_converter/*.py" } ]
+[dependency-groups]
+dev = [
+    "poethepoet>=0.34",
+    "ruff>=0.11",
+    "black>=25.1",
+    "coverage>=7.4",
+    "unittest-xml-reporting>=3.2.0",
+]
 
-[[tool.poetry.source]]
+[tool.uv]
+package = true
+python-preference = "only-managed"
+
+[[tool.uv.index]]
 name = "internal"
 url = "https://REDACTED/simple"
-priority = "primary"
+default = true
 
-[[tool.poetry.source]]
+[[tool.uv.index]]
 name = "mujoco"
 url = "https://py.mujoco.org/"
-priority = "supplemental"
+
+[tool.uv.sources]
+mujoco = { index = "mujoco" }
+usd-exchange = { index = "internal" }
 
 # Dev Tools
 
@@ -53,12 +66,12 @@ cmd = "coverage report -m"
 
 [tool.poe.tasks.lint]
 help = "Run all lint tools on the code base"
-sequence = ["poetry-check", "lint-license", "lint-black", "lint-ruff"]
+sequence = ["uv-check", "lint-license", "lint-black", "lint-ruff"]
 ignore_fail = "return_non_zero"
 
-[tool.poe.tasks.poetry-check]
-help = "Run poetry check on code base"
-cmd  = "poetry check"
+[tool.poe.tasks.uv-check]
+help = "Run uv check on code base"
+cmd  = "uv lock --check"
 
 [tool.poe.tasks.lint-license]
 help = "Run license conformance checks on code base"
@@ -90,15 +103,11 @@ help = "Run black on the code base"
 cmd  = "black ."
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.group.dev.dependencies]
-poethepoet = "^0.34"
-ruff = "^0.11"
-black = "^25.1"
-coverage = "^7.4"
-unittest-xml-reporting = "^3.2.0"
+[tool.hatch.build.targets.wheel]
+packages = ["mjc_usd_converter"]
 
 [tool.ruff]
 line-length = 150
