@@ -263,16 +263,8 @@ def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom,
 
 
 def __hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
-    if material.GetDynamicFrictionAttr().HasAuthoredValue():  # noqa: SIM108
-        sliding_friction = material.GetDynamicFrictionAttr().Get()
-    else:
-        sliding_friction = -1
-    if material.GetPrim().GetAttribute("mjc:friction:torsional").HasAuthoredValue():
-        torsional_friction = material.GetPrim().GetAttribute("mjc:friction:torsional").Get()
-    else:
-        torsional_friction = -1
-    if material.GetPrim().GetAttribute("mjc:friction:rolling").HasAuthoredValue():
-        rolling_friction = material.GetPrim().GetAttribute("mjc:friction:rolling").Get()
-    else:
-        rolling_friction = -1
+    # we know that all materials in the physics layer have the values authored, so we can just get them
+    sliding_friction = material.GetDynamicFrictionAttr().Get()
+    torsional_friction = material.GetPrim().GetAttribute("mjc:friction:torsional").Get()
+    rolling_friction = material.GetPrim().GetAttribute("mjc:friction:rolling").Get()
     return Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
