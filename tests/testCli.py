@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-import os
 import pathlib
 import shutil
 import unittest
@@ -52,7 +51,7 @@ class TestCli(unittest.TestCase):
 
     def test_invalid_output(self):
         # create a file that is not a directory
-        os.makedirs("tests/output", exist_ok=True)
+        pathlib.Path("tests/output").mkdir(parents=True, exist_ok=True)
         pathlib.Path("tests/output/invalid").touch()
         with patch("sys.argv", ["mjc_usd_converter", "tests/data/worldgeom.xml", "tests/output/invalid"]):
             self.assertEqual(run(), 1, "Expected non-zero exit code for invalid output")
