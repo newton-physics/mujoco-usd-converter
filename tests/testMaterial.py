@@ -60,3 +60,15 @@ class TestMaterial(unittest.TestCase):
         texture_prim = connected_source[0].GetPrim()
         texture_file_attr = texture_prim.GetAttribute("inputs:file")
         self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")
+
+    def test_material_binding(self):
+        textured_box_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Geometry/TexturedBox")
+        self.assertTrue(textured_box_prim)
+        material_binding = UsdShade.MaterialBindingAPI(textured_box_prim)
+        bound_material = material_binding.GetDirectBindingRel().GetTargets()[0]
+        material = UsdShade.Material(self.stage.GetPrimAtPath(bound_material))
+        self.assertTrue(material)
+        self.assertEqual(material.GetPrim().GetName(), "Grid")
+        self.assertEqual(material.GetPrim().GetParent(), self.stage.GetPrimAtPath(f"/{self.model_name}/Materials"))
+        # materials are references to the material library layer
+        self.assertTrue(material.GetPrim().GetReferences())
