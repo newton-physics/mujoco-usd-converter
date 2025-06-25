@@ -22,6 +22,32 @@ class TestAssetStructure(unittest.TestCase):
         if pathlib.Path("tests/output").exists():
             shutil.rmtree("tests/output")
 
+    def test_display_name(self):
+        model = pathlib.Path("./tests/data/invalid names.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # Test that geoms get proper display names
+        body_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5")
+        self.assertEqual(usdex.core.getDisplayName(body_prim), "Body 1")
+
+        geom_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5/tn__Geom1_f5")
+        self.assertEqual(usdex.core.getDisplayName(geom_prim), "Geom 1")
+
+        joint_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5/tn__Body2_f5/tn__Joint1_h6")
+        self.assertEqual(usdex.core.getDisplayName(joint_prim), "Joint 1")
+
+        geometry_library = pathlib.Path(f"./tests/output/{model_name}/payload/GeometryLibrary.usdc").absolute()
+        stage = Usd.Stage.Open(geometry_library.as_posix())
+        mesh_prim = stage.GetPrimAtPath("/Geometry/tn__Mesh1_f5")
+        self.assertEqual(usdex.core.getDisplayName(mesh_prim), "Mesh 1")
+
+        material_library = pathlib.Path(f"./tests/output/{model_name}/payload/MaterialsLibrary.usdc").absolute()
+        stage = Usd.Stage.Open(material_library.as_posix())
+        material_prim = stage.GetPrimAtPath("/Materials/tn__Material1_n9")
+        self.assertEqual(usdex.core.getDisplayName(material_prim), "Material 1")
+
     def test_interface_layer(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
