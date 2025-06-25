@@ -7,6 +7,14 @@
         <mesh name="box_mesh" file="assets/box.obj"/>
     </asset>
     <worldbody>
+        <!-- Basics -->
+        <geom type="sphere" size="0.1"/>
+        <geom type="cylinder" size="0.1 0.2"/>
+        <geom type="box" size="0.1 0.1 0.1"/>
+        <geom type="capsule" size="0.1 0.2"/>
+        <geom type="plane" size="10 10"/>
+        <geom type="mesh" mesh="box_mesh"/>
+        <!-- Physics -->
         <geom name="default_collider" type="sphere" size="0.1" contype="1" conaffinity="1"/>
         <geom name="visual" type="sphere" size="0.1" contype="0" conaffinity="0" group="1"/>
         <geom name="visual_with_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="2" mass="5.0"/>

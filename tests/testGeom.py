@@ -4,7 +4,8 @@ import pathlib
 import shutil
 import unittest
 
-from pxr import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
+import usdex.core
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 import mjc_usd_converter
 
@@ -20,6 +21,43 @@ class TestGeom(unittest.TestCase):
         self.stage = None
         if pathlib.Path("./tests/output").exists():
             shutil.rmtree("./tests/output")
+
+    def test_sphere(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Sphere")
+        sphere: UsdGeom.Sphere = UsdGeom.Sphere(prim)
+        self.assertTrue(sphere)
+        self.assertEqual(sphere.GetRadiusAttr().Get(), 0.1)
+
+    def test_cylinder(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Cylinder")
+        cylinder: UsdGeom.Cylinder = UsdGeom.Cylinder(prim)
+        self.assertTrue(cylinder)
+        self.assertEqual(cylinder.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertEqual(cylinder.GetRadiusAttr().Get(), 0.1)
+        self.assertEqual(cylinder.GetHeightAttr().Get(), 0.4)
+
+    def test_box(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Box")
+        box: UsdGeom.Cube = UsdGeom.Cube(prim)
+        self.assertTrue(box)
+        self.assertEqual(box.GetSizeAttr().Get(), 2)
+        self.assertTrue(Gf.IsClose(usdex.core.getLocalTransform(box.GetPrim()).GetScale(), (0.1, 0.1, 0.1), 1e-6))
+
+    def test_capsule(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Capsule")
+        capsule: UsdGeom.Capsule = UsdGeom.Capsule(prim)
+        self.assertTrue(capsule)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertEqual(capsule.GetRadiusAttr().Get(), 0.1)
+        self.assertEqual(capsule.GetHeightAttr().Get(), 0.4)
+
+    def test_plane(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Plane")
+        plane: UsdGeom.Plane = UsdGeom.Plane(prim)
+        self.assertTrue(plane)
+        self.assertEqual(plane.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertEqual(plane.GetWidthAttr().Get(), 20)
+        self.assertEqual(plane.GetLengthAttr().Get(), 20)
 
     def test_default_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
