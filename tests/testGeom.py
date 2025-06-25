@@ -5,7 +5,7 @@ import shutil
 import unittest
 
 import usdex.core
-from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
 import mjc_usd_converter
 
@@ -58,6 +58,13 @@ class TestGeom(unittest.TestCase):
         self.assertEqual(plane.GetAxisAttr().Get(), UsdGeom.Tokens.z)
         self.assertEqual(plane.GetWidthAttr().Get(), 20)
         self.assertEqual(plane.GetLengthAttr().Get(), 20)
+
+    def test_display_color(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
+        sphere: UsdGeom.Sphere = UsdGeom.Sphere(prim)
+        self.assertTrue(sphere)
+        self.assertEqual(sphere.GetDisplayColorAttr().Get(), Vt.Vec3fArray([Gf.Vec3f(1.0, 0.0, 0.0)]))
+        self.assertEqual(sphere.GetDisplayOpacityAttr().Get(), Vt.FloatArray([0.5]))
 
     def test_default_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
