@@ -66,6 +66,19 @@ class TestGeom(unittest.TestCase):
         self.assertEqual(sphere.GetDisplayColorAttr().Get(), Vt.Vec3fArray([Gf.Vec3f(1.0, 0.0, 0.0)]))
         self.assertEqual(sphere.GetDisplayOpacityAttr().Get(), Vt.FloatArray([0.5]))
 
+    def test_purpose(self):
+        default_prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
+        self.assertEqual(UsdGeom.Imageable(default_prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+
+        visual_prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
+        self.assertEqual(UsdGeom.Imageable(visual_prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+
+        guide_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_visual")
+        self.assertEqual(UsdGeom.Imageable(guide_prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+
+        guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
+        self.assertEqual(UsdGeom.Imageable(guide_mesh_collider_prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+
     def test_default_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
