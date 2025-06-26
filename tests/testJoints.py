@@ -247,6 +247,10 @@ class TestJoints(unittest.TestCase):
         fixed_joint = UsdPhysics.FixedJoint(joint_prim)
         self.assertEqual(fixed_joint.GetBody0Rel().GetTargets(), [body1_prim.GetPath()])
         self.assertEqual(fixed_joint.GetBody1Rel().GetTargets(), [body2_prim.GetPath()])
+        self.assertEqual(fixed_joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.5, 0))
+        self.assertEqual(fixed_joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0))
+        self.assertEqual(fixed_joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.7071068286895752, Gf.Vec3f(0.0, 0.0, 0.7071067094802856)))
+        self.assertEqual(fixed_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
 
         # A free floating body has no joint in USD
         body3_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3")

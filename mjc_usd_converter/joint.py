@@ -35,7 +35,13 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
     if not body.joints:
         # if the ancestor is the worldbody, we need to fix to the default prim rather than the immediate parent (the Geometry Scope)
         body0 = parent.GetStage().GetDefaultPrim() if body.parent == data.spec.worldbody else parent.GetParent()
-        __define_fixed_joint(parent=parent, name=data.name_cache.getPrimName(parent, UsdPhysics.Tokens.PhysicsFixedJoint), body0=body0, body1=parent)
+        joint = __define_fixed_joint(
+            parent=parent,
+            name=data.name_cache.getPrimName(parent, UsdPhysics.Tokens.PhysicsFixedJoint),
+            body0=body0,
+            body1=parent,
+        )
+        __set_joint_frame(joint, Gf.Vec3d(0, 0, 0), Gf.Vec3d(1, 0, 0), data)
         return
 
     safe_names = data.name_cache.getPrimNames(parent, [get_joint_name(x) for x in body.joints])
@@ -56,23 +62,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         # force joints to be x-aligned
         joint_prim.CreateAxisAttr().Set(UsdPhysics.Tokens.x)
 
-        # set the joint local position relative to the parent body
-        joint_pos = convert_vec3d(joint.pos)
-        joint_prim.CreateLocalPos1Attr().Set(joint_pos)
-
-        # align the joint axis with the x-axis of the parent body
-        joint_rotation = __align_vector_to_x_axis(joint.axis)
-        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
-
-        # set the joint local position relative to the grandparent body
-        parent_xform: Gf.Transform = usdex.core.getLocalTransform(data.content[Tokens.Geometry].GetPrimAtPath(parent.GetPath()))
-        parent_rot: Gf.Rotation = parent_xform.GetRotation()
-        grandparent_pos_offset = parent_xform.GetTranslation() + parent_rot.TransformDir(joint_pos)
-        joint_prim.CreateLocalPos0Attr().Set(grandparent_pos_offset)
-
-        # align the joint axis with the x-axis of the grandparent body
-        grandparent_rot_offset = Gf.Quatf(parent_rot.GetQuat()) * joint_rotation
-        joint_prim.CreateLocalRot0Attr().Set(grandparent_rot_offset)
+        __set_joint_frame(joint_prim, convert_vec3d(joint.pos), convert_vec3d(joint.axis), data)
 
         # author the group as a custom attribute so it is retained in a roundtrip
         joint_prim.GetPrim().CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True).Set(joint.group)
@@ -121,6 +111,25 @@ def __is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
     elif data.spec.compiler.autolimits and joint.range[0] != joint.range[1]:
         return True
     return False
+
+
+def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_axis: Gf.Vec3d, data: ConversionData):
+    # set the joint local position relative to the parent body
+    joint_prim.CreateLocalPos1Attr().Set(joint_pos)
+
+    # align the joint axis with the x-axis of the parent body
+    joint_rotation = __align_vector_to_x_axis(joint_axis)
+    joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
+
+    # set the joint local position relative to the grandparent body
+    parent_xform: Gf.Transform = usdex.core.getLocalTransform(data.content[Tokens.Geometry].GetPrimAtPath(joint_prim.GetPrim().GetParent().GetPath()))
+    parent_rot: Gf.Rotation = parent_xform.GetRotation()
+    grandparent_pos_offset = parent_xform.GetTranslation() + parent_rot.TransformDir(joint_pos)
+    joint_prim.CreateLocalPos0Attr().Set(grandparent_pos_offset)
+
+    # align the joint axis with the x-axis of the grandparent body
+    grandparent_rot_offset = Gf.Quatf(parent_rot.GetQuat()) * joint_rotation
+    joint_prim.CreateLocalRot0Attr().Set(grandparent_rot_offset)
 
 
 def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
