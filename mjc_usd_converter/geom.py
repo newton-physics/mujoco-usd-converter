@@ -3,7 +3,7 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Tf, Usd, UsdGeom, UsdShade, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
 from ._future import Tokens, defineRelativeReference
 from .data import ConversionData
@@ -74,7 +74,8 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
         usdex.core.Vec3fPrimvarData(UsdGeom.Tokens.constant, Vt.Vec3fArray([color])).setPrimvar(geom_prim.CreateDisplayColorPrimvar())
         usdex.core.FloatPrimvarData(UsdGeom.Tokens.constant, Vt.FloatArray([opacity])).setPrimvar(geom_prim.CreateDisplayOpacityPrimvar())
 
-    # FUTURE: physics
+    if not isinstance(geom, mujoco.MjsSite):
+        __apply_physics(geom_prim, geom, data)
 
     return geom_prim
 
@@ -179,3 +180,44 @@ def __bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
         material_prim = UsdShade.Material(defineRelativeReference(local_materials, ref_material, ref_material.GetName()))
     geom_over = data.content[Tokens.Materials].OverridePrim(geom_prim.GetPath())
     usdex.core.bindMaterial(geom_over, material_prim)
+
+
+def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
+    # most geom are colliders
+    is_collider = True
+    collider_enabled = True
+
+    # some geom are for vizualization only, but still contribute to the mass of the body
+    if geom.contype == 0 and geom.conaffinity == 0:
+        if geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):
+            if not np.isnan(geom.mass) or geom.density != data.spec.default.geom.density:
+                collider_enabled = False
+            else:
+                is_collider = False
+        else:
+            is_collider = False
+
+    if not is_collider:
+        # this is a purely visual geom, so we skip physics authoring
+        return
+
+    geom_over = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
+
+    collider: UsdPhysics.CollisionAPI = UsdPhysics.CollisionAPI.Apply(geom_over)
+    if not collider_enabled:
+        collider.CreateCollisionEnabledAttr().Set(False)
+
+    if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
+        mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
+        mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
+
+    if not np.isnan(geom.mass):
+        geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
+        geom_mass.CreateMassAttr().Set(geom.mass)
+
+    if geom.density != data.spec.default.geom.density:
+        geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
+        geom_mass.CreateDensityAttr().Set(geom.density)
+
+    # FUTURE: use MjcPhysics schemas to apply property gaps
+    # FUTURE: collision filtering

@@ -1,0 +1,22 @@
+<mujoco model="joint_limits_no_autolimits">
+    <compiler autolimits="false" angle="degree"/>
+    <worldbody>
+        <!-- Explicitly limited joint -->
+        <body name="body1">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body2">
+                <joint name="limited_joint" type="hinge" limited="true" range="-45 45"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
+
+        <!-- Explicitly unlimited joint -->
+        <body name="body3">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body4">
+                <joint name="unlimited_joint" type="hinge" limited="false"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

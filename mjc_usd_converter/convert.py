@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import mujoco
 import usdex.core
-from pxr import Sdf, Tf, Usd, UsdGeom
+from pxr import Sdf, Tf, Usd, UsdGeom, UsdPhysics
 
 from ._future import Tokens, addAssetContent, addAssetInterface, createAssetContents
 from .body import convert_bodies
@@ -77,6 +77,7 @@ class Converter:
             authoringMetadata=get_authoring_metadata(),
         )
         data.content[Tokens.Asset] = asset_stage
+        data.content[Tokens.Asset].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         root: Usd.Prim = usdex.core.defineXform(asset_stage, asset_stage.GetDefaultPrim().GetPath()).GetPrim()
         if asset_name != spec.modelname:
             usdex.core.setDisplayName(root, spec.modelname)
@@ -95,6 +96,7 @@ class Converter:
 
         # setup a content layer for physics
         data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda", createScope=False)
+        data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
 
         # author the kinematic tree
         convert_bodies(data)

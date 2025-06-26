@@ -1,0 +1,23 @@
+<mujoco model="slide_joints">
+    <compiler angle="degree"/>
+    <worldbody>
+        <body name="body1" pos="0 0 1" euler="-45 0 0">
+            <geom type="box" name="box1" size="0.1 0.5 0.1" rgba="1 0 1 1"/>
+            <body name="body2" pos="0 0.5 0">
+                <joint type="slide" pos="0 0.1 0" axis="0 1 0" range="0 0.5"/>
+                <geom type="box" name="box2"size="0.05 0.5 0.05" pos="0 0.6 0" rgba="1 1 0 1"/>
+            </body>
+        </body>
+        <body name="body3" pos="0 0 1" euler="0 45 -90">
+            <geom type="box" name="box3" size="0.1 0.5 0.1" rgba="0 0 1 1"/>
+            <body name="body4" pos="0 0.5 0">
+                <joint type="slide" name="slide2" pos="0 0.1 0" axis="0 1 0" range="0 0.25"/>
+                <geom type="box" name="box4"size="0.05 0.5 0.05" pos="0 0.6 0" rgba="0 1 0 1"/>
+                <body name="body5" pos="0 1.1 0" euler="0 0 90">
+                    <joint type="slide" pos="0 0.1 0" axis="0 0 1" range="0 0.25"/>
+                    <geom type="box" name="box5"size="0.025 0.5 0.025" pos="0 0.6 0" rgba="1 0 0 1"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

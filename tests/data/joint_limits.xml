@@ -1,0 +1,31 @@
+<mujoco model="joint_limits">
+    <compiler autolimits="true" angle="degree"/>
+    <worldbody>
+        <!-- Explicitly unlimited joint -->
+        <body name="body3">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body4">
+                <joint name="unlimited_joint" type="hinge" limited="false" range="-45 45"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
+
+        <!-- Auto-limited joint (autolimits=true, range is set) -->
+        <body name="body5">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body6">
+                <joint name="auto_limited_joint" type="hinge" limited="auto" range="-30 30"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
+
+        <!-- Auto-limited joint with same range values (should be unlimited) -->
+        <body name="body7">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body8">
+                <joint name="auto_unlimited_same_range" type="hinge" limited="auto" range="30 30"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

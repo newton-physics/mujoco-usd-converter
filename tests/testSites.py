@@ -44,3 +44,25 @@ class TestSites(unittest.TestCase):
         self.assertEqual(world_sphere.GetRadiusAttr().Get(), 0.005)
         self.assertEqual(world_sphere.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
         self.assertEqual(world_site.GetAttribute("mjc:group").Get(), 1)
+
+    def test_sites_exclude_physics(self):
+        model = pathlib.Path("./tests/data/sites.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/body/site")
+        box = UsdGeom.Cube(site)
+        self.assertTrue(box)
+        for prop_name in site.GetAuthoredPropertyNames():
+            self.assertFalse(prop_name.startswith("physics:"))
+        for prim_spec, _ in site.GetPrimStackWithLayerOffsets():
+            self.assertTrue("Physics" not in prim_spec.layer.identifier)
+
+        world_site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/worldsite")
+        world_sphere = UsdGeom.Sphere(world_site)
+        self.assertTrue(world_sphere)
+        for prop_name in site.GetAuthoredPropertyNames():
+            self.assertFalse(prop_name.startswith("physics:"))
+        for prim_spec, _ in site.GetPrimStackWithLayerOffsets():
+            self.assertTrue("Physics" not in prim_spec.layer.identifier)
