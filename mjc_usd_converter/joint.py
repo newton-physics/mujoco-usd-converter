@@ -145,11 +145,11 @@ def __get_axis_alignment(v: np.ndarray) -> str | None:
     y_axis = np.array([0.0, 1.0, 0.0])
     z_axis = np.array([0.0, 0.0, 1.0])
 
-    if np.allclose(v, x_axis) or np.allclose(v, -x_axis):
+    if np.allclose(v, x_axis):
         return UsdPhysics.Tokens.x
-    elif np.allclose(v, y_axis) or np.allclose(v, -y_axis):
+    elif np.allclose(v, y_axis):
         return UsdPhysics.Tokens.y
-    elif np.allclose(v, z_axis) or np.allclose(v, -z_axis):
+    elif np.allclose(v, z_axis):
         return UsdPhysics.Tokens.z
     else:
         return None
