@@ -1,5 +1,5 @@
 version = 1
-revision = 1
+revision = 2
 requires-python = ">=3.10, <3.12"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -214,10 +214,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mujoco", specifier = ">=3.3.3.dev764394280", index = "https://py.mujoco.org/" },
+    { name = "mujoco", specifier = ">=3.3.4.dev778114814", index = "https://py.mujoco.org/" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
-    { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2505.main.710.4f697158.gl", index = "https://REDACTED/simple" },
+    { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2505.main.728.7e2a8084.gl", index = "https://REDACTED/simple" },
 ]
 
 [package.metadata.requires-dev]
@@ -231,7 +231,7 @@ dev = [
 
 [[package]]
 name = "mujoco"
-version = "3.3.3.dev764394280"
+version = "3.3.4.dev778552679"
 source = { registry = "https://py.mujoco.org/" }
 dependencies = [
     { name = "absl-py" },
@@ -242,14 +242,14 @@ dependencies = [
     { name = "pyopengl" },
 ]
 wheels = [
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp310-cp310-macosx_11_0_universal2.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp310-cp310-win_amd64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp311-cp311-macosx_11_0_universal2.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.3.dev764394280-cp311-cp311-win_amd64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-macosx_11_0_universal2.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-win_amd64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-macosx_11_0_universal2.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-win_amd64.whl" },
 ]
 
 [[package]]
@@ -535,13 +535,13 @@ wheels = [
 
 [[package]]
 name = "usd-exchange"
-version = "2.0.0.dev0+usd2505.main.710.4f697158.gl"
+version = "2.0.0.dev0+usd2505.main.728.7e2a8084.gl"
 source = { registry = "https://REDACTED/simple" }
 wheels = [
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.710.4f697158.gl/usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:714eb353476f292d1734e933f97a25e686909e259c407a739a640186aeb082b0" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.710.4f697158.gl/usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp310-cp310-win_amd64.whl", hash = "sha256:fc3b723fcf1fff1105b8f1a8d90e1cabf68fff5309cddfdc24919f8e84d6bef8" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.710.4f697158.gl/usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:6b07e9402340ebbf063d1722c0cd3cd0fc72ac0fd982ead753a4acc3c44e14fe" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.710.4f697158.gl/usd_exchange-2.0.0.dev0+usd2505.main.710.4f697158.gl-cp311-cp311-win_amd64.whl", hash = "sha256:de35fe6c435ae5eb0b92062d5b047a91edad453f4f7ad47e33c44aee06433d27" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.728.7e2a8084.gl/usd_exchange-2.0.0.dev0+usd2505.main.728.7e2a8084.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:c8dd46aa70324a066a4dae27441b2f43ad7c53c18a6c7db7a6eb7a105cbb944f" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.728.7e2a8084.gl/usd_exchange-2.0.0.dev0+usd2505.main.728.7e2a8084.gl-cp310-cp310-win_amd64.whl", hash = "sha256:bc8233db4b2cf4785c664f2a5cdb81c5cbc4f356b5fb98c26176a037379bb675" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.728.7e2a8084.gl/usd_exchange-2.0.0.dev0+usd2505.main.728.7e2a8084.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:3e7d27636f573846be05c333c70062c424df6cf45fef1abb778a32f819bbb73d" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.728.7e2a8084.gl/usd_exchange-2.0.0.dev0+usd2505.main.728.7e2a8084.gl-cp311-cp311-win_amd64.whl", hash = "sha256:f2351d3310c35bcb72f987c2fc5aa6101954c2d2d51cae75b0ed60f3e3371ca2" },
 ]
 
 [[package]]
