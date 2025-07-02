@@ -3,9 +3,9 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
-from ._future import Tokens, defineRelativeReference
+from ._future import Tokens, defineRelativeReference, defineScope
 from .data import ConversionData
 from .numpy import convert_color
 from .utils import get_fromto_vectors, set_purpose, set_transform
@@ -219,5 +219,60 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateDensityAttr().Set(geom.density)
 
+    physics_material: UsdPhysics.MaterialAPI = __acquire_physics_material(geom_over, geom, data)
+    if physics_material:
+        UsdShade.MaterialBindingAPI.Apply(geom_over).Bind(physics_material, materialPurpose="physics")
+
     # FUTURE: use MjcPhysics schemas to apply property gaps
     # FUTURE: collision filtering
+
+
+def __acquire_physics_material(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
+    sliding_friction = geom.friction[0]
+    torsional_friction = geom.friction[1]
+    rolling_friction = geom.friction[2]
+    material_hash = Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
+
+    physics_materials: Usd.Prim = geom_prim.GetPrim().GetStage().GetDefaultPrim().GetChild(Tokens.Materials)
+    if not physics_materials:
+        physics_materials = defineScope(geom_prim.GetPrim().GetStage().GetDefaultPrim(), Tokens.Materials).GetPrim()
+        return __create_physics_material(physics_materials, geom, data)
+
+    # check for an existing physics material with the same values
+    for child in physics_materials.GetChildren():
+        if child.HasAPI(UsdPhysics.MaterialAPI):
+            physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI(child.GetPrim())
+            if Gf.IsClose(material_hash, __hash_physics_material(physics_material), 1e-6):
+                return UsdShade.Material(physics_material)
+
+    return __create_physics_material(physics_materials, geom, data)
+
+
+def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
+    sliding_friction = geom.friction[0]
+    torsional_friction = geom.friction[1]
+    rolling_friction = geom.friction[2]
+
+    material: UsdShade.Material = usdex.core.createMaterial(physics_materials, data.name_cache.getPrimName(physics_materials, "PhysicsMaterial"))
+    physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI.Apply(material.GetPrim())
+    physics_material.CreateDynamicFrictionAttr().Set(sliding_friction)
+    # FUTURE: use MjcPhysics schemas to author the custom friction values
+    physics_material.GetPrim().CreateAttribute("mjc:friction:torsional", Sdf.ValueTypeNames.Float, custom=True).Set(torsional_friction)
+    physics_material.GetPrim().CreateAttribute("mjc:friction:rolling", Sdf.ValueTypeNames.Float, custom=True).Set(rolling_friction)
+    return material
+
+
+def __hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
+    if material.GetDynamicFrictionAttr().HasAuthoredValue():  # noqa: SIM108
+        sliding_friction = material.GetDynamicFrictionAttr().Get()
+    else:
+        sliding_friction = -1
+    if material.GetPrim().GetAttribute("mjc:friction:torsional").HasAuthoredValue():
+        torsional_friction = material.GetPrim().GetAttribute("mjc:friction:torsional").Get()
+    else:
+        torsional_friction = -1
+    if material.GetPrim().GetAttribute("mjc:friction:rolling").HasAuthoredValue():
+        rolling_friction = material.GetPrim().GetAttribute("mjc:friction:rolling").Get()
+    else:
+        rolling_friction = -1
+    return Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
