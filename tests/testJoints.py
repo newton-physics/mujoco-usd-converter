@@ -62,12 +62,12 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetBody0Rel().GetTargets(), [body3.GetPrim().GetPath()])
         self.assertEqual(joint.GetBody1Rel().GetTargets(), [body4.GetPrim().GetPath()])
 
-        # the expected axis is x, as the -z axis on the mjc joint needs to be realigned for the limits to make sense
-        self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
+        # the expected axis is z, with a 180 degree local rotation as the -z axis on the mjc joint needs to be realigned for the limits to make sense
+        self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
         self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
-        self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0.0, 0.7071067690849304, 0.0)))
-        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071067690849304, Gf.Vec3f(0.0, 0.7071067690849304, 0.0)))
+        self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.0, Gf.Vec3f(-1.0, 0.0, 0.0)))
+        self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.0, Gf.Vec3f(-1.0, 0.0, 0.0)))
         self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), -5)
         self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 60)
 

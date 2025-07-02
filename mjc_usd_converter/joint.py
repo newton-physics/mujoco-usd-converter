@@ -115,15 +115,8 @@ def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_a
     joint_prim.CreateLocalPos1Attr().Set(joint_pos)
 
     # if joint is already axis aligned, respect it, otherwise force joints to be x-aligned (this is the default)
-    if axis_alignment := __get_axis_alignment(joint_axis):
-        joint_rotation = Gf.Quatf.GetIdentity()
-        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
-    else:
-        axis_alignment = UsdPhysics.Tokens.x
-        # align the joint axis with the x-axis of the parent body
-        joint_rotation = __align_vector_to_x_axis(joint_axis)
-        joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
-
+    axis_alignment, joint_rotation = __get_axis_alignment(joint_axis)
+    joint_prim.CreateLocalRot1Attr().Set(joint_rotation)
     # fixed joints don't have an axis attribute
     if hasattr(joint_prim, "CreateAxisAttr"):
         joint_prim.CreateAxisAttr().Set(axis_alignment)
@@ -139,20 +132,30 @@ def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_a
     joint_prim.CreateLocalRot0Attr().Set(grandparent_rot_offset)
 
 
-def __get_axis_alignment(v: np.ndarray) -> str | None:
+def __get_axis_alignment(v: np.ndarray) -> tuple[str | None, Gf.Quatf]:
     v = np.array(v, dtype=float)
     x_axis = np.array([1.0, 0.0, 0.0])
     y_axis = np.array([0.0, 1.0, 0.0])
     z_axis = np.array([0.0, 0.0, 1.0])
 
     if np.allclose(v, x_axis):
-        return UsdPhysics.Tokens.x
+        return UsdPhysics.Tokens.x, Gf.Quatf.GetIdentity()
     elif np.allclose(v, y_axis):
-        return UsdPhysics.Tokens.y
+        return UsdPhysics.Tokens.y, Gf.Quatf.GetIdentity()
     elif np.allclose(v, z_axis):
-        return UsdPhysics.Tokens.z
+        return UsdPhysics.Tokens.z, Gf.Quatf.GetIdentity()
+    elif np.allclose(v, -x_axis):
+        # rotate 180 degrees along any orthogonal axis
+        return UsdPhysics.Tokens.x, Gf.Quatf(v[1], v[2], v[0], 0)
+    elif np.allclose(v, -y_axis):
+        # rotate 180 degrees along any orthogonal axis
+        return UsdPhysics.Tokens.y, Gf.Quatf(v[1], v[2], v[0], 0)
+    elif np.allclose(v, -z_axis):
+        # rotate 180 degrees along any orthogonal axis
+        return UsdPhysics.Tokens.z, Gf.Quatf(v[1], v[2], v[0], 0)
     else:
-        return None
+        # align the joint axis with the +X axis of the parent body
+        return UsdPhysics.Tokens.x, __align_vector_to_x_axis(v)
 
 
 def __align_vector_to_x_axis(v: np.ndarray) -> Gf.Quatf:
