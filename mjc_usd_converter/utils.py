@@ -43,7 +43,7 @@ def set_transform(
     spec: mujoco.MjSpec,
 ) -> None:
     # get the current transform (including any inherited via references)
-    pos, pivot, orient, scale = usdex.core.getLocalTransformComponentsQuat(prim.GetPrim())
+    pos, pivot, orient, scale = usdex.core.getLocalTransformComponentsQuat(prim)
     current_transform = Gf.Transform(translation=pos, rotation=Gf.Rotation(orient), scale=Gf.Vec3d(scale), pivotPosition=pivot)
 
     # check for a local frame not represented in the prim hierarchy
@@ -97,7 +97,7 @@ def set_transform(
     orient = Gf.Quatf(final_transform.GetRotation().GetQuat())
     scale = Gf.Vec3f(final_transform.GetScale())
 
-    usdex.core.setLocalTransform(prim.GetPrim(), pos, orient, scale)
+    usdex.core.setLocalTransform(prim, pos, orient, scale)
 
 
 def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
