@@ -43,6 +43,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     for site, safe_name in zip(body.sites, safe_names):
         if site_prim := convert_geom(parent=body_prim, name=safe_name, geom=site, data=data):
             site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
+            site_prim.GetPrim().ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
 
     # FUTURE: camera
     # FUTURE: light
