@@ -11,6 +11,7 @@ __all__ = ["get_authoring_metadata", "get_fromto_vectors", "set_purpose", "set_t
 
 
 def get_authoring_metadata() -> str:
+    # FUTURE: don't hardcode the version
     return "MuJoCo USD Converter v0.1.0"
 
 
