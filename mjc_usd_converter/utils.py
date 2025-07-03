@@ -29,9 +29,9 @@ def set_schema_attribute(prim: Usd.Prim, name: str, value: Any):
     attr: Usd.Attribute = prim.GetAttribute(name)
     if not attr.IsValid():
         Tf.RaiseCodingError(f'Attribute "{name}" is not valid for prim <{prim.GetPath()}> with schemas {prim.GetAppliedSchemas()}')
-    # Only set the value if it is different from the schema default value.
-    # Since these are always schema attributes, we know they will have a defined default value
-    if value != attr.Get():
+    # Only set the value if it is different from the schema default value
+    default = attr.Get()
+    if default is None or value != default:
         attr.Set(value)
 
 

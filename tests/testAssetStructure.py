@@ -252,7 +252,12 @@ class TestAssetStructure(unittest.TestCase):
         self.assertTrue(default_prim)
         self.assertEqual(default_prim.GetName(), model_name)
 
-        self.assertEqual(len(physics_stage.GetDefaultPrim().GetAllChildren()), 2)
+        self.assertEqual(len(physics_stage.GetDefaultPrim().GetAllChildren()), 3)
+
+        physics_scene = UsdPhysics.Scene(physics_stage.GetDefaultPrim().GetChild("PhysicsScene"))
+        self.assertTrue(physics_scene)
+        self.assertEqual(physics_scene.GetPrim().GetAllChildren(), [])
+
         materials_scope = UsdGeom.Scope(physics_stage.GetDefaultPrim().GetChild("Materials"))
         self.assertTrue(materials_scope)
 
@@ -295,3 +300,15 @@ class TestAssetStructure(unittest.TestCase):
         check_layer("hinge_joints")  # has bodies and joints and geoms
         check_layer("materials")  # has textured materials
         check_layer("meshes")  # has mesh geoms
+
+    def test_physics_scene(self):
+        model = pathlib.Path("./tests/data/hinge_joints.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetDefaultPrim().GetChild("PhysicsScene"))
+        self.assertTrue(physics_scene)
+        self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), [Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI")])
+        self.assertEqual(physics_scene.GetGravityDirectionAttr().Get(), (0, 0, -1))
+        self.assertAlmostEqual(physics_scene.GetGravityMagnitudeAttr().Get(), 9.81, 6)

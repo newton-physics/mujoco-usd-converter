@@ -14,6 +14,7 @@ from .body import convert_bodies
 from .data import ConversionData
 from .material import convert_materials
 from .mesh import convert_meshes
+from .scene import convert_scene
 from .utils import get_authoring_metadata
 
 __all__ = ["Converter"]
@@ -100,7 +101,9 @@ class Converter:
         data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda", createScope=False)
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
 
-        # TODO: author the physics scene with MJC API applied
+        # author the physics scene
+        convert_scene(data)
+
         # TODO: author the keyframes with MjcPhysicsKeyframe
 
         # author the kinematic tree
