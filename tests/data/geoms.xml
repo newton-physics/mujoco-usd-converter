@@ -25,5 +25,6 @@
         <geom name="explicit_mass" type="box" size="0.1 0.1 0.1" mass="10.0"/>
         <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
         <geom name="mass_and_density" type="capsule" size="0.1 0.2" mass="15.0" density="4000"/>
+        <geom name="shell_inertia" type="capsule" size="0.1 0.2" shellinertia="true"/>
     </worldbody>
 </mujoco>

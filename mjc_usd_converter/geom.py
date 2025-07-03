@@ -8,7 +8,7 @@ from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 from ._future import Tokens, defineRelativeReference, defineScope
 from .data import ConversionData
 from .numpy import convert_color
-from .utils import get_fromto_vectors, set_purpose, set_transform
+from .utils import get_fromto_vectors, set_purpose, set_schema_attribute, set_transform
 
 __all__ = ["convert_geom", "get_geom_name"]
 
@@ -201,15 +201,21 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
         # this is a purely visual geom, so we skip physics authoring
         return
 
-    geom_over = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
+    geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
 
     collider: UsdPhysics.CollisionAPI = UsdPhysics.CollisionAPI.Apply(geom_over)
     if not collider_enabled:
         collider.CreateCollisionEnabledAttr().Set(False)
 
+    geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI"))
+
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
+        # FUTURE: add MjcPhysicsMeshCollisionAPI once MJC supports retrieving the mesh from the geom
+    else:
+        set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
+        # FUTURE: add remaining geom gaps once the schema is updated
 
     if not np.isnan(geom.mass):
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
@@ -223,7 +229,6 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
     if physics_material:
         UsdShade.MaterialBindingAPI.Apply(geom_over).Bind(physics_material, materialPurpose="physics")
 
-    # FUTURE: use MjcPhysics schemas to apply property gaps
     # FUTURE: collision filtering
 
 
