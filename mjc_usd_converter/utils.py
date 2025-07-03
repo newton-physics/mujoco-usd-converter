@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+from typing import Any
+
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, UsdGeom
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom
 
 from .numpy import convert_quat, convert_vec3d
 
-__all__ = ["get_authoring_metadata", "get_fromto_vectors", "set_purpose", "set_transform"]
+__all__ = ["get_authoring_metadata", "get_fromto_vectors", "set_purpose", "set_schema_attribute", "set_transform"]
 
 
 def get_authoring_metadata() -> str:
@@ -20,6 +22,16 @@ def set_purpose(prim: UsdGeom.Imageable, group: int) -> None:
         prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
     # author the group as a custom attribute so it is retained in a roundtrip
     prim.GetPrim().CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True).Set(group)
+
+
+def set_schema_attribute(prim: Usd.Prim, name: str, value: Any):
+    attr: Usd.Attribute = prim.GetAttribute(name)
+    if not attr.IsValid():
+        Tf.RaiseCodingError(f'Attribute "{name}" is not valid for prim <{prim.GetPath()}> with schemas {prim.GetAppliedSchemas()}')
+    # Only set the value if it is different from the schema default value.
+    # Since these are always schema attributes, we know they will have a defined default value
+    if value != attr.Get():
+        attr.Set(value)
 
 
 def get_fromto_vectors(geom: mujoco.MjsGeom) -> tuple[Gf.Vec3d | None, Gf.Vec3d | None]:
