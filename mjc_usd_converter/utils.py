@@ -150,10 +150,7 @@ def __get_frame_transform(
     if not hasattr(mjc_object, "frame"):
         return Gf.Transform()
 
-    if callable(mjc_object.frame):
-        frame: mujoco.MjsFrame = mjc_object.frame()
-    else:
-        frame: mujoco.MjsFrame = mjc_object.frame
+    frame: mujoco.MjsFrame = mjc_object.frame
 
     if frame is None:
         return Gf.Transform()

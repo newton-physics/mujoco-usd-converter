@@ -7,12 +7,21 @@
         <mesh name="box_mesh" file="assets/box.obj"/>
     </asset>
     <worldbody>
+        <!-- Basics -->
+        <geom type="sphere" size="0.1"/>
+        <geom type="cylinder" size="0.1 0.2"/>
+        <geom type="box" size="0.1 0.1 0.1"/>
+        <geom type="capsule" size="0.1 0.2"/>
+        <geom type="plane" size="10 10"/>
+        <geom type="mesh" mesh="box_mesh"/>
+        <!-- Physics -->
         <geom name="default_collider" type="sphere" size="0.1" contype="1" conaffinity="1"/>
-        <geom name="visual" type="sphere" size="0.1" contype="0" conaffinity="0" group="1"/>
+        <geom name="visual" type="sphere" size="0.1" contype="0" conaffinity="0" group="1" rgba="1 0 0 0.5"/>
         <geom name="visual_with_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="2" mass="5.0"/>
         <geom name="visual_with_density" type="sphere" size="0.1" contype="0" conaffinity="0" group="2" density="2000"/>
-        <geom name="visual_in_range_no_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="3"/>
-        <geom name="mesh_collider" type="mesh" mesh="box_mesh"/>
+        <geom name="visual_in_range_no_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="2"/>
+        <geom name="guide_visual" type="sphere" size="0.1" contype="0" conaffinity="0" group="3"/>
+        <geom name="guide_mesh_collider" type="mesh" mesh="box_mesh" group="3"/>
         <geom name="explicit_mass" type="box" size="0.1 0.1 0.1" mass="10.0"/>
         <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
         <geom name="mass_and_density" type="capsule" size="0.1 0.2" mass="15.0" density="4000"/>

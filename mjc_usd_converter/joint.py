@@ -44,8 +44,9 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         __set_joint_frame(joint, Gf.Vec3d(0, 0, 0), Gf.Vec3d(1, 0, 0), data)
         return
 
-    safe_names = data.name_cache.getPrimNames(parent, [get_joint_name(x) for x in body.joints])
-    for joint, safe_name in zip(body.joints, safe_names):
+    source_names = [get_joint_name(x) for x in body.joints]
+    safe_names = data.name_cache.getPrimNames(parent, source_names)
+    for joint, source_name, safe_name in zip(body.joints, source_names, safe_names):
         if joint.type == mujoco.mjtJoint.mjJNT_HINGE:
             joint_prim = __convert_hinge_joint(parent, safe_name, joint, data)
         elif joint.type == mujoco.mjtJoint.mjJNT_SLIDE:
@@ -55,6 +56,9 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         elif joint.type == mujoco.mjtJoint.mjJNT_FREE:
             # Bodies in USD are free by default, so we don't need to author a joint
             continue
+
+        if source_name and joint_prim.GetPrim().GetName() != source_name:
+            usdex.core.setDisplayName(joint_prim.GetPrim(), source_name)
 
         joint_prim.CreateBody0Rel().SetTargets(["../.."])
         joint_prim.CreateBody1Rel().SetTargets([".."])

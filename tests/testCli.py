@@ -44,3 +44,14 @@ class TestCli(unittest.TestCase):
             self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
             layer = Sdf.Layer.FindOrOpen(f"tests/output/{model_name}/{model_name}.usda")
             self.assertEqual(layer.comment, "from the unittests")
+
+    def test_invalid_input(self):
+        with patch("sys.argv", ["mjc_usd_converter", "tests/data/invalid.xml", "tests/output/invalid"]):
+            self.assertEqual(run(), 1, "Expected non-zero exit code for invalid input")
+
+    def test_invalid_output(self):
+        # create a file that is not a directory
+        pathlib.Path("tests/output").mkdir(parents=True, exist_ok=True)
+        pathlib.Path("tests/output/invalid").touch()
+        with patch("sys.argv", ["mjc_usd_converter", "tests/data/worldgeom.xml", "tests/output/invalid"]):
+            self.assertEqual(run(), 1, "Expected non-zero exit code for invalid output")
