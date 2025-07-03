@@ -88,7 +88,7 @@ class Converter:
         # author the mesh library
         convert_meshes(data)
         # setup a content layer for referenced meshes
-        # FUTURE: change to usdc
+        # TODO: change to usdc
         data.content[Tokens.Geometry] = addAssetContent(data.content[Tokens.Contents], Tokens.Geometry, format="usda")
 
         # author the material library and setup the content layer for materials only if there are materials
@@ -97,6 +97,9 @@ class Converter:
         # setup a content layer for physics
         data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda", createScope=False)
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
+
+        # TODO: author the physics scene with MJC API applied
+        # TODO: author the keyframes with MjcPhysicsKeyframe
 
         # author the kinematic tree
         convert_bodies(data)
@@ -109,7 +112,7 @@ class Converter:
             layer: Sdf.Layer = asset_stage.Flatten()
             asset_identifier = f"{output_dir.absolute().as_posix()}/{asset_stem}.{asset_format}"
             usdex.core.exportLayer(layer, asset_identifier, get_authoring_metadata(), comment=self.params.comment)
-            # FUTURE: relocate textures to the output directory
+            # TODO: relocate textures to the output directory
             shutil.rmtree(asset_dir, ignore_errors=True)
         else:
             usdex.core.saveStage(asset_stage, comment=self.params.comment)

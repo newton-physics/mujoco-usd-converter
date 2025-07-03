@@ -212,10 +212,10 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
-        # FUTURE: add MjcPhysicsMeshCollisionAPI once MJC supports retrieving the mesh from the geom
+        # TODO: add MjcPhysicsMeshCollisionAPI once MJC supports retrieving the mesh from the geom
     else:
         set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
-        # FUTURE: add remaining geom gaps once the schema is updated
+        # TODO: add remaining geom gaps once the schema is updated
 
     if not np.isnan(geom.mass):
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
@@ -261,7 +261,7 @@ def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom,
     material: UsdShade.Material = usdex.core.createMaterial(physics_materials, data.name_cache.getPrimName(physics_materials, "PhysicsMaterial"))
     physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI.Apply(material.GetPrim())
     physics_material.CreateDynamicFrictionAttr().Set(sliding_friction)
-    # FUTURE: use MjcPhysics schemas to author the custom friction values
+    # TODO: use MjcPhysics schemas to author the custom friction values
     physics_material.GetPrim().CreateAttribute("mjc:friction:torsional", Sdf.ValueTypeNames.Float, custom=True).Set(torsional_friction)
     physics_material.GetPrim().CreateAttribute("mjc:friction:rolling", Sdf.ValueTypeNames.Float, custom=True).Set(rolling_friction)
     return material

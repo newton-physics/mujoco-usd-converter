@@ -47,6 +47,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
 
     # FUTURE: camera
     # FUTURE: light
+    # TODO: actuators using MjcPhysics schemas
 
     if body != data.spec.worldbody:
         body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
