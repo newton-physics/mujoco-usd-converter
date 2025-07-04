@@ -6,9 +6,17 @@ if "%1"=="-c" (
     echo Cleaning...
     if exist "%VENV%" (
         rd /s /q "%VENV%"
+        if %errorlevel% neq 0 (
+            echo ERROR: Failed to clean venv.
+            exit /b 1
+        )
     )
     if exist dist (
         rd /s /q dist
+        if %errorlevel% neq 0 (
+            echo ERROR: Failed to clean dist.
+            exit /b 1
+        )
     )
 )
 
@@ -23,6 +31,10 @@ if %errorlevel% neq 0 (
 REM Install dependencies and build
 echo Installing dependencies with uv...
 uv sync --group dev
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to install dependencies.
+    exit /b 1
+)
 
 echo Using uv version:
 uv --version
@@ -31,3 +43,7 @@ if exist "dist" (
 )
 echo Building wheel...
 uv build --wheel
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to build wheel.
+    exit /b 1
+)
