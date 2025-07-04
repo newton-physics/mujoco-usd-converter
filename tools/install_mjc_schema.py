@@ -15,6 +15,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         self.target_dir = Path("mjc_usd_converter/plugins/mjcPhysics/resources")
         self.target_dir.mkdir(parents=True, exist_ok=True)
         self.download_schema_files()
+        self.patch_schema_files()
         self.make_codeless_schema()
 
     def download_schema_files(self):
@@ -37,6 +38,22 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         except Exception as e:
             print(f"Failed to download schema file: {e}")
             raise
+
+    def patch_schema_files(self):
+        """Patch the schema files to fixup temporary issues"""
+        schema_path = self.target_dir / "generatedSchema.usda"
+        if not schema_path.exists():
+            print(f"Warning: generatedSchema.usda not found at {schema_path}")
+            return
+
+        # remove any non-ASCII characters
+        with Path(schema_path).open() as f:
+            content = f.read().encode("ascii", "ignore").decode("ascii")
+
+        # Re-write the file
+        print(f"Writing generatedSchema.usda to {schema_path}")
+        with Path(schema_path).open("w") as f:
+            f.write(content)
 
     def make_codeless_schema(self):
         """Make the schema codeless"""
