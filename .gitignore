@@ -13,3 +13,4 @@ tests/output/*
 
 # installation artifacts
 dist
+mjc_usd_converter/plugins/mjcPhysics

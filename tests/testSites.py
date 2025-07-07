@@ -35,6 +35,7 @@ class TestSites(unittest.TestCase):
         self.assertEqual(box.GetSizeAttr().Get(), 2)
         self.assertTrue(Gf.IsClose(usdex.core.getLocalTransform(site).GetScale(), Gf.Vec3d(0.1, 0.2, 0.3), 1e-6))
         self.assertEqual(box.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+        self.assertTrue(site.GetPrim().HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
         self.assertEqual(site.GetAttribute("mjc:group").Get(), 0)
 
         world_site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/worldsite")
@@ -43,6 +44,7 @@ class TestSites(unittest.TestCase):
         # default size for sites is 0.005
         self.assertEqual(world_sphere.GetRadiusAttr().Get(), 0.005)
         self.assertEqual(world_sphere.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+        self.assertTrue(world_site.GetPrim().HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
         self.assertEqual(world_site.GetAttribute("mjc:group").Get(), 1)
 
     def test_sites_exclude_physics(self):

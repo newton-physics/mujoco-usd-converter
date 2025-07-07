@@ -156,3 +156,10 @@ class TestGeom(unittest.TestCase):
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 15.0)
         self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 4000)
+
+    def test_shell_inertia(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/shell_inertia")
+        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+        self.assertTrue(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
+        self.assertTrue(prim.GetAttribute("mjc:shellinertia").Get())

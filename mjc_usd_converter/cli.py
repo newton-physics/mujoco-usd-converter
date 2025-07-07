@@ -17,7 +17,7 @@ def run() -> int:
     parser = __create_parser()
     args = parser.parse_args()
 
-    # FUTURE: ensure args
+    # TODO: ensure args
 
     usdex.core.activateDiagnosticsDelegate()
     usdex.core.setDiagnosticsLevel(usdex.core.DiagnosticsLevel.eStatus if args.verbose else usdex.core.DiagnosticsLevel.eWarning)
@@ -64,6 +64,8 @@ def __create_parser() -> argparse.ArgumentParser:
     )
 
     # Optional arguments
+    # TODO: add arg to flatten hierarchy
+    # TODO: disambiguate from flattening hierarchy
     parser.add_argument(
         "--flatten",
         action="store_true",

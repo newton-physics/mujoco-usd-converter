@@ -345,3 +345,97 @@ class TestJoints(unittest.TestCase):
         unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body3/body4/unlimited_joint"))
         self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
+
+    def test_mjc_schema(self):
+        # Test that all joint attributes are authored correctly
+        model = pathlib.Path("./tests/data/joint_attributes.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # A joints attributes are authored to USD if they are set to non-default values
+        custom_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body1/custom_joint")
+        self.assertTrue(custom_joint.IsValid())
+        self.assertTrue(custom_joint.IsA(UsdPhysics.RevoluteJoint))
+        self.assertTrue(custom_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI")))
+
+        # Check that all MJC properties are authored
+        for property in custom_joint.GetPropertiesInNamespace("mjc"):
+            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+
+        # Check that all attributes are authored correctly
+        self.assertTrue(custom_joint.GetAttribute("mjc:actuatorfrclimited").HasAuthoredValue())
+        self.assertEqual(custom_joint.GetAttribute("mjc:actuatorfrclimited").Get(), "true")
+        self.assertTrue(custom_joint.GetAttribute("mjc:actuatorfrcrange:min").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:actuatorfrcrange:min").Get(), -10)
+        self.assertTrue(custom_joint.GetAttribute("mjc:actuatorfrcrange:max").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:actuatorfrcrange:max").Get(), 10)
+        self.assertTrue(custom_joint.GetAttribute("mjc:actuatorgravcomp").HasAuthoredValue())
+        self.assertEqual(custom_joint.GetAttribute("mjc:actuatorgravcomp").Get(), True)
+        self.assertTrue(custom_joint.GetAttribute("mjc:armature").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:armature").Get(), 0.1)
+        self.assertTrue(custom_joint.GetAttribute("mjc:damping").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:damping").Get(), 0.5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:frictionloss").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:frictionloss").Get(), 0.2)
+        self.assertTrue(custom_joint.GetAttribute("mjc:margin").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:margin").Get(), 0.01)
+        self.assertTrue(custom_joint.GetAttribute("mjc:ref").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:ref").Get(), 0.1)
+        self.assertTrue(custom_joint.GetAttribute("mjc:solimplimit").HasAuthoredValue())
+        expected_solimplimit = [0.8, 0.9, 0.002, 0.6, 3]
+        actual_solimplimit = custom_joint.GetAttribute("mjc:solimplimit").Get()
+        for i in range(5):
+            self.assertAlmostEqual(actual_solimplimit[i], expected_solimplimit[i], places=5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:solreflimit").HasAuthoredValue())
+        expected_solreflimit = [0.01, 0.5]
+        actual_solreflimit = custom_joint.GetAttribute("mjc:solreflimit").Get()
+        for i in range(2):
+            self.assertAlmostEqual(actual_solreflimit[i], expected_solreflimit[i], places=5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:solimpfriction").HasAuthoredValue())
+        expected_solimpfriction = [0.7, 0.8, 0.001, 0.4, 2]
+        actual_solimpfriction = custom_joint.GetAttribute("mjc:solimpfriction").Get()
+        for i in range(5):
+            self.assertAlmostEqual(actual_solimpfriction[i], expected_solimpfriction[i], places=5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:solreffriction").HasAuthoredValue())
+        expected_solreffriction = [0.015, 0.8]
+        actual_solreffriction = custom_joint.GetAttribute("mjc:solreffriction").Get()
+        for i in range(2):
+            self.assertAlmostEqual(actual_solreffriction[i], expected_solreffriction[i], places=5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:springdamper").HasAuthoredValue())
+        expected_springdamper = [0.5, 0.3]
+        actual_springdamper = custom_joint.GetAttribute("mjc:springdamper").Get()
+        for i in range(2):
+            self.assertAlmostEqual(actual_springdamper[i], expected_springdamper[i], places=5)
+        self.assertTrue(custom_joint.GetAttribute("mjc:springref").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:springref").Get(), 0.2)
+        self.assertTrue(custom_joint.GetAttribute("mjc:stiffness").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:stiffness").Get(), 100)
+
+        # A joint with explicitly authored default values in MJC does not need to author any values in USD
+        default_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body2/default_joint")
+        self.assertTrue(default_joint.IsValid())
+        self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
+        self.assertTrue(default_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI")))
+        self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrclimited").HasAuthoredValue())
+        self.assertEqual(default_joint.GetAttribute("mjc:actuatorfrclimited").Get(), "auto")
+        self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrcrange:min").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:actuatorfrcrange:min").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrcrange:max").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:actuatorfrcrange:max").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("mjc:actuatorgravcomp").HasAuthoredValue())
+        self.assertEqual(default_joint.GetAttribute("mjc:actuatorgravcomp").Get(), False)
+        self.assertFalse(default_joint.GetAttribute("mjc:armature").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:armature").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:damping").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:damping").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:frictionloss").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:frictionloss").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:margin").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:margin").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:ref").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:ref").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:springref").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:springref").Get(), 0.0)
+        self.assertFalse(default_joint.GetAttribute("mjc:stiffness").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("mjc:stiffness").Get(), 0)

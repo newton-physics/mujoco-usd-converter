@@ -103,8 +103,11 @@ help = "Run black on the code base"
 cmd  = "black ."
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "requests"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.hooks.custom]
+path = "tools/install_mjc_schema.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mjc_usd_converter"]
@@ -139,6 +142,7 @@ select = [
 ]
 ignore = [
     "PT009",  # unittest-style asserts are fine
+    "PT027",  # unittest-style assertRaises is fine
 ]
 
 [tool.black]

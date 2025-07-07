@@ -67,6 +67,7 @@ def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
     set_transform(mesh_prim, mesh, data.spec)
 
     # Store concept gaps as custom attributes
+    # TODO: use MjcPhysicsMeshCollisionAPI in the physics layer once MJC supports retrieving the mesh from the geom
     prim.CreateAttribute("mjc:mesh:inertia", Sdf.ValueTypeNames.Int, custom=True).Set(int(mesh.inertia))
     if mesh.maxhullvert != -1:
         prim.CreateAttribute("mjc:mesh:maxhullvert", Sdf.ValueTypeNames.Int, custom=True).Set(mesh.maxhullvert)
