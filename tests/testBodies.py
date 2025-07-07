@@ -64,9 +64,9 @@ class TestBodies(unittest.TestCase):
 
         mat = np.array(
             [
-                [0.3, 0.05, 0.02],
-                [0.05, 0.2, 0.01],
-                [0.02, 0.01, 0.1],
+                [0.4, 0.05, 0.02],
+                [0.05, 0.3, 0.01],
+                [0.02, 0.01, 0.2],
             ]
         )
         # mju_eig3 expects flattened column-major matrix

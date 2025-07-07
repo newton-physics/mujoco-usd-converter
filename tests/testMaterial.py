@@ -65,6 +65,8 @@ class TestMaterial(unittest.TestCase):
         textured_box_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Geometry/TexturedBox")
         self.assertTrue(textured_box_prim)
         material_binding = UsdShade.MaterialBindingAPI(textured_box_prim)
+        self.assertTrue(material_binding)
+        self.assertTrue(material_binding.GetDirectBindingRel())
         self.assertEqual(len(material_binding.GetDirectBindingRel().GetTargets()), 1)
         bound_material = material_binding.GetDirectBindingRel().GetTargets()[0]
         material = UsdShade.Material(self.stage.GetPrimAtPath(bound_material))
