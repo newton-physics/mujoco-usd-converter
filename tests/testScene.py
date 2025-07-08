@@ -17,7 +17,7 @@ class TestScene(unittest.TestCase):
         asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
-        scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetDefaultPrim().GetChild("PhysicsScene"))
+        scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
         self.assertTrue(scene)
 
         self.assertEqual(scene.GetGravityDirectionAttr().Get(), Gf.Vec3f(0, 0, -1))
@@ -30,7 +30,7 @@ class TestScene(unittest.TestCase):
         asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
-        scene: Usd.Prim = stage.GetDefaultPrim().GetChild("PhysicsScene")
+        scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
         self.assertTrue(scene.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsSceneAPI")))
 
@@ -112,7 +112,7 @@ class TestScene(unittest.TestCase):
         asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
-        scene: Usd.Prim = stage.GetDefaultPrim().GetChild("PhysicsScene")
+        scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
         self.assertTrue(scene.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsSceneAPI")))
 

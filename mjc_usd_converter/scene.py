@@ -3,7 +3,7 @@
 
 from pxr import Gf, Usd, UsdPhysics, Vt
 
-from ._future import Tokens
+from ._future import Tokens, defineRelativeReference
 from .data import ConversionData
 from .numpy import convert_vec3d
 from .utils import set_schema_attribute
@@ -12,12 +12,24 @@ __all__ = ["convert_scene"]
 
 
 def convert_scene(data: ConversionData):
-    root: Usd.Prim = data.content[Tokens.Physics].GetDefaultPrim()
-    safe_name = data.name_cache.getPrimName(root, "PhysicsScene")
-    scene: UsdPhysics.Scene = UsdPhysics.Scene.Define(data.content[Tokens.Physics], root.GetPath().AppendChild(safe_name))
+    asset_stage: Usd.Stage = data.content[Tokens.Asset]
+    content_stage: Usd.Stage = data.content[Tokens.Contents]
+    physics_stage: Usd.Stage = data.content[Tokens.Physics]
+
+    # ensure the name is valid across all layers
+    safe_name = data.name_cache.getPrimName(asset_stage.GetPseudoRoot(), "PhysicsScene")
+
+    # author the scene in the physics layer
+    scene: UsdPhysics.Scene = UsdPhysics.Scene.Define(physics_stage, asset_stage.GetPseudoRoot().GetPath().AppendChild(safe_name))
     scene_prim: Usd.Prim = scene.GetPrim()
+    # apply the MJC scene API
     scene_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI"))
 
+    # reference the scene in the asset layer, but from the content layer
+    content_scene: Usd.Prim = content_stage.GetPseudoRoot().GetChild(safe_name)
+    defineRelativeReference(asset_stage.GetPseudoRoot(), content_scene, safe_name)
+
+    # set the gravity
     gravity_vector: Gf.Vec3d = convert_vec3d(data.spec.option.gravity)
     scene.CreateGravityDirectionAttr().Set(gravity_vector.GetNormalized())
     scene.CreateGravityMagnitudeAttr().Set(gravity_vector.GetLength())
