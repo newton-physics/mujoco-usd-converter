@@ -46,6 +46,8 @@
   - `UsdPreviewSurface` materials with color, opacity, roughness, metallic, specular, and emissive properties
   - PNG texture support with automatic texture copying and path resolution
   - Color and opacity overrides on geometry are handled via `primvars:displayColor` and `primvars:displayOpacity`
+- **Actuator Conversion**
+  - MuJoCo Actuators are converted as `MjcActuator` prims with `UsdRelationships` to the affected bodies, joints, and sites
 - **Simulation Options**
   - Gravity direction and magnitude conversion via `UsdPhysics.Scene`
   - All other MuJoCo options & flags via `MjcSceneAPI` applied on the `UsdPhysics.Scene`
@@ -66,11 +68,7 @@
 
 ## Release Blockers
 
-- (NV/GDM) Authoring PhysicsScene with MjcSceneAPI causes MuJoCo Simulate to SEGFAUILT
-  - GDM cannot repro
-- (GDM) MjcTransmission being renamed to MjcActuator
 - (GDM) MjcSceneAPI is missing critical compiler settings
-- (NV) MjcActuator support is not implemented (WIP but no MR)
 - (NV) Texture handling for unnamed textures is not supported
 - (NV) Texture relocation during flattening is not implemented
 
@@ -91,7 +89,7 @@
 - **Geom Conversion**
   - Inline XML mesh topology is not implemented for meshes without files
   - For basic geom (e.g cylinders), mesh/fitscale support is not implemented
-  - Ellipoid conversion is not implemented
+  - Ellipsoid conversion is not implemented
   - Height Field conversion is not implemented
   - Signed Distance Field conversion is not implemented
   - Collision filtering via the `contype` & `conaffinity` algorithm is not implemented
@@ -128,3 +126,5 @@
 - As with MJCF and `MjSpec`, the USD Asset contains nested rigid bodies within articulations.
   - Existing applications may not support this style of nesting.
   - There is a [proposal](https://github.com/PixarAnimationStudios/OpenUSD-proposals/pull/82) to adopt this change to the UsdPhysics specification.
+- Certain typed prims (e.g. `MjcActuator`) and applied APIs (e.g. `MjcJointAPI`) are MuJoCo specific
+  - These likely will not import into other applications, unless special care is taken to account for the `MjcPhysics` schemas

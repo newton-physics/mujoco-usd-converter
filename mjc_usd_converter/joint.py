@@ -8,7 +8,7 @@ from pxr import Gf, Tf, Usd, UsdPhysics
 
 from .data import ConversionData, Tokens
 from .numpy import convert_vec3d
-from .utils import set_schema_attribute
+from .utils import mj_limited_to_token, set_schema_attribute
 
 __all__ = ["convert_joints", "get_joint_name"]
 
@@ -61,6 +61,8 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         if source_name and joint_prim.GetPrim().GetName() != source_name:
             usdex.core.setDisplayName(joint_prim.GetPrim(), source_name)
 
+        data.references[Tokens.Physics][joint.name] = joint_prim.GetPrim()
+
         joint_prim.CreateBody0Rel().SetTargets(["../.."])
         joint_prim.CreateBody1Rel().SetTargets([".."])
 
@@ -72,7 +74,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 def __apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsJointAPI"))
 
-    limited_token = __limited_to_token(joint.actfrclimited)
+    limited_token = mj_limited_to_token(joint.actfrclimited)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
     set_schema_attribute(prim, "mjc:actuatorfrcrange:min", joint.actfrcrange[0])
     set_schema_attribute(prim, "mjc:actuatorfrcrange:max", joint.actfrcrange[1])
@@ -133,15 +135,6 @@ def __is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
     elif data.spec.compiler.autolimits and joint.range[0] != joint.range[1]:
         return True
     return False
-
-
-def __limited_to_token(limited_val: mujoco.mjtLimited) -> str:
-    if limited_val == mujoco.mjtLimited.mjLIMITED_FALSE:
-        return "false"
-    elif limited_val == mujoco.mjtLimited.mjLIMITED_TRUE:
-        return "true"
-    else:
-        return "auto"
 
 
 def __set_joint_frame(joint_prim: UsdPhysics.Joint, joint_pos: Gf.Vec3d, joint_axis: Gf.Vec3d, data: ConversionData):

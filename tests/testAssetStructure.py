@@ -12,12 +12,6 @@ from mjc_usd_converter._future import getLayerAuthoringMetadata
 
 
 class TestAssetStructure(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # this needs to be done in the first test, which is currently this file as the tests are run in alphabetical order
-        # FUTURE: refactor to a base class
-        usdex.core.activateDiagnosticsDelegate()
 
     def tearDown(self):
         if pathlib.Path("tests/output").exists():

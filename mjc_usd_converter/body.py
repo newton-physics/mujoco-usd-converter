@@ -43,16 +43,17 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     for site, safe_name in zip(body.sites, safe_names):
         if site_prim := convert_geom(parent=body_prim, name=safe_name, geom=site, data=data):
             site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
-            site_over = data.content[Tokens.Physics].OverridePrim(site_prim.GetPath())
+            site_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(site_prim.GetPath())
+            data.references[Tokens.Physics][site.name] = site_over
             site_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
             set_schema_attribute(site_over, "mjc:group", site.group)
 
     # FUTURE: camera
     # FUTURE: light
-    # TODO: actuators using MjcPhysics schemas
 
     if body != data.spec.worldbody:
         body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
+        data.references[Tokens.Physics][body.name] = body_over
         rbd: UsdPhysics.RigidBodyAPI = UsdPhysics.RigidBodyAPI.Apply(body_over)
         # when the parent body is kinematic, the child body must also be kinematic
         if __is_kinematic(body, body_over):
