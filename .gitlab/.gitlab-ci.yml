@@ -71,7 +71,7 @@ test_windows:
   extends: [.deploy_job]
   stage: deploy
   script:
-    - uv publish --index-url ${ARTIFACTORY_URL} --username ${ARTIFACTORY_USERNAME} --password ${ARTIFACTORY_KEY} --verbose
+    - uv publish --index ${ARTIFACTORY_URL} --username ${ARTIFACTORY_USERNAME} --password ${ARTIFACTORY_KEY} --verbose
 
 deploy_tagged:
   extends: [.deploy_base]
