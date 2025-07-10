@@ -3,7 +3,7 @@
 
 from pxr import Gf, Usd, UsdPhysics, Vt
 
-from ._future import Tokens, defineRelativeReference
+from ._future import Tokens, defineRelativePayload
 from .data import ConversionData
 from .numpy import convert_vec3d
 from .utils import set_schema_attribute
@@ -27,7 +27,7 @@ def convert_scene(data: ConversionData):
 
     # reference the scene in the asset layer, but from the content layer
     content_scene: Usd.Prim = content_stage.GetPseudoRoot().GetChild(safe_name)
-    defineRelativeReference(asset_stage.GetPseudoRoot(), content_scene, safe_name)
+    defineRelativePayload(asset_stage.GetPseudoRoot(), content_scene, safe_name)
 
     # set the gravity
     gravity_vector: Gf.Vec3d = convert_vec3d(data.spec.option.gravity)
