@@ -7,15 +7,26 @@ A [MuJoCo](https://mujoco.org) to [OpenUSD](https://openusd.org) Data Converter
 > Important: This is currently an Alpha product. See the [CHANGELOG](./CHANGELOG.md) for features and known limitations.
 
 Key Features:
+- Converts an input MJCF file into an OpenUSD Layer
+- Supports data conversion of visual geometry & materials, as well as the bodies, collision geometry, sites, joints, and actuators necessary for kinematic simulation.
 - Available as a python module or command line interface (CLI).
-- Converts an input MJCF file into an OpenUSD Layer:
-  - A standalone, self-contained artifact with no connection to the source MJCF, OBJ, or STL data.
+- Creates a standalone, self-contained artifact with no connection to the source MJCF, OBJ, or STL data.
   - Structured as an [Atomic Component](https://docs.omniverse.nvidia.com/usd/latest/learn-openusd/independent/asset-structure-principles.html#atomic-model-structure-flowerpot)
-  - Contains visual geometry & materials as well as physical properties necessary for simulation.
   - Suitable for visualization & rendering in any OpenUSD Ecosystem application.
   - Suitable for [import & simulation directly in MuJoCo Simulate](#loading-usd-in-mujoco-simulate).
 
-Specific implementation details are based on the "MJC to USD Conceptual Data Mapping" document, which is a collaboration between Google DeepMind and NVIDIA. The implementation also leverages [NVIDIA's OpenUSD Exchange SDK](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/index.html) to author consistent & correct USD data, as well as the MjcPhysics USD schema from MuJoCo to author the MuJoCo specific Prims, Applied APIs, and Attributes.
+## Implementation Details & Dependencies
+
+Specific implementation details are based on the "MJC to USD Conceptual Data Mapping" document, which is a collaboration between Google DeepMind and NVIDIA. This document will be made public once the project moves out of the alpha phase.
+
+The output asset structure is based on NVIDIA's [Principles of Scalable Asset Structure in OpenUSD](https://docs.omniverse.nvidia.com/usd/latest/learn-openusd/independent/asset-structure-principles.html).
+
+The implementation also leverages the following dependencies:
+- NVIDIA's [OpenUSD Exchange SDK](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/index.html) to author consistent & correct USD data.
+- Pixar's OpenUSD python modules & native libraries (vendored via the `usd-exchange` wheel).
+- Google DeepMind's `mujoco` python module for parsing MJCF into MjSpec
+- A codeless version of the MjcPhysics USD schema from MuJoCo to author the MuJoCo specific Prims, Applied APIs, and Attributes.
+- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader) and [numpy-stl](https://numpy-stl.readthedocs.io) for parsing any mesh data referenced by the input MJCF datasets.
 
 # Get Started
 
@@ -41,7 +52,7 @@ converter = mjc_usd_converter.Converter()
 asset: Sdf.AssetPath = converter.convert("/path/to/robot.xml", "/tmp/usd_robot")
 stage: Usd.Stage = Usd.Stage.Open(asset.path)
 # modify further using Usd or usdex.core functionality
-usdex.core.saveStage(stage)
+usdex.core.saveStage(stage, comment="modified after conversion")
 ```
 
 ## Loading the USD Asset
@@ -64,7 +75,7 @@ Loading any USD Layer into MuJoCo Simulate requires a USD enabled build of MuJoC
 
 > Important : USD support in MuJoCo is currently listed as experimental
 
-To build MuJoCo with USD support, following the usual CMake build instructions & provide the USD_DIR argument when configuring cmake. If you do not have a local USD distribution you will need to build or acquire one.
+To build MuJoCo with USD support, follow the usual CMake build instructions & provide the `USD_DIR` argument when configuring cmake. If you do not have a local USD distribution you will need to build or acquire one.
 
 > Tip: OpenUSD Exchange provides a commandline tool to acquire many precompiled distributions of OpenUSD across several platforms & python versions. See the [install_usdex](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/docs/devtools.html#install-usdex) documentation for details.
 
