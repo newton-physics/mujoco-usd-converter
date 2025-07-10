@@ -130,7 +130,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ### Common Commands
 
 #### Direct uv Commands (Recommended)
-- Update dependencies: Edit `pyproject.toml` and then `uv lock`
+- Update dependencies: Edit `pyproject.toml` and then run `uv lock`
 - Build the sdist and wheel: `uv build`
 - Build just the wheel: `uv build --wheel`
 - Run linting: `uv run --group dev poe lint`
