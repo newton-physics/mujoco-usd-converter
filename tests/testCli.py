@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 # workaround for Windows not locating the USD libs, because of the way plugInfo.json in usdex is structured
 import usdex.core  # noqa: F401
-from pxr import Sdf
+from pxr import Sdf, Usd
 
 from mjc_usd_converter import run
 
@@ -35,6 +35,15 @@ class TestCli(unittest.TestCase):
             self.assertFalse(pathlib.Path(f"tests/output/{model_name}/payload").exists())
             self.assertFalse(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
             self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usdc").exists())
+
+    def test_no_physics_scene(self):
+        model = "tests/data/scene_attributes.xml"
+        model_name = pathlib.Path(model).stem
+        with patch("sys.argv", ["mjc_usd_converter", model, f"tests/output/{model_name}", "--no-physics-scene"]):
+            self.assertEqual(run(), 0, f"Failed to convert {model}")
+            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
+            stage = Usd.Stage.Open(f"tests/output/{model_name}/{model_name}.usda")
+            self.assertFalse(stage.GetPrimAtPath("/PhysicsScene").IsValid())
 
     def test_comment(self):
         model = "tests/data/worldgeom.xml"

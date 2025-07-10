@@ -27,7 +27,7 @@ def run() -> int:
     Tf.Status(f"MuJoCo Version: {mujoco.__version__}")
 
     try:
-        converter = Converter(flatten=args.flatten, comment=args.comment)
+        converter = Converter(flatten=args.flatten, scene=not args.no_physics_scene, comment=args.comment)
         if result := converter.convert(args.input_file, args.output_dir):
             Tf.Status(f"Created USD Asset: {result.path}")
             return 0
@@ -71,6 +71,12 @@ def __create_parser() -> argparse.ArgumentParser:
         action="store_true",
         default=False,
         help="Flatten the USD stage before saving",
+    )
+    parser.add_argument(
+        "--no-physics-scene",
+        action="store_true",
+        default=False,
+        help="Disable authoring a `UsdPhysics.Scene` prim with the `MjcPhysicsSceneAPI` as a sibling of the default prim",
     )
     parser.add_argument(
         "--verbose",

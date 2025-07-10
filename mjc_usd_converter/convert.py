@@ -24,10 +24,11 @@ class Converter:
     @dataclass
     class Params:
         flatten: bool = False
+        scene: bool = True
         comment: str = ""
 
-    def __init__(self, flatten: bool = False, comment: str = ""):
-        self.params = self.Params(flatten=flatten, comment=comment)
+    def __init__(self, flatten: bool = False, scene: bool = True, comment: str = ""):
+        self.params = self.Params(flatten=flatten, scene=scene, comment=comment)
 
     def convert(self, input_file: str, output_dir: str) -> Sdf.AssetPath:
         """
@@ -60,7 +61,15 @@ class Converter:
         spec = mujoco.MjSpec.from_file(str(input_path.absolute()))
 
         # Create the conversion data object
-        data = ConversionData(spec=spec, content={}, libraries={}, references={}, name_cache=usdex.core.NameCache(), comment=self.params.comment)
+        data = ConversionData(
+            spec=spec,
+            content={},
+            libraries={},
+            references={},
+            name_cache=usdex.core.NameCache(),
+            scene=self.params.scene,
+            comment=self.params.comment,
+        )
 
         # setup the main output layer (which will become an asset interface later)
         if self.params.flatten:
@@ -102,7 +111,8 @@ class Converter:
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
 
         # author the physics scene
-        convert_scene(data)
+        if self.params.scene:
+            convert_scene(data)
 
         # TODO: author the keyframes with MjcPhysicsKeyframe
 

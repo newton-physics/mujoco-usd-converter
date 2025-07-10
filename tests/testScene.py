@@ -125,10 +125,7 @@ class TestScene(unittest.TestCase):
 
         # Check that only MJC properties without a default value are authored
         for property in scene.GetPropertiesInNamespace("mjc"):
-            if property.GetName() in ("mjc:option:actuatorgroupdisable",):
-                self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} should be authored")
-            else:
-                self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+            self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
 
         # Test that default values are not authored but still available via schema defaults
         # Most flag attributes should not be authored since they match schema defaults
@@ -196,3 +193,12 @@ class TestScene(unittest.TestCase):
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:tolerance").Get(), 1e-8)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:viscosity").Get(), 0)
         self.assertTrue(Gf.IsClose(scene.GetAttribute("mjc:option:wind").Get(), Gf.Vec3d(0, 0, 0), 1e-6))
+
+    def test_scene_disabled(self):
+        model = pathlib.Path("./tests/data/scene_attributes.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter(scene=False).convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
+        self.assertFalse(scene.IsValid())
