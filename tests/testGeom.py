@@ -14,7 +14,7 @@ class TestGeom(unittest.TestCase):
     def setUp(self):
         model = pathlib.Path("./tests/data/geoms.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, f"./tests/output/{model_name}")
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
     def tearDown(self):
