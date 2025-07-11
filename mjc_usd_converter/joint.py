@@ -4,7 +4,7 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, Tf, Usd, UsdPhysics
+from pxr import Gf, Tf, Usd, UsdPhysics
 
 from .data import ConversionData, Tokens
 from .numpy import convert_vec3d
@@ -67,8 +67,6 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         __set_joint_frame(joint_prim, convert_vec3d(joint.pos), convert_vec3d(joint.axis), data)
 
         __apply_mjc_joint_api(joint_prim.GetPrim(), joint)
-        # author the group as a custom attribute since it is not part of the schema yet
-        joint_prim.GetPrim().CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True, variability=Sdf.VariabilityUniform).Set(joint.group)
 
 
 def __apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
@@ -82,6 +80,7 @@ def __apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:armature", joint.armature)
     set_schema_attribute(prim, "mjc:damping", joint.damping)
     set_schema_attribute(prim, "mjc:frictionloss", joint.frictionloss)
+    set_schema_attribute(prim, "mjc:group", joint.group)
     set_schema_attribute(prim, "mjc:margin", joint.margin)
     set_schema_attribute(prim, "mjc:ref", joint.ref)
     set_schema_attribute(prim, "mjc:solimpfriction", list(joint.solimp_friction))
