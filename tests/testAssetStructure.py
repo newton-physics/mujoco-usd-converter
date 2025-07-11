@@ -253,6 +253,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(default_prim.GetName(), model_name)
 
         self.assertEqual(len(physics_stage.GetDefaultPrim().GetAllChildren()), 2)
+
         materials_scope = UsdGeom.Scope(physics_stage.GetDefaultPrim().GetChild("Materials"))
         self.assertTrue(materials_scope)
 
@@ -265,6 +266,11 @@ class TestAssetStructure(unittest.TestCase):
             self.assertEqual(len(prim_specs), 1)
             self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
             self.assertEqual(prim_specs[0].path, prim.GetPath())
+
+        # Test the sidecar PhysicsScene prim
+        physics_scene = UsdPhysics.Scene(physics_stage.GetPseudoRoot().GetChild("PhysicsScene"))
+        self.assertTrue(physics_scene)
+        self.assertEqual(physics_scene.GetPrim().GetAllChildren(), [])
 
     def test_physics_does_not_leak(self):
 
@@ -295,3 +301,15 @@ class TestAssetStructure(unittest.TestCase):
         check_layer("hinge_joints")  # has bodies and joints and geoms
         check_layer("materials")  # has textured materials
         check_layer("meshes")  # has mesh geoms
+
+    def test_physics_scene(self):
+        model = pathlib.Path("./tests/data/hinge_joints.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
+        self.assertTrue(physics_scene)
+        self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), [Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI")])
+        self.assertEqual(physics_scene.GetGravityDirectionAttr().Get(), (0, 0, -1))
+        self.assertAlmostEqual(physics_scene.GetGravityMagnitudeAttr().Get(), 9.81, 6)

@@ -18,4 +18,5 @@ class ConversionData:
     libraries: dict[Tokens, Usd.Stage]
     references: dict[Tokens, dict[str, Usd.Prim]]
     name_cache: usdex.core.NameCache
+    scene: bool
     comment: str

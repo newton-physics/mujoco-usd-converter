@@ -160,3 +160,13 @@ def defineRelativeReference(parent: Usd.Prim, reference: Usd.Prim, name: str | N
     relative_identifier = getRelativeIdentifier(reference.GetStage().GetRootLayer(), parent.GetStage().GetRootLayer())
     prim.GetReferences().AddReference(relative_identifier, reference.GetPath())
     return prim
+
+
+def defineRelativePayload(parent: Usd.Prim, target: Usd.Prim, name: str | None = None) -> Usd.Prim:  # noqa: N802
+    name = name or target.GetName()
+    prim: Usd.Prim = defineScope(parent, name).GetPrim()
+    prim.SetSpecifier(target.GetSpecifier())
+    prim.SetTypeName(target.GetTypeName())
+    relative_identifier = getRelativeIdentifier(target.GetStage().GetRootLayer(), parent.GetStage().GetRootLayer())
+    prim.GetPayloads().AddPayload(relative_identifier, target.GetPath())
+    return prim
