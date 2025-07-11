@@ -5,6 +5,10 @@
     </default>
     <asset>
         <mesh name="box_mesh" file="assets/box.obj"/>
+        <mesh name="box_mesh_collison" file="assets/box.obj" inertia="convex" maxhullvert="100"/>
+        <mesh name="box_mesh_collision_partial" file="assets/box.obj" inertia="exact"/>
+        <mesh name="box_mesh_collision_shell" file="assets/box.obj" inertia="shell"/>
+        <mesh name="box_mesh_collision_default" file="assets/box.obj" inertia="legacy" maxhullvert="-1"/>
     </asset>
     <worldbody>
         <!-- Basics -->
@@ -26,5 +30,9 @@
         <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
         <geom name="mass_and_density" type="capsule" size="0.1 0.2" mass="15.0" density="4000"/>
         <geom name="shell_inertia" type="capsule" size="0.1 0.2" shellinertia="true"/>
+        <geom name="mesh_collision_properties" type="mesh" mesh="box_mesh_collison"/>
+        <geom name="partial_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_partial"/>
+        <geom name="default_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_default"/>
+        <geom name="shell_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_shell"/>
     </worldbody>
 </mujoco>

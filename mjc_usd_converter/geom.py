@@ -212,7 +212,12 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
-        # TODO: add MjcPhysicsMeshCollisionAPI once MJC supports retrieving the mesh from the geom
+        if inertia := __get_inertia_token(geom, data):
+            geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
+            set_schema_attribute(geom_over, "mjc:inertia", inertia)
+        if maxhullvert := __get_maxhullvert(geom, data):
+            geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
+            set_schema_attribute(geom_over, "mjc:maxhullvert", maxhullvert)
     else:
         set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
         # TODO: add remaining geom gaps once the schema is updated
@@ -273,3 +278,35 @@ def __hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
     torsional_friction = material.GetPrim().GetAttribute("mjc:friction:torsional").Get()
     rolling_friction = material.GetPrim().GetAttribute("mjc:friction:rolling").Get()
     return Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
+
+
+def __get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:
+    if geom.type != mujoco.mjtGeom.mjGEOM_MESH or not geom.meshname:
+        return None
+
+    # Find the mesh by name
+    mesh = data.spec.mesh(geom.meshname)
+    if not mesh:
+        return None
+
+    if mesh.inertia == mujoco.mjtMeshInertia.mjMESH_INERTIA_EXACT:
+        return "exact"
+    elif mesh.inertia == mujoco.mjtMeshInertia.mjMESH_INERTIA_CONVEX:
+        return "convex"
+    elif mesh.inertia == mujoco.mjtMeshInertia.mjMESH_INERTIA_SHELL:
+        return "shell"
+    else:
+        # explicitly return None for legacy to indicate it should not be applied
+        return None
+
+
+def __get_maxhullvert(geom: mujoco.MjsGeom, data: ConversionData) -> int:
+    if geom.type != mujoco.mjtGeom.mjGEOM_MESH or not geom.meshname:
+        return None
+
+    # Find the mesh by name
+    mesh = data.spec.mesh(geom.meshname)
+    if not mesh:
+        return None
+
+    return mesh.maxhullvert if mesh.maxhullvert != -1 else None

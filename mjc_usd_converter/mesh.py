@@ -6,7 +6,7 @@ import mujoco
 import stl
 import tinyobjloader
 import usdex.core
-from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, Vt
 
 from ._future import Tokens, addLibraryLayer
 from .data import ConversionData
@@ -65,12 +65,6 @@ def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
         )
 
     set_transform(mesh_prim, mesh, data.spec)
-
-    # Store concept gaps as custom attributes
-    # TODO: use MjcPhysicsMeshCollisionAPI in the physics layer once MJC supports retrieving the mesh from the geom
-    prim.CreateAttribute("mjc:mesh:inertia", Sdf.ValueTypeNames.Int, custom=True).Set(int(mesh.inertia))
-    if mesh.maxhullvert != -1:
-        prim.CreateAttribute("mjc:mesh:maxhullvert", Sdf.ValueTypeNames.Int, custom=True).Set(mesh.maxhullvert)
 
 
 def __convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
