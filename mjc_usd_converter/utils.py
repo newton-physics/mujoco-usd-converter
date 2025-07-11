@@ -5,7 +5,7 @@ from typing import Any
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, Tf, Usd, UsdGeom
+from pxr import Gf, Tf, Usd, UsdGeom
 
 from .numpy import convert_quat, convert_vec3d
 
@@ -21,8 +21,6 @@ def set_purpose(prim: UsdGeom.Imageable, group: int) -> None:
     # in MuJoCo, groups 0, 1, 2 are visible for default visualizations, and any other group is hidden
     if group not in (0, 1, 2):
         prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
-    # author the group as a custom attribute so it is retained in a roundtrip
-    prim.GetPrim().CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True).Set(group)
 
 
 def set_schema_attribute(prim: Usd.Prim, name: str, value: Any):

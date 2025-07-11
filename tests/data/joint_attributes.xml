@@ -2,7 +2,7 @@
   <worldbody>
     <body name="body1" pos="0 0 0.5">
       <geom type="box" size="0.05 0.05 0.5"/>
-      <joint name="custom_joint" type="hinge" axis="1 0 0"
+      <joint name="custom_joint" type="hinge" axis="1 0 0" group="1"
              limited="true" range="-45 45"
              actuatorfrclimited="true" actuatorfrcrange="-10 10"
              actuatorgravcomp="true"
@@ -22,7 +22,7 @@
 
     <body name="body2" pos="0 1 0.5">
       <geom type="box" size="0.05 0.05 0.5"/>
-      <joint name="default_joint" type="slide" axis="0 1 0"
+      <joint name="default_joint" type="slide" axis="0 1 0" group="0"
              limited="false" range="0 0.5"
              actuatorfrclimited="auto" actuatorfrcrange="0 0"
              actuatorgravcomp="false"

@@ -11,7 +11,7 @@ from .data import ConversionData
 from .geom import convert_geom, get_geom_name
 from .joint import convert_joints
 from .numpy import convert_quat, convert_vec3d
-from .utils import set_transform
+from .utils import set_schema_attribute, set_transform
 
 __all__ = ["convert_bodies"]
 
@@ -45,6 +45,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
             site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
             site_over = data.content[Tokens.Physics].OverridePrim(site_prim.GetPath())
             site_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
+            set_schema_attribute(site_over, "mjc:group", site.group)
 
     # FUTURE: camera
     # FUTURE: light

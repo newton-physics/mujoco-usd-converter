@@ -30,9 +30,9 @@
         <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
         <geom name="mass_and_density" type="capsule" size="0.1 0.2" mass="15.0" density="4000"/>
         <geom name="shell_inertia" type="capsule" size="0.1 0.2" shellinertia="true"/>
-        <geom name="mesh_collision_properties" type="mesh" mesh="box_mesh_collison"/>
+        <geom name="mesh_collision_properties" type="mesh" mesh="box_mesh_collison" group="1"/>
         <geom name="partial_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_partial"/>
-        <geom name="default_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_default"/>
+        <geom name="default_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_default" group="0"/>
         <geom name="shell_mesh_collision_properties" type="mesh" mesh="box_mesh_collision_shell"/>
     </worldbody>
 </mujoco>

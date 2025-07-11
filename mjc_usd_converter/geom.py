@@ -208,6 +208,7 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
         collider.CreateCollisionEnabledAttr().Set(False)
 
     geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI"))
+    set_schema_attribute(geom_over, "mjc:group", geom.group)
 
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
