@@ -23,12 +23,12 @@ __all__ = ["Converter"]
 class Converter:
     @dataclass
     class Params:
-        flatten: bool = False
+        layer_structure: bool = True
         scene: bool = True
         comment: str = ""
 
-    def __init__(self, flatten: bool = False, scene: bool = True, comment: str = ""):
-        self.params = self.Params(flatten=flatten, scene=scene, comment=comment)
+    def __init__(self, layer_structure: bool = True, scene: bool = True, comment: str = ""):
+        self.params = self.Params(layer_structure=layer_structure, scene=scene, comment=comment)
 
     def convert(self, input_file: str, output_dir: str) -> Sdf.AssetPath:
         """
@@ -72,7 +72,7 @@ class Converter:
         )
 
         # setup the main output layer (which will become an asset interface later)
-        if self.params.flatten:
+        if not self.params.layer_structure:
             asset_dir = tempfile.mkdtemp()
             asset_format = "usdc"
         else:
@@ -123,7 +123,7 @@ class Converter:
         addAssetInterface(asset_stage, source=data.content[Tokens.Contents])
 
         # optionally flatten the asset
-        if self.params.flatten:
+        if not self.params.layer_structure:
             layer: Sdf.Layer = asset_stage.Flatten()
             asset_identifier = f"{output_path.absolute().as_posix()}/{asset_stem}.{asset_format}"
             usdex.core.exportLayer(layer, asset_identifier, get_authoring_metadata(), comment=self.params.comment)
