@@ -27,7 +27,7 @@ def run() -> int:
     Tf.Status(f"MuJoCo Version: {mujoco.__version__}")
 
     try:
-        converter = Converter(flatten=args.flatten, scene=not args.no_physics_scene, comment=args.comment)
+        converter = Converter(layer_structure=not args.no_layer_structure, scene=not args.no_physics_scene, comment=args.comment)
         if result := converter.convert(args.input_file, args.output_dir):
             Tf.Status(f"Created USD Asset: {result.path}")
             return 0
@@ -58,19 +58,19 @@ def __create_parser() -> argparse.ArgumentParser:
         "output_dir",
         type=Path,
         help="""
-        Path to the output USD directory. The primary USD file will be <output_dir>/<modelname>.usd
-        and it will be an Asset Interface around a Payload (unless --flatten is used)
+        Path to the output USD directory. The primary USD file will be <output_dir>/<modelname>.usda
+        and it will be an Atomic Component with Asset Interface layer and payloaded contents
+        (unless --no-layer-structure is used)
         """,
     )
 
     # Optional arguments
     # TODO: add arg to flatten hierarchy
-    # TODO: disambiguate from flattening hierarchy
     parser.add_argument(
-        "--flatten",
+        "--no-layer-structure",
         action="store_true",
         default=False,
-        help="Flatten the USD stage before saving",
+        help="Create a single USDC layer rather than an Atomic Component structure with Asset Interface layer and payloaded contents",
     )
     parser.add_argument(
         "--no-physics-scene",
