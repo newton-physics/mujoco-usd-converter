@@ -17,7 +17,24 @@ def run() -> int:
     parser = __create_parser()
     args = parser.parse_args()
 
-    # TODO: ensure args
+    # Argument validation
+    # Check input_file
+    if not args.input_file.exists() or not args.input_file.is_file():
+        Tf.Warn(f"Input file does not exist or is not a file: {args.input_file}")
+        return 1
+    if args.input_file.suffix.lower() != ".xml":
+        Tf.Warn(f"Only MJCF (.xml) files are supported as input, got: {args.input_file.suffix}")
+        return 1
+    # Check output_dir
+    if args.output_dir.exists() and not args.output_dir.is_dir():
+        Tf.Warn(f"Output path exists but is not a directory: {args.output_dir}")
+        return 1
+    if not args.output_dir.exists():
+        try:
+            args.output_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            Tf.Warn(f"Failed to create output directory: {args.output_dir}, error: {e}")
+            return 1
 
     usdex.core.activateDiagnosticsDelegate()
     usdex.core.setDiagnosticsLevel(usdex.core.DiagnosticsLevel.eStatus if args.verbose else usdex.core.DiagnosticsLevel.eWarning)
