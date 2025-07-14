@@ -61,11 +61,11 @@ class TestPhysicsMaterials(unittest.TestCase):
         phys_mat_1 = UsdPhysics.MaterialAPI(material_1_prim)
         self.assertEqual(
             set(phys_mat_1.GetPrim().GetAuthoredPropertyNames()),
-            {"physics:dynamicFriction", "mjc:friction:rolling", "mjc:friction:torsional"},
+            {"physics:dynamicFriction", "mjc:rollingfriction", "mjc:torsionalfriction"},
         )
         self.assertAlmostEqual(phys_mat_1.GetDynamicFrictionAttr().Get(), 0.8)
-        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:friction:torsional").Get(), 0.1)
-        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:friction:rolling").Get(), 0.05)
+        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:torsionalfriction").Get(), 0.1)
+        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:rollingfriction").Get(), 0.05)
 
         # Assert there are the correct number of materials in the dedicated scope
         materials_scope = stage.GetPrimAtPath("/physics_materials/Materials")
