@@ -91,3 +91,31 @@ class TestCli(unittest.TestCase):
         output_dir = pathlib.Path("tests/output/cannot_create")
         with patch("pathlib.Path.mkdir", side_effect=OSError("Permission denied")), patch("sys.argv", ["mjc_usd_converter", model, str(output_dir)]):
             self.assertEqual(run(), 1, "Expected non-zero exit code when output dir cannot be created")
+
+    def test_conversion_returns_none(self):
+        # Test the case where converter.convert() returns None/false value
+        model = "tests/data/worldgeom.xml"
+        with (
+            patch("mjc_usd_converter.convert.Converter.convert", return_value=None),
+            patch("sys.argv", ["mjc_usd_converter", model, "tests/output/conversion_none"]),
+        ):
+            self.assertEqual(run(), 1, "Expected non-zero exit code when conversion returns None")
+
+    def test_conversion_exception_non_verbose(self):
+        # Test exception handling when verbose=False (should not re-raise)
+        model = "tests/data/worldgeom.xml"
+        with (
+            patch("mjc_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
+            patch("sys.argv", ["mjc_usd_converter", model, "tests/output/conversion_error"]),
+        ):
+            self.assertEqual(run(), 1, "Expected non-zero exit code when conversion raises exception")
+
+    def test_conversion_exception_verbose(self):
+        # Test exception handling when verbose=True (should re-raise)
+        model = "tests/data/worldgeom.xml"
+        with (
+            patch("mjc_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
+            patch("sys.argv", ["mjc_usd_converter", model, "tests/output/conversion_error_verbose", "--verbose"]),
+            self.assertRaises(RuntimeError),
+        ):
+            run()
