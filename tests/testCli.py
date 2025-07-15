@@ -64,3 +64,30 @@ class TestCli(unittest.TestCase):
         pathlib.Path("tests/output/invalid").touch()
         with patch("sys.argv", ["mjc_usd_converter", "tests/data/worldgeom.xml", "tests/output/invalid"]):
             self.assertEqual(run(), 1, "Expected non-zero exit code for invalid output")
+
+    def test_input_path_is_directory(self):
+        # Create a directory as input_file (should fail)
+        input_dir = pathlib.Path("tests/data/input_dir")
+        input_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            with patch("sys.argv", ["mjc_usd_converter", str(input_dir), "tests/output/dir_as_input"]):
+                self.assertEqual(run(), 1, "Expected non-zero exit code for input path as directory")
+        finally:
+            shutil.rmtree(input_dir)
+
+    def test_input_file_not_xml(self):
+        # Create a non-xml file as input_file (should fail)
+        not_xml = pathlib.Path("tests/data/not_xml.txt")
+        not_xml.write_text("dummy content")
+        try:
+            with patch("sys.argv", ["mjc_usd_converter", str(not_xml), "tests/output/not_xml"]):
+                self.assertEqual(run(), 1, "Expected non-zero exit code for non-xml input file")
+        finally:
+            not_xml.unlink()
+
+    def test_output_dir_cannot_create(self):
+        # Simulate output_dir.mkdir raising an exception (should fail)
+        model = "tests/data/worldgeom.xml"
+        output_dir = pathlib.Path("tests/output/cannot_create")
+        with patch("pathlib.Path.mkdir", side_effect=OSError("Permission denied")), patch("sys.argv", ["mjc_usd_converter", model, str(output_dir)]):
+            self.assertEqual(run(), 1, "Expected non-zero exit code when output dir cannot be created")
