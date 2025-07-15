@@ -260,7 +260,7 @@ class TestAssetStructure(unittest.TestCase):
         for prim in materials_scope.GetPrim().GetAllChildren():
             self.assertEqual(prim.GetSpecifier(), Sdf.SpecifierDef, f"Prim {prim.GetPath()} should be defined")
             self.assertTrue(prim.IsA(UsdShade.Material), f"Physics Material {prim.GetPath()} should be a material")
-            self.assertEqual(prim.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI])
+            self.assertEqual(prim.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "MjcMaterialAPI"])
             # physics materials are not references
             prim_specs: list[Sdf.PrimSpec] = prim.GetPrimStack()
             self.assertEqual(len(prim_specs), 1)

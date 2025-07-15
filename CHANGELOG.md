@@ -28,7 +28,8 @@
     - Visuals are set with `default` UsdPurpose and colliders with `guide` UsdPurpose
   - `UsdPhysics.CollisionAPI` and `MjcCollisionAPI` are applied to colliders
       - Friction is provided via a bound `UsdShade.Material` with `UsdPhysics.MaterialAPI` specifying sliding (dynamic) friction
-      - Torsional and rolling friction are specified via custom attributes, but do not take effect
+        and `MjcMaterialAPI` specifying torsional and rolling friction
+      - All other MuJoCo collision properties are authored using `MjcCollisionAPI`
   - Meshes as `UsdGeom.Mesh`
     - Automatic mesh library generation with reference-based asset structure, to avoid duplicate topology
     - STL files converted to USD using `numpy-stl` and `usd-exchange` with normal processing
@@ -68,8 +69,6 @@
 - (NV/GDM) Authoring PhysicsScene with MjcSceneAPI causes MuJoCo Simulate to SEGFAUILT
   - GDM cannot repro
 - (GDM) MjcTransmission being renamed to MjcActuator
-- (GDM) MjcPhysicsMaterial for torsional and rolling friction
-- (GDM) MjcCollisionAPI is missing several critical attributes
 - (GDM) MjcSceneAPI is missing critical compiler settings
 - (NV) MjcActuator support is not implemented (WIP but no MR)
 - (NV) Texture handling for unnamed textures is not supported

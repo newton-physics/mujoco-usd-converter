@@ -165,7 +165,7 @@ class TestGeom(unittest.TestCase):
         self.assertTrue(prim.GetAttribute("mjc:shellinertia").Get())
 
     def test_mjc_mesh_collision_schema(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/mesh_collision_properties")
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/all_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
@@ -201,6 +201,10 @@ class TestGeom(unittest.TestCase):
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "exact")
         self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
+        self.assertTrue(prim.GetAttribute("mjc:condim").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 4)
+        self.assertTrue(prim.GetAttribute("mjc:gap").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.02)
 
         # Check default collision properties do not apply the schema
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_mesh_collision_properties")
@@ -218,3 +222,43 @@ class TestGeom(unittest.TestCase):
         self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
         self.assertFalse(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
+
+    def test_mjc_collision_schema_defaults(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
+        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+
+        # Check that no MJC properties are authored
+        for property in prim.GetPropertiesInNamespace("mjc"):
+            self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+
+        # Check that all MJC properties have default values
+        self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 3)
+        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.0)
+        self.assertEqual(prim.GetAttribute("mjc:group").Get(), 0)
+        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.0)
+        self.assertEqual(prim.GetAttribute("mjc:priority").Get(), 0)
+        self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), False)
+        self.assertEqual(prim.GetAttribute("mjc:solimp").Get(), [0.9, 0.95, 0.001, 0.5, 2.0])
+        self.assertEqual(prim.GetAttribute("mjc:solmix").Get(), 1.0)
+        self.assertEqual(prim.GetAttribute("mjc:solref").Get(), [0.02, 1.0])
+
+    def test_mjc_collision_schema_authored(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/all_collision_properties")
+        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+
+        # Check that all MJC properties are authored
+        for property in prim.GetPropertiesInNamespace("mjc"):
+            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+
+        # Check that all MJC properties have the correct values
+        self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 4)
+        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.02)
+        self.assertEqual(prim.GetAttribute("mjc:group").Get(), 1)
+        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.01)
+        self.assertEqual(prim.GetAttribute("mjc:priority").Get(), 2)
+        self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), True)
+        self.assertEqual(prim.GetAttribute("mjc:solimp").Get(), [0.95, 0.99, 0.001, 0.5, 2.0])
+        self.assertEqual(prim.GetAttribute("mjc:solmix").Get(), 0.9)
+        self.assertEqual(prim.GetAttribute("mjc:solref").Get(), [0.05, 1.0])
