@@ -51,7 +51,7 @@ include:
     ARTIFACTORY_REPO: "ct-omniverse-pypi"
     ARTIFACTORY_USERNAME: $ARTIFACTORY_USERNAME
     ARTIFACTORY_KEY: $ARTIFACTORY_KEY
-    ARTIFACTORY_URL: "https://urm.nvidia.com/artifactory/api/pypi/${ARTIFACTORY_REPO}"
+    ARTIFACTORY_URL: "https://REDACTED/simple"
   before_script:
     - !reference [.default_job, before_script]
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]

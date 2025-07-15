@@ -32,6 +32,7 @@ python-preference = "only-managed"
 [[tool.uv.index]]
 name = "internal"
 url = "https://REDACTED/simple"
+publish-url = "https://REDACTED"
 default = true
 
 [[tool.uv.index]]
