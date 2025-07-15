@@ -114,12 +114,16 @@ def __convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Co
     sphere.GetRadiusAttr().Set(geom.size[0])
     sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
     # FUTURE: mesh/fitscale
+    if hasattr(geom, "meshname") and geom.meshname:
+        Tf.Warn(f"Sphere '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     return sphere
 
 
 def __convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
+    if hasattr(geom, "meshname") and geom.meshname:
+        Tf.Warn(f"Box '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:
         width = length = geom.size[0]
         height = (end - start).GetLength() / 2.0
@@ -140,6 +144,8 @@ def __convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: 
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
+    if hasattr(geom, "meshname") and geom.meshname:
+        Tf.Warn(f"Cylinder '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:  # noqa: SIM108
         height = (end - start).GetLength()
     else:
@@ -157,6 +163,8 @@ def __convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: C
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
+    if hasattr(geom, "meshname") and geom.meshname:
+        Tf.Warn(f"Capsule '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:  # noqa: SIM108
         height = (end - start).GetLength()
     else:
