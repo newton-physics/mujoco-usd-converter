@@ -19,8 +19,11 @@ def run() -> int:
 
     # Argument validation
     # Check input_file
-    if not args.input_file.exists() or not args.input_file.is_file():
-        Tf.Warn(f"Input file does not exist or is not a file: {args.input_file}")
+    if not args.input_file.exists():
+        Tf.Warn(f"Input file does not exist: {args.input_file}")
+        return 1
+    if not args.input_file.is_file():
+        Tf.Warn(f"Input path is not a file: {args.input_file}")
         return 1
     if args.input_file.suffix.lower() != ".xml":
         Tf.Warn(f"Only MJCF (.xml) files are supported as input, got: {args.input_file.suffix}")
