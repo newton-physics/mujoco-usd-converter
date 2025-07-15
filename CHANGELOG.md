@@ -74,8 +74,6 @@
 - (NV) Texture handling for unnamed textures is not supported
 - (NV) Command line argument validation is not implemented (OSEC SRD REQ)
 - (NV) Texture relocation during flattening is not implemented
-- (NV) Geometry content layers use USDA format instead of USDC (might be ok, just need to decide)
-- (NV) MJC schema version is not pinned to a specific tag or commit, potentially causing compatibility issues
 
 ## Known Limitations
 

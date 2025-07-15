@@ -100,7 +100,6 @@ class Converter:
         # author the mesh library
         convert_meshes(data)
         # setup a content layer for referenced meshes
-        # TODO: change to usdc
         data.content[Tokens.Geometry] = addAssetContent(data.content[Tokens.Contents], Tokens.Geometry, format="usda")
 
         # author the material library and setup the content layer for materials only if there are materials
@@ -114,7 +113,7 @@ class Converter:
         if self.params.scene:
             convert_scene(data)
 
-        # TODO: author the keyframes with MjcPhysicsKeyframe
+        # FUTURE: author the keyframes with MjcPhysicsKeyframe
 
         # author the kinematic tree
         convert_bodies(data)

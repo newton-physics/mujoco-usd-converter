@@ -65,7 +65,7 @@ def __create_parser() -> argparse.ArgumentParser:
     )
 
     # Optional arguments
-    # TODO: add arg to flatten hierarchy
+    # FUTURE: add arg to flatten hierarchy
     parser.add_argument(
         "--no-layer-structure",
         action="store_true",
