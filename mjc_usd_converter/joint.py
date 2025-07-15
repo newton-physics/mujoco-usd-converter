@@ -63,7 +63,9 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.Physics][joint.name] = joint_prim.GetPrim()
 
-        joint_prim.CreateBody0Rel().SetTargets(["../.."])
+        # skip the Scope if its the worldbody
+        grandparent_path = "../../.." if body.parent == data.spec.worldbody else "../.."
+        joint_prim.CreateBody0Rel().SetTargets([grandparent_path])
         joint_prim.CreateBody1Rel().SetTargets([".."])
 
         __set_joint_frame(joint_prim, convert_vec3d(joint.pos), convert_vec3d(joint.axis), data)
