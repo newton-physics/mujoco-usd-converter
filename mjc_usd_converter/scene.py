@@ -90,7 +90,21 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:viscosity", data.spec.option.viscosity)
     set_schema_attribute(scene_prim, "mjc:option:wind", convert_vec3d(data.spec.option.wind))
 
-    # FUTURE: mjc compiler settings
+    # mjc compiler settings
+    set_schema_attribute(scene_prim, "mjc:compiler:alignFree", data.spec.compiler.alignfree)
+    set_schema_attribute(scene_prim, "mjc:compiler:angle", __get_angle_token(data.spec.compiler.degree))
+    set_schema_attribute(scene_prim, "mjc:compiler:autoLimits", data.spec.compiler.autolimits)
+    set_schema_attribute(scene_prim, "mjc:compiler:balanceInertia", data.spec.compiler.balanceinertia)
+    set_schema_attribute(scene_prim, "mjc:compiler:boundInertia", data.spec.compiler.boundinertia)
+    set_schema_attribute(scene_prim, "mjc:compiler:boundMass", data.spec.compiler.boundmass)
+    set_schema_attribute(scene_prim, "mjc:compiler:fitAABB", data.spec.compiler.fitaabb)
+    set_schema_attribute(scene_prim, "mjc:compiler:fuseStatic", data.spec.compiler.fusestatic)
+    set_schema_attribute(scene_prim, "mjc:compiler:inertiaFromGeom", __get_inertia_from_geom_token(data.spec.compiler.inertiafromgeom))
+    set_schema_attribute(scene_prim, "mjc:compiler:inertiaGroupRange:max", int(data.spec.compiler.inertiagrouprange[1]))
+    set_schema_attribute(scene_prim, "mjc:compiler:inertiaGroupRange:min", int(data.spec.compiler.inertiagrouprange[0]))
+    set_schema_attribute(scene_prim, "mjc:compiler:saveInertial", data.spec.compiler.saveinertial)
+    set_schema_attribute(scene_prim, "mjc:compiler:setTotalMass", data.spec.compiler.settotalmass)
+    set_schema_attribute(scene_prim, "mjc:compiler:useThread", data.spec.compiler.usethread)
 
 
 def __is_disabled(flag_bit: int, data: ConversionData) -> bool:
@@ -115,3 +129,11 @@ def __get_jacobian_token(jacobian: int) -> str:
 
 def __get_solver_token(solver: int) -> str:
     return {0: "pgs", 1: "cg", 2: "newton"}[solver]
+
+
+def __get_angle_token(degree: bool) -> str:
+    return "degree" if degree else "radian"
+
+
+def __get_inertia_from_geom_token(inertiafromgeom: int) -> str:
+    return {0: "false", 1: "true", 2: "auto"}[inertiafromgeom]

@@ -68,7 +68,6 @@
 
 ## Release Blockers
 
-- (GDM) MjcSceneAPI is missing critical compiler settings
 - (NV) Texture handling for unnamed textures is not supported
 - (NV) Texture relocation during flattening is not implemented
 

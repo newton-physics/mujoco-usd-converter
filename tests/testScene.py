@@ -106,6 +106,22 @@ class TestScene(unittest.TestCase):
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:viscosity").Get(), 0.1)
         self.assertTrue(Gf.IsClose(scene.GetAttribute("mjc:option:wind").Get(), Gf.Vec3d(1, 2, 3), 1e-6))
 
+        # Test compiler attributes
+        self.assertEqual(scene.GetAttribute("mjc:compiler:alignFree").Get(), True)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:angle").Get(), "radian")
+        self.assertEqual(scene.GetAttribute("mjc:compiler:autoLimits").Get(), False)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:balanceInertia").Get(), True)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:boundInertia").Get(), 0.1)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:boundMass").Get(), 0.05)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:fitAABB").Get(), True)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:fuseStatic").Get(), True)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaFromGeom").Get(), "true")
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaGroupRange:max").Get(), 3)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaGroupRange:min").Get(), 1)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:saveInertial").Get(), True)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:setTotalMass").Get(), 10.5)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:useThread").Get(), False)
+
     def test_scene_default_values(self):
         model = pathlib.Path("./tests/data/bodies.xml")
         model_name = pathlib.Path(model).stem
@@ -193,6 +209,22 @@ class TestScene(unittest.TestCase):
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:tolerance").Get(), 1e-8)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:viscosity").Get(), 0)
         self.assertTrue(Gf.IsClose(scene.GetAttribute("mjc:option:wind").Get(), Gf.Vec3d(0, 0, 0), 1e-6))
+
+        # Test that default compiler values are accessible via schema defaults
+        self.assertEqual(scene.GetAttribute("mjc:compiler:alignFree").Get(), False)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:angle").Get(), "degree")
+        self.assertEqual(scene.GetAttribute("mjc:compiler:autoLimits").Get(), True)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:balanceInertia").Get(), False)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:boundInertia").Get(), 0)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:boundMass").Get(), 0)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:fitAABB").Get(), False)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:fuseStatic").Get(), False)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaFromGeom").Get(), "auto")
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaGroupRange:max").Get(), 5)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:inertiaGroupRange:min").Get(), 0)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:saveInertial").Get(), False)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:setTotalMass").Get(), -1)
+        self.assertEqual(scene.GetAttribute("mjc:compiler:useThread").Get(), True)
 
     def test_scene_disabled(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")
