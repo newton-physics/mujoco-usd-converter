@@ -1,6 +1,6 @@
 [project]
 name = "mjc-usd-converter"
-version = "0.1.0.dev2"
+version = "0.1.0.dev3"
 description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "NVIDIA"}]
 license = {text = "Apache-2.0"}
@@ -112,6 +112,10 @@ path = "tools/install_mjc_schema.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mjc_usd_converter"]
+# Include all plugin files that are downloaded during build as artifacts
+artifacts = [
+    "mjc_usd_converter/plugins/**/*",
+]
 
 [tool.ruff]
 line-length = 150

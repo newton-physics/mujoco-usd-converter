@@ -18,6 +18,13 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         self.patch_schema_files()
         self.make_codeless_schema()
 
+        build_data.setdefault("artifacts", []).extend(
+            [
+                str(self.target_dir / "generatedSchema.usda"),
+                str(self.target_dir / "plugInfo.json"),
+            ]
+        )
+
     def download_schema_files(self):
         """Download the MJC schema files from GitHub"""
         # FUTURE: lock to a tag
