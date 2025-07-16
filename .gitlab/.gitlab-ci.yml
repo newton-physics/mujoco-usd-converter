@@ -67,6 +67,39 @@ test_windows:
   extends: [.test_base, .setup_windows]
   needs: ["build_windows"]
 
+test_wheel_linux:
+  extends: [.default_job]
+  stage: test
+  needs: ["build_linux"]
+  script:
+    # Create a fresh virtual environment to test the wheel using uv
+    - uv venv /tmp/wheel_test_env
+    - source /tmp/wheel_test_env/bin/activate
+
+    # Install the wheel directly using uv
+    - uv pip install dist/*.whl
+
+    # Test conversion
+    - mkdir -p /tmp/test_outputs
+    - mjc_usd_converter tests/data/geoms.xml /tmp/test_outputs/geoms_output
+
+test_wheel_windows:
+  extends: [.default_job, .setup_windows]
+  stage: test
+  needs: ["build_windows"]
+  script:
+    # Create a fresh virtual environment to test the wheel using uv
+    - uv venv wheel_test_env
+    - wheel_test_env\Scripts\activate.ps1
+
+    # Find and install the wheel file
+    - $wheelFile = Get-ChildItem -Path "dist" -Filter "*.whl" | Select-Object -First 1
+    - uv pip install $wheelFile.FullName
+
+    # Test conversion
+    - New-Item -ItemType Directory -Force -Path test_outputs
+    - mjc_usd_converter tests/data/geoms.xml test_outputs\geoms_output
+
 .deploy_base:
   extends: [.deploy_job]
   stage: deploy
