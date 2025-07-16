@@ -72,7 +72,6 @@
 - (GDM) MjcSceneAPI is missing critical compiler settings
 - (NV) MjcActuator support is not implemented (WIP but no MR)
 - (NV) Texture handling for unnamed textures is not supported
-- (NV) Command line argument validation is not implemented (OSEC SRD REQ)
 - (NV) Texture relocation during flattening is not implemented
 
 ## Known Limitations
