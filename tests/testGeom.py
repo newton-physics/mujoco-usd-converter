@@ -12,15 +12,18 @@ import mjc_usd_converter
 
 class TestGeom(unittest.TestCase):
     def setUp(self):
+        self.output_dir = f"./tests/output/{self._testMethodName}"
         model = pathlib.Path("./tests/data/geoms.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, f"./tests/output/{model_name}")
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, self.output_dir)
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
     def tearDown(self):
         self.stage = None
-        if pathlib.Path("./tests/output").exists():
-            shutil.rmtree("./tests/output")
+        try:
+            if pathlib.Path(self.output_dir).exists():
+                shutil.rmtree(self.output_dir)
+        except Exception as e:
+            print(f"Failed to remove {self.output_dir}: {e}")
 
     def test_sphere(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Sphere")
