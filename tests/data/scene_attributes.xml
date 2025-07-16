@@ -1,4 +1,10 @@
 <mujoco model="scene_attributes">
+  <compiler angle="radian" alignfree="true" autolimits="false"
+            balanceinertia="true" boundinertia="0.1" boundmass="0.05"
+            fitaabb="true" fusestatic="true" inertiafromgeom="true"
+            inertiagrouprange="1 3" saveinertial="true"
+            settotalmass="10.5" usethread="false"/>
+
   <option timestep="0.01" apirate="50"
           impratio="0.5" tolerance="1e-6"
           ls_tolerance="0.02" noslip_tolerance="0.00001"
