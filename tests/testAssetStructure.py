@@ -12,12 +12,6 @@ from mjc_usd_converter._future import getLayerAuthoringMetadata
 
 
 class TestAssetStructure(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # this needs to be done in the first test, which is currently this file as the tests are run in alphabetical order
-        # FUTURE: refactor to a base class
-        usdex.core.activateDiagnosticsDelegate()
 
     def tearDown(self):
         if pathlib.Path("tests/output").exists():
@@ -230,7 +224,7 @@ class TestAssetStructure(unittest.TestCase):
                 self.assertEqual(prim.GetPropertyNames(), [])
 
     def test_physics_layer(self):
-        model = pathlib.Path("./tests/data/physics_materials.xml")
+        model = pathlib.Path("./tests/data/simple_actuator.xml")
         model_name = pathlib.Path(model).stem
         asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
@@ -254,18 +248,29 @@ class TestAssetStructure(unittest.TestCase):
 
         self.assertEqual(len(physics_stage.GetDefaultPrim().GetAllChildren()), 2)
 
+        # no visual materials in the physics layer
         materials_scope = UsdGeom.Scope(physics_stage.GetDefaultPrim().GetChild("Materials"))
-        self.assertTrue(materials_scope)
+        self.assertFalse(materials_scope)
 
-        for prim in materials_scope.GetPrim().GetAllChildren():
-            self.assertEqual(prim.GetSpecifier(), Sdf.SpecifierDef, f"Prim {prim.GetPath()} should be defined")
-            self.assertTrue(prim.IsA(UsdShade.Material), f"Physics Material {prim.GetPath()} should be a material")
-            self.assertEqual(prim.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "MjcMaterialAPI"])
-            # physics materials are not references
-            prim_specs: list[Sdf.PrimSpec] = prim.GetPrimStack()
-            self.assertEqual(len(prim_specs), 1)
-            self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
-            self.assertEqual(prim_specs[0].path, prim.GetPath())
+        physics_scope: Usd.Prim = physics_stage.GetDefaultPrim().GetChild("Physics")
+        self.assertTrue(physics_scope.IsA(UsdGeom.Scope))
+        self.assertEqual(len(physics_scope.GetAllChildren()), 2)
+
+        actuator: Usd.Prim = physics_scope.GetChild("position")
+        self.assertEqual(actuator.GetSpecifier(), Sdf.SpecifierDef)
+        self.assertTrue(actuator.IsA("MjcActuator"))
+        self.assertEqual(actuator.GetAppliedSchemas(), [])
+        self.assertEqual(actuator.GetAllChildren(), [])
+
+        physics_material: Usd.Prim = physics_scope.GetChild("PhysicsMaterial")
+        self.assertEqual(physics_material.GetSpecifier(), Sdf.SpecifierDef)
+        self.assertTrue(physics_material.IsA(UsdShade.Material))
+        self.assertEqual(physics_material.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "MjcMaterialAPI"])
+        # physics materials are not references (visual materials are references)
+        prim_specs: list[Sdf.PrimSpec] = physics_material.GetPrimStack()
+        self.assertEqual(len(prim_specs), 1)
+        self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
+        self.assertEqual(prim_specs[0].path, physics_material.GetPath())
 
         # Test the sidecar PhysicsScene prim
         physics_scene = UsdPhysics.Scene(physics_stage.GetPseudoRoot().GetChild("PhysicsScene"))

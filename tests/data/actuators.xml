@@ -1,0 +1,39 @@
+<mujoco model="actuators">
+  <worldbody>
+    <!-- Fixed base -->
+    <body name="base" pos="0 0 1">
+      <geom name="base_geom" type="plane" size="0 0 0.05" rgba="0.5 0.5 0.5 1"/>
+      <site name="base_site" pos="0 0 0"/>
+
+      <!-- Movable box with slide joint -->
+      <body name="box" pos="0 0 0.2">
+        <geom name="box_geom" type="box" size="0.1 0.1 0.1" rgba="0.8 0.2 0.2 1"/>
+        <joint name="box_joint" type="slide" axis="0 0 1"/>
+        <site name="box_site" pos="0 0 0"/>
+
+        <!-- Child body with hinge joint -->
+        <body name="child" pos="0 0 0.2">
+          <joint name="child_joint" type="hinge" axis="1 0 0" limited="true" range="0 0.5"/>
+          <geom name="child_geom" type="capsule" size="0.02 0.05" rgba="0.2 0.8 0.2 1"/>
+          <site name="child_site" pos="0 0 0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Joint actuators -->
+    <motor joint="box_joint" gear="100" ctrllimited="true" ctrlrange="-1 1" group="1"/>
+    <position joint="child_joint" gear="10" inheritrange="1" group="2"/>
+
+    <!-- Site actuators -->
+    <general site="box_site" gear="1 0 0 0 0 0" dyntype="none" gaintype="fixed" biastype="none" group="3"/>
+    <general site="child_site" refsite="box_site" gear="0 1 0 0 0 0" dyntype="integrator" gaintype="affine"/>
+
+    <!-- Body actuator with simpler configuration -->
+    <general body="box" gear="0 0 1 0 0 0" dyntype="filter" gaintype="fixed" biastype="none" forcelimited="true" forcerange="-100 100"/>
+
+    <!-- Slider-crank actuator -->
+    <general cranksite="box_site" slidersite="child_site" cranklength="0.1" gear="1 0 0 0 0 0"/>
+  </actuator>
+</mujoco>

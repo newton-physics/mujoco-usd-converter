@@ -439,3 +439,22 @@ class TestJoints(unittest.TestCase):
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:springref").Get(), 0.0)
         self.assertFalse(default_joint.GetAttribute("mjc:stiffness").HasAuthoredValue())
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:stiffness").Get(), 0)
+
+    def test_joint_to_worldbody(self):
+        model = pathlib.Path("./tests/data/simple_actuator.xml")
+        model_name = pathlib.Path(model).stem
+        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # A joint to the worldbody should be authored as a fixed joint
+        joint_prim: UsdPhysics.RevoluteJoint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/simple_actuator/Geometry/body/hinge"))
+        self.assertTrue(joint_prim)
+        self.assertEqual(joint_prim.GetBody0Rel().GetTargets(), [stage.GetDefaultPrim().GetPath()])
+        self.assertEqual(joint_prim.GetBody1Rel().GetTargets(), [stage.GetPrimAtPath("/simple_actuator/Geometry/body").GetPath()])
+        self.assertEqual(joint_prim.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0))
+        self.assertEqual(joint_prim.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0))
+        self.assertEqual(joint_prim.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertEqual(joint_prim.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertEqual(joint_prim.GetAxisAttr().Get(), UsdPhysics.Tokens.y)
+        self.assertEqual(joint_prim.GetLowerLimitAttr().Get(), 0)
+        self.assertEqual(joint_prim.GetUpperLimitAttr().Get(), 90)

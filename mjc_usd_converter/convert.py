@@ -10,6 +10,7 @@ import usdex.core
 from pxr import Sdf, Tf, Usd, UsdGeom, UsdPhysics
 
 from ._future import Tokens, addAssetContent, addAssetInterface, createAssetContents
+from .actuator import convert_actuators
 from .body import convert_bodies
 from .data import ConversionData
 from .material import convert_materials
@@ -106,8 +107,9 @@ class Converter:
         convert_materials(data)
 
         # setup a content layer for physics
-        data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda", createScope=False)
+        data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
+        data.references[Tokens.Physics] = {}
 
         # author the physics scene
         if self.params.scene:
@@ -117,6 +119,9 @@ class Converter:
 
         # author the kinematic tree
         convert_bodies(data)
+
+        # author the actuators
+        convert_actuators(data)
 
         # create the asset interface
         addAssetInterface(asset_stage, source=data.content[Tokens.Contents])

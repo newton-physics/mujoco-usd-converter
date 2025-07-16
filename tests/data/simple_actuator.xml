@@ -1,0 +1,11 @@
+<mujoco model="simple_actuator">
+  <worldbody>
+    <body name="body">
+      <geom name="box" type="box" pos="0.05 0 0" size="0.05 0.01 0.01"/>
+      <joint name="hinge" type="hinge" axis="0 1 0" range="0 90" damping="10"/>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="position" joint="hinge" inheritrange="0.9" gear="10"/>
+  </actuator>
+</mujoco>

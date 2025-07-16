@@ -9,7 +9,7 @@ from pxr import Gf, Tf, Usd, UsdGeom
 
 from .numpy import convert_quat, convert_vec3d
 
-__all__ = ["get_authoring_metadata", "get_fromto_vectors", "set_purpose", "set_schema_attribute", "set_transform"]
+__all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]
 
 
 def get_authoring_metadata() -> str:
@@ -214,3 +214,12 @@ def __multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: G
     result.SetScale(combined_scale)
 
     return result
+
+
+def mj_limited_to_token(limited_val: mujoco.mjtLimited) -> str:
+    if limited_val == mujoco.mjtLimited.mjLIMITED_FALSE:
+        return "false"
+    elif limited_val == mujoco.mjtLimited.mjLIMITED_TRUE:
+        return "true"
+    else:
+        return "auto"
