@@ -107,7 +107,7 @@ class Converter:
         convert_materials(data)
 
         # setup a content layer for physics
-        data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda", createScope=False)
+        data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         data.references[Tokens.Physics] = {}
 

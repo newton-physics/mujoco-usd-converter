@@ -5,7 +5,7 @@ import mujoco
 import usdex.core
 from pxr import Tf, Usd
 
-from ._future import Tokens, defineScope
+from ._future import Tokens
 from .data import ConversionData
 from .utils import mj_limited_to_token, set_schema_attribute
 
@@ -16,12 +16,8 @@ def convert_actuators(data: ConversionData):
     if not data.spec.actuators:
         return
 
-    # Create Physics scope if it doesn't exist
-    physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
-    if not physics_scope:
-        physics_scope = defineScope(data.content[Tokens.Physics].GetDefaultPrim(), Tokens.Physics).GetPrim()
-
     # Convert each actuator to a MjcActuator prim
+    physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
     source_names = [__get_actuator_name(actuator) for actuator in data.spec.actuators]
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
     for actuator, source_name, safe_name in zip(data.spec.actuators, source_names, safe_names):

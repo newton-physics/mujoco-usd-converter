@@ -5,7 +5,7 @@ import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
-from ._future import Tokens, defineRelativeReference, defineScope
+from ._future import Tokens, defineRelativeReference
 from .data import ConversionData
 from .numpy import convert_color
 from .utils import get_fromto_vectors, set_purpose, set_schema_attribute, set_transform
@@ -260,19 +260,15 @@ def __acquire_physics_material(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: 
     rolling_friction = geom.friction[2]
     material_hash = Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
 
-    physics_materials: Usd.Prim = geom_prim.GetPrim().GetStage().GetDefaultPrim().GetChild(Tokens.Materials)
-    if not physics_materials:
-        physics_materials = defineScope(geom_prim.GetPrim().GetStage().GetDefaultPrim(), Tokens.Materials).GetPrim()
-        return __create_physics_material(physics_materials, geom, data)
-
     # check for an existing physics material with the same values
-    for child in physics_materials.GetChildren():
+    physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
+    for child in physics_scope.GetChildren():
         if child.HasAPI(UsdPhysics.MaterialAPI):
             physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI(child.GetPrim())
             if Gf.IsClose(material_hash, __hash_physics_material(physics_material), 1e-6):
                 return UsdShade.Material(physics_material)
 
-    return __create_physics_material(physics_materials, geom, data)
+    return __create_physics_material(physics_scope, geom, data)
 
 
 def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:

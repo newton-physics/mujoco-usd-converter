@@ -68,18 +68,17 @@ class TestPhysicsMaterials(unittest.TestCase):
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:rollingfriction").Get(), 0.05)
 
         # Assert there are the correct number of materials in the dedicated scope
-        materials_scope = stage.GetPrimAtPath("/physics_materials/Materials")
-        # 2 visual materials + 3 physics materials
-        self.assertEqual(len(materials_scope.GetChildren()), 5)
+        physics_scope = stage.GetPrimAtPath("/physics_materials/Physics")
+        self.assertEqual(len(physics_scope.GetChildren()), 3)
 
-        # Assert that the physics materials are in the physics layer
+        # Assert that the physics materials are in the physics layer & not mixed with the visual materials
         physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Physics.usda").absolute()
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
-        physics_materials_scope = physics_stage.GetPrimAtPath("/physics_materials/Materials")
+        physics_materials_scope = physics_stage.GetPrimAtPath("/physics_materials/Physics")
         self.assertEqual(len(physics_materials_scope.GetChildren()), 3)
 
-        # Assert that the visual materials are in the materials layer
+        # Assert that the visual materials are in the materials layer & not mixed with the physics materials
         materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Materials.usda").absolute()
         self.assertTrue(materials_layer_path.exists(), msg=f"Materials layer not found at {materials_layer_path}")
         materials_stage: Usd.Stage = Usd.Stage.Open(materials_layer_path.as_posix())
