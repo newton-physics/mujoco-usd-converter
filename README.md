@@ -15,6 +15,10 @@ Key Features:
   - Suitable for visualization & rendering in any OpenUSD Ecosystem application.
   - Suitable for [import & simulation directly in MuJoCo Simulate](#loading-usd-in-mujoco-simulate).
 
+## Menagerie Benchmarks
+
+We run regular benchmarks on the [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie). See the latest results [here](./benchmarks.md).
+
 ## Implementation Details & Dependencies
 
 Specific implementation details are based on the "MJC to USD Conceptual Data Mapping" document, which is a collaboration between Google DeepMind and NVIDIA. This document will be made public once the project moves out of the alpha phase.
