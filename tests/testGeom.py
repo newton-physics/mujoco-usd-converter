@@ -82,6 +82,20 @@ class TestGeom(unittest.TestCase):
         guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
         self.assertEqual(UsdGeom.Imageable(guide_mesh_collider_prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
 
+    def test_group(self):
+        default_prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
+        self.assertEqual(default_prim.GetAttribute("mjc:group").HasAuthoredValue(), False)
+        self.assertEqual(default_prim.GetAttribute("mjc:group").Get(), 0)
+
+        visual_prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
+        self.assertEqual(visual_prim.GetAttribute("mjc:group").Get(), 1)
+
+        guide_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_visual")
+        self.assertEqual(guide_prim.GetAttribute("mjc:group").Get(), 3)
+
+        guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
+        self.assertEqual(guide_mesh_collider_prim.GetAttribute("mjc:group").Get(), 3)
+
     def test_default_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
