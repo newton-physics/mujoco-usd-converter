@@ -66,11 +66,6 @@
   - Full programmatic access via `mjc_usd_converter.Converter` class with configurable parameters for all CLI flags
   - Enables interactive editing of the MJCF data before conversion or of the USD Layers after conversion
 
-## Release Blockers
-
-- (NV) Texture handling for unnamed textures is not supported
-- (NV) Texture relocation during flattening is not implemented
-
 ## Known Limitations
 
 ### USD Data Conversion

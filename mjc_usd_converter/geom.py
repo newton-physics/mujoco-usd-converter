@@ -186,6 +186,31 @@ def __bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
     material_prim = UsdShade.Material(local_materials.GetChild(ref_material.GetName()))
     if not material_prim:
         material_prim = UsdShade.Material(defineRelativeReference(local_materials, ref_material, ref_material.GetName()))
+
+    # Check if geom_prim is not a USD mesh type
+    prim = geom_prim.GetPrim()
+    if not prim.IsA(UsdGeom.Mesh):
+        # Check if material_prim's diffuseColor is bound to a texture
+        has_diffuse_texture = False
+        shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
+        if shader:
+            diffuse_input = shader.GetInput("diffuseColor")
+            if diffuse_input:
+                value_attrs = diffuse_input.GetValueProducingAttributes()
+                for attr in value_attrs:
+                    source_prim = attr.GetPrim()
+                    if source_prim and source_prim.GetTypeName() == "Shader":
+                        shader_type = source_prim.GetAttribute("info:id").Get()
+                        if shader_type == "UsdUVTexture":
+                            has_diffuse_texture = True
+                            break
+
+        if has_diffuse_texture:
+            Tf.Warn(
+                f"Binding a textured Material '{material_prim.GetPath()}' to a {prim.GetTypeName()} Prim ('{prim.GetPath()}') "
+                "will discard textures at render time."
+            )
+
     geom_over = data.content[Tokens.Materials].OverridePrim(geom_prim.GetPath())
     usdex.core.bindMaterial(geom_over, material_prim)
 

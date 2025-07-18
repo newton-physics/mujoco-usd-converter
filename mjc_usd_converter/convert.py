@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
 import tempfile
 from dataclasses import dataclass
 
@@ -9,6 +8,7 @@ import mujoco
 import usdex.core
 from pxr import Sdf, Tf, Usd, UsdGeom, UsdPhysics
 
+from ._flatten import export_flattened
 from ._future import Tokens, addAssetContent, addAssetInterface, createAssetContents
 from .actuator import convert_actuators
 from .body import convert_bodies
@@ -128,11 +128,7 @@ class Converter:
 
         # optionally flatten the asset
         if not self.params.layer_structure:
-            layer: Sdf.Layer = asset_stage.Flatten()
-            asset_identifier = f"{output_path.absolute().as_posix()}/{asset_stem}.{asset_format}"
-            usdex.core.exportLayer(layer, asset_identifier, get_authoring_metadata(), comment=self.params.comment)
-            # TODO: relocate textures to the output directory
-            shutil.rmtree(asset_dir, ignore_errors=True)
+            export_flattened(asset_stage, output_dir, asset_dir, asset_stem, asset_format, self.params.comment)
         else:
             usdex.core.saveStage(asset_stage, comment=self.params.comment)
 

@@ -75,3 +75,14 @@ class TestMaterial(unittest.TestCase):
         self.assertEqual(material.GetPrim().GetParent(), self.stage.GetPrimAtPath(f"/{self.model_name}/Materials"))
         # materials are references to the material library layer
         self.assertTrue(material.GetPrim().GetReferences())
+
+    def test_unnamed_texture_material(self):
+        shader = self._get_shader("UnnamedTexture")
+        self.assertTrue(shader)
+        texture_input: UsdShade.Input = shader.GetInput("diffuseColor")
+        self.assertTrue(texture_input.HasConnectedSource())
+
+        connected_source = texture_input.GetConnectedSource()
+        texture_prim = connected_source[0].GetPrim()
+        texture_file_attr = texture_prim.GetAttribute("inputs:file")
+        self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")
