@@ -318,3 +318,32 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), [Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI")])
         self.assertEqual(physics_scene.GetGravityDirectionAttr().Get(), (0, 0, -1))
         self.assertAlmostEqual(physics_scene.GetGravityMagnitudeAttr().Get(), 9.81, 6)
+
+    def test_no_layer_structure_material_texture(self):
+        # Test --no-layer-structure with material and textures
+        model = pathlib.Path("./tests/data/materials.xml")
+        model_name = model.stem
+        output_dir = pathlib.Path(f"./tests/output/{model_name}_no_layer_structure")
+        usdc_path = output_dir / f"{model_name}.usdc"
+        textures_dir = output_dir / "Textures"
+        texture_file = textures_dir / "grid.png"
+
+        # convert without layer structure
+        mjc_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
+
+        # check usdc and texture
+        self.assertTrue(usdc_path.exists(), f"{usdc_path} not found")
+        self.assertTrue(texture_file.exists(), f"{texture_file} not found")
+
+        # check Shader prim inputs:file
+        stage = Usd.Stage.Open(str(usdc_path))
+        material_prim = stage.GetPrimAtPath("/materials/Materials/Grid")
+        self.assertTrue(material_prim)
+        shader = usdex.core.computeEffectivePreviewSurfaceShader(UsdShade.Material(material_prim))
+        self.assertTrue(shader)
+
+        texture_input: UsdShade.Input = shader.GetInput("diffuseColor")
+        connected_source = texture_input.GetConnectedSource()
+        texture_prim = connected_source[0].GetPrim()
+        texture_file_attr = texture_prim.GetAttribute("inputs:file")
+        self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")

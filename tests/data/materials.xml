@@ -8,6 +8,9 @@
         <material name="BlueMetallic" rgba="0 0 1 1" metallic="0.8" shininess="0.3" specular="0"/>
         <material name="Grid" texture="grid_texture" specular="0"/>
         <mesh name="box" file="box.obj" scale="0.2 0.2 1"/>
+        <!-- Unnamed texture for test -->
+        <texture type="2d" file="grid.png"/>
+        <material name="UnnamedTexture" texture="grid" specular="0"/>
     </asset>
 
     <worldbody>
@@ -16,5 +19,6 @@
         <geom type="box" material="GreenSpecular" size="0.1" fromto="0 1 0 0 1 1"/>
         <geom name="TexturedBox" type="mesh" mesh="box" material="Grid" pos="0 2 0.5"/>
         <geom type="cylinder" material="BlueMetallic" size="0.1" fromto="0 3 0 0 3 1"/>
+        <geom type="box" material="UnnamedTexture" size="0.1 0.1 0.5" pos="0 4 0.5"/>
     </worldbody>
 </mujoco>

@@ -72,8 +72,6 @@ def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial
         surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(emissive_color))
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
-        # TODO: update mujoco when they fix textures with no name (asset: hello_robot_stretch)
-        # Currently, textures with no name are not supported and data.spec.texture() will return None
         texture_path: Sdf.AssetPath = __convert_texture(data.spec.texture(main_texture_name), data)
         if texture_path and not usdex.core.addDiffuseTextureToPreviewMaterial(material_prim, texture_path):
             Tf.Warn(f"Failed to add diffuse texture to material prim '{material_prim.GetPrim().GetPath()}'")
