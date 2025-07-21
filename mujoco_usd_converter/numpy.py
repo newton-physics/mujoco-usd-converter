@@ -3,7 +3,7 @@
 import numpy as np
 from pxr import Gf, Vt
 
-__all__ = ["convert_color", "convert_quat", "convert_vec3d", "convert_vec3f_array"]
+__all__ = ["convert_color", "convert_quat", "convert_vec3d", "convert_vec3f", "convert_vec3f_array"]
 
 
 def convert_vec3d(source: np.ndarray) -> Gf.Vec3d:
@@ -21,6 +21,23 @@ def convert_vec3d(source: np.ndarray) -> Gf.Vec3d:
     """
     assert source.shape == (3,)
     return Gf.Vec3d(float(source[0]), float(source[1]), float(source[2]))
+
+
+def convert_vec3f(source: np.ndarray) -> Gf.Vec3f:
+    """
+    Convert a numpy 3D vector array to a USD Vec3f.
+
+    Args:
+        source: A numpy array of shape (3,) containing XYZ values.
+
+    Returns:
+        Gf.Vec3f: The converted 3D vector.
+
+    Raises:
+        AssertionError: If the input array does not have shape (3,).
+    """
+    assert source.shape == (3,)
+    return Gf.Vec3f(float(source[0]), float(source[1]), float(source[2]))
 
 
 def convert_quat(source: np.ndarray) -> Gf.Quatf:
