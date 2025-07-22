@@ -1,4 +1,4 @@
-# mjc-usd-converter
+# mujoco-usd-converter
 
 # Overview
 
@@ -37,20 +37,20 @@ To start using the converter, install the python wheel into a virtual environmen
 ```bash
 python -m venv /tmp/test
 source /tmp/test/bin/activate
-python -m pip install mjc-usd-converter
-mjc_usd_converter /path/to/robot.xml /tmp/usd_robot
+python -m pip install mujoco-usd-converter
+mujoco_usd_converter /path/to/robot.xml /tmp/usd_robot
 ```
 
-See `mjc_usd_converter --help` for CLI arguments.
+See `mujoco_usd_converter --help` for CLI arguments.
 
 Alternatively, the same converter functionality can be accessed from the python module directly, which is useful when further transforming the USD data after conversion.
 
 ```python
-import mjc_usd_converter
+import mujoco_usd_converter
 import usdex.core
 from pxr import Sdf, Usd
 
-converter = mjc_usd_converter.Converter()
+converter = mujoco_usd_converter.Converter()
 asset: Sdf.AssetPath = converter.convert("/path/to/robot.xml", "/tmp/usd_robot")
 stage: Usd.Stage = Usd.Stage.Open(asset.path)
 # modify further using Usd or usdex.core functionality
@@ -89,7 +89,7 @@ Contributions from the community are welcome. See [CONTRIBUTING.md](./CONTRIBUTI
 
 # Community
 
-For questions about this mjc-usd-converter, feel free to join or start a [GitHub Discussions](https://github.com/NVIDIA-Omniverse/mjc-usd-converter/discussions).
+For questions about this mujoco-usd-converter, feel free to join or start a [GitHub Discussions](https://github.com/newton-physics/mujoco-usd-converter/discussions).
 
 For questions about OpenUSD Exchange SDK, use the [USD Exchange GitHub Discussions](https://github.com/NVIDIA-Omniverse/usd-exchange/discussions).
 
@@ -107,4 +107,4 @@ For general questions about OpenUSD itself, use the [Alliance for OpenUSD Forum]
 
 # License
 
-The mjc-usd-converter is provided under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0), as is the [OpenUSD Exchange SDK](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/docs/licenses.html) and [MuJoCo](https://github.com/google-deepmind/mujoco/blob/main/LICENSE).
+The mujoco-usd-converter is provided under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0), as is the [OpenUSD Exchange SDK](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/docs/licenses.html) and [MuJoCo](https://github.com/google-deepmind/mujoco/blob/main/LICENSE).

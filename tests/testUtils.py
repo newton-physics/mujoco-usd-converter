@@ -4,7 +4,7 @@ import unittest
 
 from pxr import Tf, Usd
 
-from mjc_usd_converter.utils import set_schema_attribute
+from mujoco_usd_converter.utils import set_schema_attribute
 
 
 class TestSetSchemaAttribute(unittest.TestCase):

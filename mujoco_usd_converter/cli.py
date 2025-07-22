@@ -41,7 +41,7 @@ def run() -> int:
 
     usdex.core.activateDiagnosticsDelegate()
     usdex.core.setDiagnosticsLevel(usdex.core.DiagnosticsLevel.eStatus if args.verbose else usdex.core.DiagnosticsLevel.eWarning)
-    Tf.Status("Running mjc_usd_converter")
+    Tf.Status("Running mujoco_usd_converter")
     Tf.Status(f"USD Version: {Usd.GetVersion()}")
     Tf.Status(f"USDEX Version: {usdex.core.version()}")
     Tf.Status(f"MuJoCo Version: {mujoco.__version__}")

@@ -6,7 +6,7 @@ import unittest
 
 from pxr import Sdf, Usd, UsdPhysics, UsdShade
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestPhysicsMaterials(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestPhysicsMaterials(unittest.TestCase):
     def test_physics_materials(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         prim1 = stage.GetPrimAtPath("/physics_materials/Geometry/custom_friction_1")

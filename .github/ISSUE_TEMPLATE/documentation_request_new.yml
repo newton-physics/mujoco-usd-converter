@@ -37,15 +37,15 @@ body:
     attributes:
       label: Where have you looked?
       placeholder: |
-       https://github.com/NVIDIA-Omniverse/mjc-usd-converter/blob/main/README.md
+       https://github.com/newton-physics/mujoco-usd-converter/blob/main/README.md
 
   - type: checkboxes
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/NVIDIA-Omniverse/mjc-usd-converter/blob/HEAD/CODE_OF_CONDUCT.md)
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/newton-physics/mujoco-usd-converter/blob/HEAD/CODE_OF_CONDUCT.md)
       options:
-        - label: I agree to follow mjc-usd-converter Code of Conduct
+        - label: I agree to follow mujoco-usd-converter Code of Conduct
           required: true
-        - label: I have searched the [open bugs](https://github.com/NVIDIA-Omniverse/mjc-usd-converter/issues?q=is%3Aopen+is%3Aissue+label%3Abug) and have found no duplicates
+        - label: I have searched the [open bugs](https://github.com/newton-physics/mujoco-usd-converter/issues?q=is%3Aopen+is%3Aissue+label%3Abug) and have found no duplicates
           required: true

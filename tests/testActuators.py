@@ -7,7 +7,7 @@ import unittest
 import usdex.core
 from pxr import Sdf, Usd
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestActuators(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestActuators(unittest.TestCase):
     def test_simple_actuator(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         simple_actuator = stage.GetPrimAtPath("/simple_actuator/Physics/position")
@@ -45,7 +45,7 @@ class TestActuators(unittest.TestCase):
     def test_joint_actuators(self):
         model = pathlib.Path("./tests/data/actuators.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         motor: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_0")
@@ -89,7 +89,7 @@ class TestActuators(unittest.TestCase):
     def test_site_actuators(self):
         model = pathlib.Path("./tests/data/actuators.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Test site actuator without refsite (MjcActuator)
@@ -138,7 +138,7 @@ class TestActuators(unittest.TestCase):
         # Test body actuator (MjcActuator)
         model = pathlib.Path("./tests/data/actuators.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         body_actuator: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_4")
@@ -165,7 +165,7 @@ class TestActuators(unittest.TestCase):
         # Test slider-crank actuator (MjcActuator)
         model = pathlib.Path("./tests/data/actuators.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         slider_crank: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_5")
@@ -202,7 +202,7 @@ class TestActuatorEdgeCases(unittest.TestCase):
 
         model = pathlib.Path("./tests/data/actuator_edge_cases.xml")
         model_name = pathlib.Path(model).stem
-        cls.asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        cls.asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
     @classmethod
     def tearDownClass(cls):

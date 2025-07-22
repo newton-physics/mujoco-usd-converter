@@ -6,7 +6,7 @@ import unittest
 
 from pxr import Gf, Sdf, Usd, UsdGeom
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestMeshReflection(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestMeshReflection(unittest.TestCase):
         rotation_const = 0.57735
         model = pathlib.Path("./tests/data/reflected_meshes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/reflected_meshes/Geometry/body/bodyRegular/complexCube")

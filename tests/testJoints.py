@@ -6,7 +6,7 @@ import unittest
 
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestJoints(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestJoints(unittest.TestCase):
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # first hinge is aligned with the x-axis
@@ -119,7 +119,7 @@ class TestJoints(unittest.TestCase):
     def test_slide_joints(self):
         model = pathlib.Path("./tests/data/slide_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # first slide is aligned with the x-axis
@@ -191,7 +191,7 @@ class TestJoints(unittest.TestCase):
     def test_ball_joints(self):
         model = pathlib.Path("./tests/data/ball_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # first ball joint is aligned with the x-axis
@@ -262,7 +262,7 @@ class TestJoints(unittest.TestCase):
     def test_fixed_and_free_joints(self):
         model = pathlib.Path("./tests/data/fixed_vs_free_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # A body without an explicit MJC joint has a fixed joint in USD
@@ -294,7 +294,7 @@ class TestJoints(unittest.TestCase):
     def test_joint_group(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Check that joint group is authored
@@ -307,7 +307,7 @@ class TestJoints(unittest.TestCase):
         # Test with autolimits="true"
         model = pathlib.Path("./tests/data/joint_limits.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Explicitly unlimited joint should not have limits
@@ -331,7 +331,7 @@ class TestJoints(unittest.TestCase):
         # Test with autolimits="false"
         model = pathlib.Path("./tests/data/joint_limits_no_autolimits.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Explicitly limited joint should have limits
@@ -350,7 +350,7 @@ class TestJoints(unittest.TestCase):
         # Test that all joint attributes are authored correctly
         model = pathlib.Path("./tests/data/joint_attributes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # A joints attributes are authored to USD if they are set to non-default values
@@ -443,7 +443,7 @@ class TestJoints(unittest.TestCase):
     def test_joint_to_worldbody(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # A joint to the worldbody should be authored as a fixed joint

@@ -1,5 +1,5 @@
 [project]
-name = "mjc-usd-converter"
+name = "mujoco-usd-converter"
 version = "0.1.0.dev4"
 description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "NVIDIA"}]
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mjc_usd_converter = "mjc_usd_converter.__main__:cli_main"
+mujoco_usd_converter = "mujoco_usd_converter.__main__:cli_main"
 
 [dependency-groups]
 dev = [
@@ -56,7 +56,7 @@ sequence = ["test-report", "generate-coverage-xml", "show-coverage-report"]
 
 [tool.poe.tasks.test-report]
 help = "Run the unittests with coverage tracking and generate test report"
-cmd = "coverage run --source=mjc_usd_converter -m xmlrunner discover -v -s ./tests --output-file=.results.xml"
+cmd = "coverage run --source=mujoco_usd_converter -m xmlrunner discover -v -s ./tests --output-file=.results.xml"
 
 [tool.poe.tasks.generate-coverage-xml]
 help = "Generate coverage XML report"
@@ -132,10 +132,10 @@ build-backend = "hatchling.build"
 path = "tools/install_mjc_schema.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["mjc_usd_converter"]
+packages = ["mujoco_usd_converter"]
 # Include all plugin files that are downloaded during build as artifacts
 artifacts = [
-    "mjc_usd_converter/plugins/**/*",
+    "mujoco_usd_converter/plugins/**/*",
 ]
 
 [tool.ruff]
