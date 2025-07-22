@@ -6,7 +6,7 @@ import mujoco
 import usdex.core
 from pxr import Usd
 
-__all__ = ["Tokens", "ConversionData"]
+__all__ = ["ConversionData", "Tokens"]
 
 
 class Tokens:
