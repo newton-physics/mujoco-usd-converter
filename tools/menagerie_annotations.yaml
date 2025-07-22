@@ -1,0 +1,1198 @@
+# MuJoCo Menagerie Manual Annotations
+# This file contains manual evaluation results for the mjc-usd-converter benchmark
+#
+# Format:
+#   asset_name:
+#     evaluation_date: "YYYY-MM-DD" (asset-level evaluation date)
+#     evaluator: "Name or identifier of person who evaluated"
+#     notes: "Additional notes about the evaluation"
+#     xml_files: Array of XML files to convert for this asset
+#       - filename: "model.xml"
+#         model_name: "asset_model"
+#         description: "Description of this model variant"
+#         practical_success: "Yes" | "Unknown" | "Partial"
+#         evaluation_date: "YYYY-MM-DD"
+#         evaluator: "Name or identifier of person who evaluated this variant"
+#         notes: "Additional notes about this variant"
+#     _metadata: (auto-generated)
+#       has_scene_xml: true/false
+#       total_xml_files: N
+#
+# Asset names correspond to directory names in the MuJoCo Menagerie repository:
+# https://github.com/google-deepmind/mujoco_menagerie
+agilex_piper:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: agilex_piper
+    description: 'Model variant: piper'
+    evaluation_date: ''
+    evaluator: ''
+    filename: piper.xml
+    model_name: piper
+    notes: ''
+    practical_success: Unknown
+agility_cassie:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: agility_cassie
+    description: 'Model variant: cassie'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cassie.xml
+    model_name: cassie
+    notes: ''
+    practical_success: Unknown
+aloha:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 6
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: aloha
+    description: 'Model variant: keyframe_ctrl'
+    evaluation_date: ''
+    evaluator: ''
+    filename: keyframe_ctrl.xml
+    model_name: keyframe_ctrl
+    notes: ''
+    practical_success: Unknown
+  - asset: aloha
+    description: 'Model variant: joint_position_actuators'
+    evaluation_date: ''
+    evaluator: ''
+    filename: joint_position_actuators.xml
+    model_name: joint_position_actuators
+    notes: ''
+    practical_success: Unknown
+  - asset: aloha
+    description: 'Model variant: keyframe_no_act'
+    evaluation_date: ''
+    evaluator: ''
+    filename: keyframe_no_act.xml
+    model_name: keyframe_no_act
+    notes: ''
+    practical_success: Unknown
+  - asset: aloha
+    description: 'Model variant: aloha'
+    evaluation_date: ''
+    evaluator: ''
+    filename: aloha.xml
+    model_name: aloha
+    notes: ''
+    practical_success: Unknown
+  - asset: aloha
+    description: 'Model variant: filtered_cartesian_actuators'
+    evaluation_date: ''
+    evaluator: ''
+    filename: filtered_cartesian_actuators.xml
+    model_name: filtered_cartesian_actuators
+    notes: ''
+    practical_success: Unknown
+anybotics_anymal_b:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: anybotics_anymal_b
+    description: 'Model variant: anymal_b'
+    evaluation_date: ''
+    evaluator: ''
+    filename: anymal_b.xml
+    model_name: anymal_b
+    notes: ''
+    practical_success: Unknown
+anybotics_anymal_c:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: anybotics_anymal_c
+    description: 'Model variant: anymal_c'
+    evaluation_date: ''
+    evaluator: ''
+    filename: anymal_c.xml
+    model_name: anymal_c
+    notes: ''
+    practical_success: Unknown
+  - asset: anybotics_anymal_c
+    description: 'Model variant: anymal_c_mjx'
+    evaluation_date: ''
+    evaluator: ''
+    filename: anymal_c_mjx.xml
+    model_name: anymal_c_mjx
+    notes: ''
+    practical_success: Unknown
+apptronik_apollo:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: apptronik_apollo
+    description: 'Model variant: apptronik_apollo'
+    evaluation_date: ''
+    evaluator: ''
+    filename: apptronik_apollo.xml
+    model_name: apptronik_apollo
+    notes: ''
+    practical_success: Unknown
+arx_l5:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: arx_l5
+    description: 'Model variant: arx_l5'
+    evaluation_date: ''
+    evaluator: ''
+    filename: arx_l5.xml
+    model_name: arx_l5
+    notes: ''
+    practical_success: Unknown
+berkeley_humanoid:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: berkeley_humanoid
+    description: 'Model variant: berkeley_humanoid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: berkeley_humanoid.xml
+    model_name: berkeley_humanoid
+    notes: ''
+    practical_success: Unknown
+bitcraze_crazyflie_2:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: bitcraze_crazyflie_2
+    description: 'Model variant: cf2'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cf2.xml
+    model_name: cf2
+    notes: ''
+    practical_success: Unknown
+booster_t1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: booster_t1
+    description: 'Model variant: t1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: t1.xml
+    model_name: t1
+    notes: ''
+    practical_success: Unknown
+boston_dynamics_spot:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: boston_dynamics_spot
+    description: 'Model variant: spot'
+    evaluation_date: ''
+    evaluator: ''
+    filename: spot.xml
+    model_name: spot
+    notes: ''
+    practical_success: Unknown
+  - asset: boston_dynamics_spot
+    description: 'Model variant: spot_arm'
+    evaluation_date: ''
+    evaluator: ''
+    filename: spot_arm.xml
+    model_name: spot_arm
+    notes: ''
+    practical_success: Unknown
+dynamixel_2r:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: dynamixel_2r
+    description: 'Model variant: dynamixel_2r'
+    evaluation_date: ''
+    evaluator: ''
+    filename: dynamixel_2r.xml
+    model_name: dynamixel_2r
+    notes: ''
+    practical_success: Unknown
+flybody:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: flybody
+    description: 'Model variant: fruitfly'
+    evaluation_date: ''
+    evaluator: ''
+    filename: fruitfly.xml
+    model_name: fruitfly
+    notes: ''
+    practical_success: Unknown
+fourier_n1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: fourier_n1
+    description: 'Model variant: n1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: n1.xml
+    model_name: n1
+    notes: ''
+    practical_success: Unknown
+franka_emika_panda:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 8
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: franka_emika_panda
+    description: 'Model variant: hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: hand.xml
+    model_name: hand
+    notes: ''
+    practical_success: Unknown
+  - asset: franka_emika_panda
+    description: 'Model variant: mjx_single_cube'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mjx_single_cube.xml
+    model_name: mjx_single_cube
+    notes: ''
+    practical_success: Unknown
+  - asset: franka_emika_panda
+    description: 'Model variant: panda_nohand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: panda_nohand.xml
+    model_name: panda_nohand
+    notes: ''
+    practical_success: Unknown
+  - asset: franka_emika_panda
+    description: 'Model variant: mjx_panda'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mjx_panda.xml
+    model_name: mjx_panda
+    notes: ''
+    practical_success: Unknown
+  - asset: franka_emika_panda
+    description: 'Model variant: panda'
+    evaluation_date: ''
+    evaluator: ''
+    filename: panda.xml
+    model_name: panda
+    notes: ''
+    practical_success: Unknown
+  - asset: franka_emika_panda
+    description: 'Model variant: mjx_panda_nohand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mjx_panda_nohand.xml
+    model_name: mjx_panda_nohand
+    notes: ''
+    practical_success: Unknown
+franka_fr3:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: franka_fr3
+    description: 'Model variant: fr3'
+    evaluation_date: ''
+    evaluator: ''
+    filename: fr3.xml
+    model_name: fr3
+    notes: ''
+    practical_success: Unknown
+google_barkour_v0:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 5
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: google_barkour_v0
+    description: 'Model variant: barkour_v0_mjx'
+    evaluation_date: ''
+    evaluator: ''
+    filename: barkour_v0_mjx.xml
+    model_name: barkour_v0_mjx
+    notes: ''
+    practical_success: Unknown
+  - asset: google_barkour_v0
+    description: 'Model variant: barkour_v0'
+    evaluation_date: ''
+    evaluator: ''
+    filename: barkour_v0.xml
+    model_name: barkour_v0
+    notes: ''
+    practical_success: Unknown
+google_barkour_vb:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 5
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: google_barkour_vb
+    description: 'Model variant: barkour_vb'
+    evaluation_date: ''
+    evaluator: ''
+    filename: barkour_vb.xml
+    model_name: barkour_vb
+    notes: ''
+    practical_success: Unknown
+  - asset: google_barkour_vb
+    description: 'Model variant: barkour_vb_mjx'
+    evaluation_date: ''
+    evaluator: ''
+    filename: barkour_vb_mjx.xml
+    model_name: barkour_vb_mjx
+    notes: ''
+    practical_success: Unknown
+google_robot:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: google_robot
+    description: 'Model variant: robot'
+    evaluation_date: ''
+    evaluator: ''
+    filename: robot.xml
+    model_name: robot
+    notes: ''
+    practical_success: Unknown
+hello_robot_stretch:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: hello_robot_stretch
+    description: 'Model variant: stretch'
+    evaluation_date: ''
+    evaluator: ''
+    filename: stretch.xml
+    model_name: stretch
+    notes: ''
+    practical_success: Unknown
+hello_robot_stretch_3:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: hello_robot_stretch_3
+    description: 'Model variant: stretch'
+    evaluation_date: ''
+    evaluator: ''
+    filename: stretch.xml
+    model_name: stretch
+    notes: ''
+    practical_success: Unknown
+i2rt_yam:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: i2rt_yam
+    description: 'Model variant: yam'
+    evaluation_date: ''
+    evaluator: ''
+    filename: yam.xml
+    model_name: yam
+    notes: ''
+    practical_success: Unknown
+iit_softfoot:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: iit_softfoot
+    description: 'Model variant: softfoot'
+    evaluation_date: ''
+    evaluator: ''
+    filename: softfoot.xml
+    model_name: softfoot
+    notes: ''
+    practical_success: Unknown
+kinova_gen3:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: kinova_gen3
+    description: 'Model variant: gen3'
+    evaluation_date: ''
+    evaluator: ''
+    filename: gen3.xml
+    model_name: gen3
+    notes: ''
+    practical_success: Unknown
+kuka_iiwa_14:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: kuka_iiwa_14
+    description: 'Model variant: iiwa14'
+    evaluation_date: ''
+    evaluator: ''
+    filename: iiwa14.xml
+    model_name: iiwa14
+    notes: ''
+    practical_success: Unknown
+leap_hand:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: leap_hand
+    description: 'Model variant: right_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: right_hand.xml
+    model_name: right_hand
+    notes: ''
+    practical_success: Unknown
+  - asset: leap_hand
+    description: 'Model variant: left_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: left_hand.xml
+    model_name: left_hand
+    notes: ''
+    practical_success: Unknown
+low_cost_robot_arm:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: low_cost_robot_arm
+    description: 'Model variant: low_cost_robot_arm'
+    evaluation_date: ''
+    evaluator: ''
+    filename: low_cost_robot_arm.xml
+    model_name: low_cost_robot_arm
+    notes: ''
+    practical_success: Unknown
+pal_talos:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 5
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: pal_talos
+    description: 'Model variant: talos'
+    evaluation_date: ''
+    evaluator: ''
+    filename: talos.xml
+    model_name: talos
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_talos
+    description: 'Model variant: talos_motor'
+    evaluation_date: ''
+    evaluator: ''
+    filename: talos_motor.xml
+    model_name: talos_motor
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_talos
+    description: 'Model variant: talos_position'
+    evaluation_date: ''
+    evaluator: ''
+    filename: talos_position.xml
+    model_name: talos_position
+    notes: ''
+    practical_success: Unknown
+pal_tiago:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 7
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: pal_tiago
+    description: 'Model variant: tiago_position'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_position.xml
+    model_name: tiago_position
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago
+    description: 'Model variant: tiago'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago.xml
+    model_name: tiago
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago
+    description: 'Model variant: tiago_velocity'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_velocity.xml
+    model_name: tiago_velocity
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago
+    description: 'Model variant: tiago_motor'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_motor.xml
+    model_name: tiago_motor
+    notes: ''
+    practical_success: Unknown
+pal_tiago_dual:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 7
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: pal_tiago_dual
+    description: 'Model variant: tiago_dual_velocity'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_dual_velocity.xml
+    model_name: tiago_dual_velocity
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago_dual
+    description: 'Model variant: tiago_dual'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_dual.xml
+    model_name: tiago_dual
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago_dual
+    description: 'Model variant: tiago_dual_motor'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_dual_motor.xml
+    model_name: tiago_dual_motor
+    notes: ''
+    practical_success: Unknown
+  - asset: pal_tiago_dual
+    description: 'Model variant: tiago_dual_position'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tiago_dual_position.xml
+    model_name: tiago_dual_position
+    notes: ''
+    practical_success: Unknown
+pndbotics_adam_lite:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: pndbotics_adam_lite
+    description: 'Model variant: adam_lite'
+    evaluation_date: ''
+    evaluator: ''
+    filename: adam_lite.xml
+    model_name: adam_lite
+    notes: ''
+    practical_success: Unknown
+realsense_d435i:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: realsense_d435i
+    description: 'Model variant: d435i'
+    evaluation_date: ''
+    evaluator: ''
+    filename: d435i.xml
+    model_name: d435i
+    notes: ''
+    practical_success: Unknown
+rethink_robotics_sawyer:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: rethink_robotics_sawyer
+    description: 'Model variant: sawyer'
+    evaluation_date: ''
+    evaluator: ''
+    filename: sawyer.xml
+    model_name: sawyer
+    notes: ''
+    practical_success: Unknown
+robot_soccer_kit:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: robot_soccer_kit
+    description: 'Model variant: robot_soccer_kit'
+    evaluation_date: ''
+    evaluator: ''
+    filename: robot_soccer_kit.xml
+    model_name: robot_soccer_kit
+    notes: ''
+    practical_success: Unknown
+robotiq_2f85:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: robotiq_2f85
+    description: 'Model variant: 2f85'
+    evaluation_date: ''
+    evaluator: ''
+    filename: 2f85.xml
+    model_name: 2f85
+    notes: ''
+    practical_success: Unknown
+robotiq_2f85_v4:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 3
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: robotiq_2f85_v4
+    description: 'Model variant: 2f85'
+    evaluation_date: ''
+    evaluator: ''
+    filename: 2f85.xml
+    model_name: 2f85
+    notes: ''
+    practical_success: Unknown
+  - asset: robotiq_2f85_v4
+    description: 'Model variant: mjx_2f85'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mjx_2f85.xml
+    model_name: mjx_2f85
+    notes: ''
+    practical_success: Unknown
+robotis_op3:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: robotis_op3
+    description: 'Model variant: op3'
+    evaluation_date: ''
+    evaluator: ''
+    filename: op3.xml
+    model_name: op3
+    notes: ''
+    practical_success: Unknown
+shadow_dexee:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: shadow_dexee
+    description: 'Model variant: shadow_dexee'
+    evaluation_date: ''
+    evaluator: ''
+    filename: shadow_dexee.xml
+    model_name: shadow_dexee
+    notes: ''
+    practical_success: Unknown
+shadow_hand:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 5
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: shadow_hand
+    description: 'Model variant: right_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: right_hand.xml
+    model_name: right_hand
+    notes: ''
+    practical_success: Unknown
+  - asset: shadow_hand
+    description: 'Model variant: left_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: left_hand.xml
+    model_name: left_hand
+    notes: ''
+    practical_success: Unknown
+  - asset: shadow_hand
+    description: 'Model variant: keyframes'
+    evaluation_date: ''
+    evaluator: ''
+    filename: keyframes.xml
+    model_name: keyframes
+    notes: ''
+    practical_success: Unknown
+skydio_x2:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: skydio_x2
+    description: 'Model variant: x2'
+    evaluation_date: ''
+    evaluator: ''
+    filename: x2.xml
+    model_name: x2
+    notes: ''
+    practical_success: Unknown
+stanford_tidybot:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: stanford_tidybot
+    description: 'Model variant: tidybot'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tidybot.xml
+    model_name: tidybot
+    notes: ''
+    practical_success: Unknown
+  - asset: stanford_tidybot
+    description: 'Model variant: base'
+    evaluation_date: ''
+    evaluator: ''
+    filename: base.xml
+    model_name: base
+    notes: ''
+    practical_success: Unknown
+trossen_vx300s:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: trossen_vx300s
+    description: 'Model variant: vx300s'
+    evaluation_date: ''
+    evaluator: ''
+    filename: vx300s.xml
+    model_name: vx300s
+    notes: ''
+    practical_success: Unknown
+trossen_wx250s:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: trossen_wx250s
+    description: 'Model variant: wx250s'
+    evaluation_date: ''
+    evaluator: ''
+    filename: wx250s.xml
+    model_name: wx250s
+    notes: ''
+    practical_success: Unknown
+trs_so_arm100:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: trs_so_arm100
+    description: 'Model variant: so_arm100'
+    evaluation_date: ''
+    evaluator: ''
+    filename: so_arm100.xml
+    model_name: so_arm100
+    notes: ''
+    practical_success: Unknown
+ufactory_lite6:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: ufactory_lite6
+    description: 'Model variant: lite6_gripper_wide'
+    evaluation_date: ''
+    evaluator: ''
+    filename: lite6_gripper_wide.xml
+    model_name: lite6_gripper_wide
+    notes: ''
+    practical_success: Unknown
+  - asset: ufactory_lite6
+    description: 'Model variant: lite6'
+    evaluation_date: ''
+    evaluator: ''
+    filename: lite6.xml
+    model_name: lite6
+    notes: ''
+    practical_success: Unknown
+  - asset: ufactory_lite6
+    description: 'Model variant: lite6_gripper_narrow'
+    evaluation_date: ''
+    evaluator: ''
+    filename: lite6_gripper_narrow.xml
+    model_name: lite6_gripper_narrow
+    notes: ''
+    practical_success: Unknown
+ufactory_xarm7:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: ufactory_xarm7
+    description: 'Model variant: hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: hand.xml
+    model_name: hand
+    notes: ''
+    practical_success: Unknown
+  - asset: ufactory_xarm7
+    description: 'Model variant: xarm7_nohand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: xarm7_nohand.xml
+    model_name: xarm7_nohand
+    notes: ''
+    practical_success: Unknown
+  - asset: ufactory_xarm7
+    description: 'Model variant: xarm7'
+    evaluation_date: ''
+    evaluator: ''
+    filename: xarm7.xml
+    model_name: xarm7
+    notes: ''
+    practical_success: Unknown
+umi_gripper:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: umi_gripper
+    description: 'Model variant: umi_gripper'
+    evaluation_date: ''
+    evaluator: ''
+    filename: umi_gripper.xml
+    model_name: umi_gripper
+    notes: ''
+    practical_success: Unknown
+unitree_a1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_a1
+    description: 'Model variant: a1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: a1.xml
+    model_name: a1
+    notes: ''
+    practical_success: Unknown
+unitree_g1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 6
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_g1
+    description: 'Model variant: g1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: g1.xml
+    model_name: g1
+    notes: ''
+    practical_success: Unknown
+  - asset: unitree_g1
+    description: 'Model variant: g1_mjx'
+    evaluation_date: ''
+    evaluator: ''
+    filename: g1_mjx.xml
+    model_name: g1_mjx
+    notes: ''
+    practical_success: Unknown
+  - asset: unitree_g1
+    description: 'Model variant: g1_with_hands'
+    evaluation_date: ''
+    evaluator: ''
+    filename: g1_with_hands.xml
+    model_name: g1_with_hands
+    notes: ''
+    practical_success: Unknown
+unitree_go1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_go1
+    description: 'Model variant: go1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: go1.xml
+    model_name: go1
+    notes: ''
+    practical_success: Unknown
+unitree_go2:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_go2
+    description: 'Model variant: go2_mjx'
+    evaluation_date: ''
+    evaluator: ''
+    filename: go2_mjx.xml
+    model_name: go2_mjx
+    notes: ''
+    practical_success: Unknown
+  - asset: unitree_go2
+    description: 'Model variant: go2'
+    evaluation_date: ''
+    evaluator: ''
+    filename: go2.xml
+    model_name: go2
+    notes: ''
+    practical_success: Unknown
+unitree_h1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_h1
+    description: 'Model variant: h1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: h1.xml
+    model_name: h1
+    notes: ''
+    practical_success: Unknown
+unitree_z1:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 3
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: unitree_z1
+    description: 'Model variant: z1'
+    evaluation_date: ''
+    evaluator: ''
+    filename: z1.xml
+    model_name: z1
+    notes: ''
+    practical_success: Unknown
+  - asset: unitree_z1
+    description: 'Model variant: z1_gripper'
+    evaluation_date: ''
+    evaluator: ''
+    filename: z1_gripper.xml
+    model_name: z1_gripper
+    notes: ''
+    practical_success: Unknown
+universal_robots_ur10e:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: universal_robots_ur10e
+    description: 'Model variant: ur10e'
+    evaluation_date: ''
+    evaluator: ''
+    filename: ur10e.xml
+    model_name: ur10e
+    notes: ''
+    practical_success: Unknown
+universal_robots_ur5e:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 2
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: universal_robots_ur5e
+    description: 'Model variant: ur5e'
+    evaluation_date: ''
+    evaluator: ''
+    filename: ur5e.xml
+    model_name: ur5e
+    notes: ''
+    practical_success: Unknown
+wonik_allegro:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: wonik_allegro
+    description: 'Model variant: right_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: right_hand.xml
+    model_name: right_hand
+    notes: ''
+    practical_success: Unknown
+  - asset: wonik_allegro
+    description: 'Model variant: left_hand'
+    evaluation_date: ''
+    evaluator: ''
+    filename: left_hand.xml
+    model_name: left_hand
+    notes: ''
+    practical_success: Unknown

@@ -23,6 +23,7 @@ dev = [
     "black>=25.1",
     "coverage>=7.4",
     "unittest-xml-reporting>=3.2.0",
+    "pyyaml>=6.0",
 ]
 
 [tool.uv]
@@ -64,6 +65,26 @@ cmd = "coverage xml -o .coverage.xml"
 [tool.poe.tasks.show-coverage-report]
 help = "Show coverage report in terminal"
 cmd = "coverage report -m"
+
+[tool.poe.tasks.benchmark]
+help = "Run MuJoCo Menagerie benchmark"
+cmd = "python tools/benchmark_menagerie.py"
+
+[tool.poe.tasks.benchmark-csv]
+help = "Run MuJoCo Menagerie benchmark and generate CSV report only"
+cmd = "python tools/benchmark_menagerie.py --report-format csv"
+
+[tool.poe.tasks.annotations]
+help = "Show annotation summary"
+cmd = "python tools/manage_annotations.py"
+
+[tool.poe.tasks.annotations-validate]
+help = "Validate annotation file"
+cmd = "python tools/manage_annotations.py --validate"
+
+[tool.poe.tasks.annotations-update]
+help = "Update annotation file with new assets from Menagerie"
+cmd = "python tools/manage_annotations.py --update"
 
 [tool.poe.tasks.lint]
 help = "Run all lint tools on the code base"
