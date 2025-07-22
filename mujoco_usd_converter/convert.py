@@ -9,10 +9,9 @@ import usdex.core
 from pxr import Sdf, Tf, Usd, UsdGeom, UsdPhysics
 
 from ._flatten import export_flattened
-from ._future import Tokens, addAssetContent, addAssetInterface, createAssetContents
 from .actuator import convert_actuators
 from .body import convert_bodies
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .material import convert_materials
 from .mesh import convert_meshes
 from .scene import convert_scene
@@ -96,18 +95,18 @@ class Converter:
             usdex.core.setDisplayName(root, spec.modelname)
 
         # setup the root layer of the payload
-        data.content[Tokens.Contents] = createAssetContents(asset_stage)
+        data.content[Tokens.Contents] = usdex.core.createAssetContents(asset_stage)
 
         # author the mesh library
         convert_meshes(data)
         # setup a content layer for referenced meshes
-        data.content[Tokens.Geometry] = addAssetContent(data.content[Tokens.Contents], Tokens.Geometry, format="usda")
+        data.content[Tokens.Geometry] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Geometry, format="usda")
 
         # author the material library and setup the content layer for materials only if there are materials
         convert_materials(data)
 
         # setup a content layer for physics
-        data.content[Tokens.Physics] = addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
+        data.content[Tokens.Physics] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
         data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         data.references[Tokens.Physics] = {}
 
@@ -122,7 +121,7 @@ class Converter:
         convert_actuators(data)
 
         # create the asset interface
-        addAssetInterface(asset_stage, source=data.content[Tokens.Contents])
+        usdex.core.addAssetInterface(asset_stage, data.content[Tokens.Contents])
 
         # optionally flatten the asset
         if not self.params.layer_structure:

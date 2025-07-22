@@ -8,7 +8,6 @@ import usdex.core
 from pxr import Kind, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 import mujoco_usd_converter
-from mujoco_usd_converter._future import getLayerAuthoringMetadata
 
 
 class TestAssetStructure(unittest.TestCase):
@@ -55,7 +54,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = stage.GetDefaultPrim()
@@ -128,7 +127,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(contents_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(contents_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(contents_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(contents_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(contents_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = contents_stage.GetDefaultPrim()
@@ -151,7 +150,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(geometry_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(geometry_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(geometry_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(geometry_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(geometry_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = geometry_stage.GetDefaultPrim()
@@ -187,7 +186,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(materials_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(materials_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(materials_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(materials_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(materials_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = materials_stage.GetDefaultPrim()
@@ -239,7 +238,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(physics_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(physics_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(physics_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(physics_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = physics_stage.GetDefaultPrim()

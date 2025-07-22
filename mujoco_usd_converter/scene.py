@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import usdex.core
 from pxr import Gf, Usd, UsdPhysics, Vt
 
-from ._future import Tokens, defineRelativePayload
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .numpy import convert_vec3d
 from .utils import set_schema_attribute
 
@@ -27,7 +27,7 @@ def convert_scene(data: ConversionData):
 
     # reference the scene in the asset layer, but from the content layer
     content_scene: Usd.Prim = content_stage.GetPseudoRoot().GetChild(safe_name)
-    defineRelativePayload(asset_stage.GetPseudoRoot(), content_scene, safe_name)
+    usdex.core.definePayload(asset_stage.GetPseudoRoot(), content_scene, safe_name)
 
     # set the gravity
     gravity_vector: Gf.Vec3d = convert_vec3d(data.spec.option.gravity)
