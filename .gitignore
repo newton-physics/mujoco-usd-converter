@@ -14,4 +14,4 @@ benchmark_output/*
 
 # installation artifacts
 dist
-mjc_usd_converter/plugins/mjcPhysics
+mujoco_usd_converter/plugins/mjcPhysics
