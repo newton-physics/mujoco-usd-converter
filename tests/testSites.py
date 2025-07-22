@@ -7,7 +7,7 @@ import unittest
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestSites(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestSites(unittest.TestCase):
     def test_sites(self):
         model = pathlib.Path("./tests/data/sites.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/body/geom")
@@ -50,7 +50,7 @@ class TestSites(unittest.TestCase):
     def test_sites_in_physics_layer(self):
         model = pathlib.Path("./tests/data/sites.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/body/site")

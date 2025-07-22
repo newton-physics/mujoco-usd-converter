@@ -63,7 +63,7 @@
   - Error handling with graceful failures
   - Enable verbose output for debugging (exposes any traceback info)
 - **Python API**
-  - Full programmatic access via `mjc_usd_converter.Converter` class with configurable parameters for all CLI flags
+  - Full programmatic access via `mujoco_usd_converter.Converter` class with configurable parameters for all CLI flags
   - Enables interactive editing of the MJCF data before conversion or of the USD Layers after conversion
 
 ## Known Limitations

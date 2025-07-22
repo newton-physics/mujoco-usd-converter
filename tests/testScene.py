@@ -6,7 +6,7 @@ import unittest
 
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestScene(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestScene(unittest.TestCase):
     def test_gravity(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
@@ -27,7 +27,7 @@ class TestScene(unittest.TestCase):
         # Test with non-default scene options and flags
         model = pathlib.Path("./tests/data/scene_attributes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
@@ -125,7 +125,7 @@ class TestScene(unittest.TestCase):
     def test_scene_default_values(self):
         model = pathlib.Path("./tests/data/bodies.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
@@ -229,7 +229,7 @@ class TestScene(unittest.TestCase):
     def test_scene_disabled(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter(scene=False).convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")

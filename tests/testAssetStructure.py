@@ -7,8 +7,8 @@ import unittest
 import usdex.core
 from pxr import Kind, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
-import mjc_usd_converter
-from mjc_usd_converter._future import getLayerAuthoringMetadata
+import mujoco_usd_converter
+from mujoco_usd_converter._future import getLayerAuthoringMetadata
 
 
 class TestAssetStructure(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_display_name(self):
         model = pathlib.Path("./tests/data/invalid names.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Test that geoms get proper display names
@@ -46,7 +46,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_interface_layer(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         self.assertEqual(stage.GetRootLayer().identifier, pathlib.Path(f"./tests/output/{model_name}/{model_name}.usda").absolute().as_posix())
@@ -75,7 +75,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_prim_stack(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
@@ -97,7 +97,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_prim_stack_no_materials(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
@@ -118,7 +118,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_contents_layer(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
         contents_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Contents.usda").absolute()
         self.assertTrue(contents_layer_path.exists(), msg=f"Contents layer not found at {contents_layer_path}")
@@ -140,7 +140,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_geometry_layer(self):
         model = pathlib.Path("./tests/data/meshes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
 
         geometry_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Geometry.usda").absolute()
@@ -176,7 +176,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_materials_layer(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
 
         materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Materials.usda").absolute()
@@ -226,7 +226,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_physics_layer(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
 
         # kg per unit is authored in the physics layer
@@ -281,7 +281,7 @@ class TestAssetStructure(unittest.TestCase):
 
         def check_layer(model_name: str):
             model = pathlib.Path(f"./tests/data/{model_name}.xml")
-            mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+            mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
             for layer in pathlib.Path(f"./tests/output/{model_name}/payload").iterdir():
                 if layer.is_dir():
@@ -310,7 +310,7 @@ class TestAssetStructure(unittest.TestCase):
     def test_physics_scene(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
@@ -329,7 +329,7 @@ class TestAssetStructure(unittest.TestCase):
         texture_file = textures_dir / "grid.png"
 
         # convert without layer structure
-        mjc_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
+        mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
 
         # check usdc and texture
         self.assertTrue(usdc_path.exists(), f"{usdc_path} not found")

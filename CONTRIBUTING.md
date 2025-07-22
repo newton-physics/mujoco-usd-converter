@@ -1,14 +1,14 @@
-# Contributing to mjc-usd-converter
+# Contributing to mujoco-usd-converter
 
-If you are interested in contributing to mjc-usd-converter, your contributions will fall
+If you are interested in contributing to mujoco-usd-converter, your contributions will fall
 into three categories:
 1. You want to report a bug, feature request, or documentation issue
 2. You want to implement a feature or bug-fix for an outstanding issue
 3. You want to propose a new Feature and implement it
 
-In all cases, first search the existing [GitHub Issues](https://github.com/NVIDIA-Omniverse/mjc-usd-converter/issues) to see if anyone has reported something similar.
+In all cases, first search the existing [GitHub Issues](https://github.com/newton-physics/mujoco-usd-converter/issues) to see if anyone has reported something similar.
 
-If not, create a new [GitHub Issue](https://github.com/NVIDIA-Omniverse/mjc-usd-converter/issues/new/choose) describing what you encountered or what you want to see changed. If you have feedback that is best explained in code, feel free to fork the repository on GitHub, create a branch demonstrating your intent, and either link it to the GitHub Issue or open a Pull Request back upstream. See [Code Contributions](#code-contributions) for more details.
+If not, create a new [GitHub Issue](https://github.com/newton-physics/mujoco-usd-converter/issues/new/choose) describing what you encountered or what you want to see changed. If you have feedback that is best explained in code, feel free to fork the repository on GitHub, create a branch demonstrating your intent, and either link it to the GitHub Issue or open a Pull Request back upstream. See [Code Contributions](#code-contributions) for more details.
 
 Whether adding details to an existing issue or creating a new one, please let us know what companies are impacted.
 
@@ -72,7 +72,7 @@ By making a contribution to this project, I certify that:
 
 The default branch is named `main` and it is a protected branch. Our internal CI Pipeline automatically builds & tests all changes from this branch on both Windows and Linux. However, all new features target the `main` branch, and we may merge code changes to this branch at any time; it is not guaranteed to be stable/usable and may break API/ABI regularly.
 
-We advise to use an official published wheel of the mjc-usd-converter, or source from the GitHub tag associated with it, to ensure stability.
+We advise to use an official published wheel of the mujoco-usd-converter, or source from the GitHub tag associated with it, to ensure stability.
 
 ### Development Branches
 
@@ -98,7 +98,7 @@ uv run --group dev poe lint
 uv run --group dev poe test
 
 # Run the CLI
-uv run mjc_usd_converter --help
+uv run mujoco_usd_converter --help
 
 # Build the project
 uv build
@@ -136,7 +136,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 - Run linting: `uv run --group dev poe lint`
 - Run tests: `uv run --group dev poe test`
 - Run auto-formatters: `uv run --group dev poe format`
-- Run the CLI: `uv run mjc_usd_converter <args>`
+- Run the CLI: `uv run mujoco_usd_converter <args>`
 
 #### Traditional Workflow (via build scripts)
 - Build and setup environment: `./build.sh` or `.\build.bat`
@@ -164,15 +164,15 @@ The converter CLI can be tested:
 
 ```bash
 # Direct execution
-uv run mjc_usd_converter --help
+uv run mujoco_usd_converter --help
 
 # In activated venv
-mjc_usd_converter --help
+mujoco_usd_converter --help
 ```
 
 ## Changing OpenUSD or MuJoCo Runtimes
 
-By default the mjc-usd-converter uses OpenUSD v25.05 & OpenUSD Exchange compiled for this same flavor. OpenUSD Exchange SDK can be compiled for many flavors of OpenUSD and Python. You can switch to a different flavor of OpenUSD by changing the `usd-exchange` version metadata within the the pyproject.toml or sdist.
+By default the mujoco-usd-converter uses OpenUSD v25.05 & OpenUSD Exchange compiled for this same flavor. OpenUSD Exchange SDK can be compiled for many flavors of OpenUSD and Python. You can switch to a different flavor of OpenUSD by changing the `usd-exchange` version metadata within the the pyproject.toml or sdist.
 
 The converter also uses MuJoCo 3.3.5, which contains the newest MjcPhysics schemas & newest features required for USD interop in MuJoCo. You may update the pyproject.toml or sdist to a newer version of MuJoCo as needed, but you cannot use an older version.
 

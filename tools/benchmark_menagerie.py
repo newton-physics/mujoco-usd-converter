@@ -3,7 +3,7 @@
 """
 MuJoCo Menagerie Benchmark Script
 
-This script benchmarks the mjc-usd-converter against all models in the MuJoCo Menagerie repository.
+This script benchmarks the mujoco-usd-converter against all models in the MuJoCo Menagerie repository.
 It generates a comprehensive report with functional success/failure metrics, performance data,
 and templates for manual evaluation.
 """
@@ -171,7 +171,7 @@ class DiagnosticsCapture:
 
 
 class MenagerieBenchmark:
-    """Main benchmark class for testing mjc-usd-converter against MuJoCo Menagerie."""
+    """Main benchmark class for testing mujoco-usd-converter against MuJoCo Menagerie."""
 
     MENAGERIE_REPO_URL = "https://github.com/google-deepmind/mujoco_menagerie.git"
     MENAGERIE_BASE_URL = "https://github.com/google-deepmind/mujoco_menagerie/tree/main/"
@@ -339,7 +339,7 @@ class MenagerieBenchmark:
             [
                 "uv",
                 "run",
-                "mjc_usd_converter",
+                "mujoco_usd_converter",
                 str(mjcf_path),
                 str(model_output_dir),
                 "--verbose",
@@ -739,7 +739,7 @@ Average Size per Model: {total_file_size/total_models:.2f} MB"""
 def main():
     """Main entry point for the benchmark script."""
     parser = argparse.ArgumentParser(
-        description="Benchmark mjc-usd-converter against MuJoCo Menagerie models", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="Benchmark mujoco-usd-converter against MuJoCo Menagerie models", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument("--menagerie-path", type=str, help="Path to existing MuJoCo Menagerie repository (will clone if not provided)")

@@ -8,7 +8,7 @@ import unittest
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdShade
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestMaterial(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestMaterial(unittest.TestCase):
         model_path = pathlib.Path("./tests/data/materials.xml")
         self.model_name = model_path.stem
         self.output_dir = pathlib.Path(f"tests/output/{self.model_name}")
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model_path, self.output_dir)
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir)
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
     def tearDown(self):

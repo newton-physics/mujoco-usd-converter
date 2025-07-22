@@ -6,7 +6,7 @@ import unittest
 
 from pxr import Gf, Sdf, Usd, UsdGeom
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestFrames(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestFrames(unittest.TestCase):
         tolerance = 1e-6
         model = pathlib.Path("./tests/data/frames.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/frames/Geometry/mainBody/framedBody/ObjBox")

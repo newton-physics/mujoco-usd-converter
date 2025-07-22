@@ -193,7 +193,7 @@ wheels = [
 ]
 
 [[package]]
-name = "mjc-usd-converter"
+name = "mujoco-usd-converter"
 version = "0.1.0.dev4"
 source = { editable = "." }
 dependencies = [

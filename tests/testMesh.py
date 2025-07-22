@@ -7,7 +7,7 @@ import unittest
 
 from pxr import Sdf, Usd, UsdGeom
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestMesh(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestMesh(unittest.TestCase):
     def test_mesh_conversion(self):
         model_path = pathlib.Path("./tests/data/meshes.xml")
         model_name = model_path.stem
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model_path, self.output_dir / model_name)
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir / model_name)
         stage = Usd.Stage.Open(asset.path)
 
         # Test STL mesh conversion

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Define the code of conduct followed and enforced for mjc-usd-converter.
+Define the code of conduct followed and enforced for mujoco-usd-converter.
 
 ### Intended audience
 

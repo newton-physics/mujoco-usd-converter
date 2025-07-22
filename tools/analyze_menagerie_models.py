@@ -207,7 +207,7 @@ class MenagerieAnalyzer:
         """Write annotations to file with proper formatting."""
         # Create header comment
         header = """# MuJoCo Menagerie Manual Annotations
-# This file contains manual evaluation results for the mjc-usd-converter benchmark
+# This file contains manual evaluation results for the mujoco-usd-converter benchmark
 #
 # Format:
 #   asset_name:

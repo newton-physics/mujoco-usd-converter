@@ -12,7 +12,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
 
     def initialize(self, version, build_data):
         """Called before the build starts"""
-        self.target_dir = Path("mjc_usd_converter/plugins/mjcPhysics/resources")
+        self.target_dir = Path("mujoco_usd_converter/plugins/mjcPhysics/resources")
         self.target_dir.mkdir(parents=True, exist_ok=True)
         self.download_schema_files()
         self.patch_schema_files()

@@ -7,14 +7,14 @@ import unittest
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
 
-import mjc_usd_converter
+import mujoco_usd_converter
 
 
 class TestGeom(unittest.TestCase):
     def setUp(self):
         self.output_dir = f"./tests/output/{self._testMethodName}"
         model = pathlib.Path("./tests/data/geoms.xml")
-        asset: Sdf.AssetPath = mjc_usd_converter.Converter().convert(model, self.output_dir)
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.output_dir)
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
     def tearDown(self):

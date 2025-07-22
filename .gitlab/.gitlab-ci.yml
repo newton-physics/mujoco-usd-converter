@@ -81,7 +81,7 @@ test_wheel_linux:
 
     # Test conversion
     - mkdir -p /tmp/test_outputs
-    - mjc_usd_converter tests/data/geoms.xml /tmp/test_outputs/geoms_output
+    - mujoco_usd_converter tests/data/geoms.xml /tmp/test_outputs/geoms_output
 
 test_wheel_windows:
   extends: [.default_job, .setup_windows]
@@ -98,7 +98,7 @@ test_wheel_windows:
 
     # Test conversion
     - New-Item -ItemType Directory -Force -Path test_outputs
-    - mjc_usd_converter tests/data/geoms.xml test_outputs\geoms_output
+    - mujoco_usd_converter tests/data/geoms.xml test_outputs\geoms_output
 
 benchmark:
   extends: [.default_job]

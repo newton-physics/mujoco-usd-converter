@@ -7,5 +7,5 @@ blank_issues_enabled: false
 # link that below to have it show up in the 'Submit Issue' page
 contact_links:
   - name: Ask a Question
-    url: https://github.com/NVIDIA-Omniverse/mjc-usd-converter/discussions
+    url: https://github.com/newton-physics/mujoco-usd-converter/discussions
     about: Please ask any questions here.
