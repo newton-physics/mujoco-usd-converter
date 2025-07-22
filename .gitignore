@@ -10,6 +10,7 @@
 # generated files
 *.pyc
 tests/output/*
+benchmark_output/*
 
 # installation artifacts
 dist

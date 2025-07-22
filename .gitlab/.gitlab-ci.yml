@@ -100,6 +100,17 @@ test_wheel_windows:
     - New-Item -ItemType Directory -Force -Path test_outputs
     - mjc_usd_converter tests/data/geoms.xml test_outputs\geoms_output
 
+benchmark:
+  extends: [.default_job]
+  stage: test
+  script:
+    - uv run --group dev poe benchmark
+  needs: ["build_linux"]
+  artifacts:
+    paths:
+      - benchmark_output/*.*
+  when: manual
+
 .deploy_base:
   extends: [.deploy_job]
   stage: deploy
