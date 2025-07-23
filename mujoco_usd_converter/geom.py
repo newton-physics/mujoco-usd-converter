@@ -3,7 +3,7 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
 from ._future import Tokens, defineRelativeReference
 from .data import ConversionData
@@ -233,7 +233,8 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
     if not is_collider:
         # this is a purely visual geom, so we skip physics authoring
         # but we still need to set the group attribute
-        geom_prim.CreateAttribute("mjc:group", Sdf.ValueTypeNames.Int, custom=True, variability=Sdf.VariabilityUniform).Set(geom.group)
+        geom_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsImageableAPI"))
+        set_schema_attribute(geom_prim, "mjc:group", geom.group)
         return
 
     geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())

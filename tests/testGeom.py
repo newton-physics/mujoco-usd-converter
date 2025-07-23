@@ -84,16 +84,24 @@ class TestGeom(unittest.TestCase):
 
     def test_group(self):
         default_prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
+        self.assertFalse(default_prim.HasAPI("MjcImageableAPI"))
+        self.assertTrue(default_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(default_prim.GetAttribute("mjc:group").HasAuthoredValue(), False)
         self.assertEqual(default_prim.GetAttribute("mjc:group").Get(), 0)
 
         visual_prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
+        self.assertTrue(visual_prim.HasAPI("MjcImageableAPI"))
+        self.assertFalse(visual_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(visual_prim.GetAttribute("mjc:group").Get(), 1)
 
         guide_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_visual")
+        self.assertTrue(guide_prim.HasAPI("MjcImageableAPI"))
+        self.assertFalse(guide_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(guide_prim.GetAttribute("mjc:group").Get(), 3)
 
         guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
+        self.assertFalse(guide_mesh_collider_prim.HasAPI("MjcImageableAPI"))
+        self.assertTrue(guide_mesh_collider_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(guide_mesh_collider_prim.GetAttribute("mjc:group").Get(), 3)
 
     def test_default_collider(self):
