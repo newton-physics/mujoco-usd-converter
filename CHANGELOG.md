@@ -113,7 +113,8 @@
 
 ### Using the USD Asset in MuJoCo Simulate
 
-- The app does not yet load visual geometry or visual materials
+- MuJoCo's native USD Importer may alter Prim names, mesh topology, and other properties.
+  - The simulation results when loading USD in MuJoCo should match the source MJCF, but a perfect round-trip of MJCF XML is not expected.
 
 ### Using the USD Asset in other USD Ecosystem applications
 

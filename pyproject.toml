@@ -1,6 +1,6 @@
 [project]
 name = "mujoco-usd-converter"
-version = "0.1.0.dev4"
+version = "0.1.0.dev5"
 description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "NVIDIA"}]
 license = {text = "Apache-2.0"}
