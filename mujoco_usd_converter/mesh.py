@@ -102,7 +102,7 @@ def __convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     if len(shapes) == 0:
         Tf.RaiseRuntimeError(f'Invalid input_path: "{input_path}" contains no meshes')
     elif len(shapes) > 1:
-        Tf.Warn(f'"{input_path}" contains multiple meshes, only the first one will be converted')
+        Tf.Warn(f'"{input_path.name}" contains multiple meshes, only the first one will be converted')
 
     attrib = reader.GetAttrib()
     obj_mesh = shapes[0].mesh
