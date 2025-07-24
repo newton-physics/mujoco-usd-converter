@@ -451,6 +451,9 @@ class MenagerieBenchmark:
         if format_type in ["html", "all"]:
             reports["html"] = self._generate_html_report()
 
+        if format_type in ["md", "all"]:
+            reports["md"] = self._generate_markdown_report()
+
         # Generate summary
         self._generate_summary(save_to_file=format_type == "all")
 
@@ -690,6 +693,153 @@ class MenagerieBenchmark:
         logger.info("HTML report generated: %s", html_path.absolute())
         return html_path
 
+    def _generate_markdown_report(self) -> Path:
+        """Generate Markdown report."""
+        md_path = self.report_output_dir / "benchmarks.md"
+
+        # Calculate statistics
+        total_models = len(self.results)
+        successful = sum(1 for r in self.results if r.success)
+        failed = total_models - successful
+        total_errors = sum(r.error_count for r in self.results)
+        total_warnings = sum(r.warning_count for r in self.results)
+        avg_time = sum(r.conversion_time_seconds for r in self.results) / total_models if total_models > 0 else 0
+        total_time = sum(r.conversion_time_seconds for r in self.results)
+        total_file_size = sum(r.total_file_size_mb for r in self.results)
+
+        # Start building markdown content
+        md_content = f"""# MuJoCo Menagerie Benchmark Report
+
+**Generated on:** {time.strftime("%Y-%m-%d %H:%M:%S")}
+
+**Repository:** [{self.MENAGERIE_REPO_URL}]({self.MENAGERIE_REPO_URL})
+
+## Summary Statistics
+
+| Total Models | Successful | Failed | Total Warnings | Total Errors | Average Time | Total Time | Total File Size |
+|:------------:|:----------:|:------:|:--------------:|:------------:|:------------:|:----------:|:---------------:|
+"""
+
+        # Build summary data row (split to avoid long line)
+        summary_row = (
+            f"| {total_models} | {successful} ({successful/total_models*100:.1f}%) | "
+            f"{failed} ({failed/total_models*100:.1f}%) | {total_warnings} | {total_errors} | "
+            f"{avg_time:.2f}s | {total_time:.2f}s | {total_file_size:.2f} MB |"
+        )
+        md_content += (
+            summary_row
+            + """
+
+## Detailed Results
+
+"""
+        )
+
+        # Add table header (split to avoid long line)
+        table_header = (
+            "| Asset | Variant | Link | Success | Verified | Errors | Warnings | "
+            "Time (s) | Size (MB) | Notes | Error Messages | Warning Messages |\n"
+        )
+        table_separator = (
+            "|-------|---------|------|---------|----------|-------:|--------:|"
+            "---------:|---------:|----------------------|----------------|------------------|\n"
+        )
+        md_content += table_header + table_separator
+
+        # Sort results by asset name, then variant name
+        sorted_results = sorted(self.results, key=lambda r: (r.asset_name, r.variant_name))
+
+        previous_asset = None
+        for result in sorted_results:
+            # Determine if this is the first variant of a new asset
+            is_new_asset = result.asset_name != previous_asset
+
+            # Only show asset name and link for first variant in each group
+            asset_display = f"**{result.asset_name}**" if is_new_asset else ""
+            link_display = f"[GitHub]({result.menagerie_url})" if is_new_asset else ""
+
+            previous_asset = result.asset_name
+
+            # Success status with emoji
+            success_display = "✅" if result.success else "❌"
+
+            # Verified status with emoji
+            if result.verified == "Yes":
+                verified_display = "✅"
+            elif result.verified == "Unknown":
+                verified_display = "❓"
+            else:
+                verified_display = "❌"
+
+            # Escape pipe characters and clean up text for markdown table
+            def clean_for_table(text: str) -> str:
+                if not text:
+                    return ""
+                # Replace pipes with escaped pipes, newlines with <br> for markdown, and clean carriage returns
+                cleaned = text.replace("|", "\\|").replace("\n", "<br>").replace("\r", "")
+                return cleaned
+
+            error_messages = clean_for_table(result.error_message)
+            warning_messages = clean_for_table(result.warnings)
+            notes = clean_for_table(result.notes)
+
+            # Build table row (split to avoid long line)
+            row_parts = [
+                asset_display,
+                result.variant_name,
+                link_display,
+                success_display,
+                verified_display,
+                str(result.error_count),
+                str(result.warning_count),
+                f"{result.conversion_time_seconds:.3f}",
+                f"{result.total_file_size_mb:.2f}",
+                notes,
+                error_messages,
+                warning_messages,
+            ]
+            md_content += "| " + " | ".join(row_parts) + " |\n"
+
+        # Add manual annotation instructions
+        md_content += """
+
+## Manual Annotation Instructions
+
+### Verified Status
+Each model variant can be individually annotated with "Yes", "No", or "Unknown" based on manual
+inspection of the converted USD files. Update the annotations in the `tools/menagerie_annotations.yaml`
+file under each variant's `verified` field.
+
+**Consider these factors:**
+- Visual correctness when loaded in USD viewer
+- Proper hierarchy and naming
+- Material and texture fidelity
+- Physics properties preservation
+- Simulation correctness in MuJoCo Simulate compared to the original MJCF file
+
+### Notes
+Document any known issues, limitations, or special considerations for each model variant in the
+`notes` field under each variant in the annotations file.
+
+### Annotation Structure
+Annotations are per-variant rather than per-asset. Each XML file listed under an asset's
+`xml_files` array has its own `verified`, `notes`, `evaluation_date`, `evaluator`, and `notes` fields.
+
+### File Size Information
+**Total Size:** Overall size of all files in the output directory, including USD files, textures,
+and any other generated assets.
+
+---
+
+*Report generated by mujoco-usd-converter benchmark tool*
+"""
+
+        with Path.open(md_path, "w", encoding="utf-8") as mdfile:
+            mdfile.write(md_content)
+
+        logger.info("Markdown report generated: %s", md_path.absolute())
+        return md_path
+
     def _generate_summary(self, save_to_file: bool = True):
         """Generate a summary of the benchmark results."""
         if not self.results:
@@ -763,7 +913,7 @@ def main():
     parser.add_argument("--menagerie-path", type=str, help="Path to existing MuJoCo Menagerie repository (will clone if not provided)")
     parser.add_argument("--conversion-output-dir", type=str, default="benchmarks/usd_menagerie", help="Directory to store converted USD assets")
     parser.add_argument("--report-output-dir", type=str, default="benchmarks", help="Directory to store benchmark reports")
-    parser.add_argument("--report-format", choices=["csv", "html", "all"], default="all", help="Format for the benchmark report")
+    parser.add_argument("--report-format", choices=["csv", "html", "md", "all"], default="all", help="Format for the benchmark report")
     parser.add_argument(
         "--annotation-file",
         type=str,
