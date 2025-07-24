@@ -24,6 +24,7 @@ check_code_format:
   extends: [.default_job]
   stage: check
   script:
+    - uv lock --check
     - uv run --group dev poe lint
 
 .build_base:
