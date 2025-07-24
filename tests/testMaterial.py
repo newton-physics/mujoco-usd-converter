@@ -52,7 +52,7 @@ class TestMaterial(unittest.TestCase):
         self.assertTrue(texture_input.HasConnectedSource())
 
         # Check that the texture file was copied and is referenced correctly
-        texture_path = self.output_dir / "payload" / "Textures" / "grid.png"
+        texture_path = self.output_dir / "Payload" / "Textures" / "grid.png"
         self.assertTrue(texture_path.exists())
 
         # Check that the connected source is a relative asset path to the expected texture

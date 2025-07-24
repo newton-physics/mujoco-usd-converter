@@ -76,7 +76,7 @@ class TestSites(unittest.TestCase):
         self.assertTrue("Physics" in prim_specs[0].layer.identifier)
 
         # site prims are in the physics layer with the MJC schemas applied
-        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Physics.usda").absolute()
+        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Physics.usda").absolute()
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/body/site")

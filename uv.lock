@@ -241,7 +241,7 @@ requires-dist = [
     { name = "mujoco", specifier = ">=3.3.4.dev778114814", index = "https://py.mujoco.org/" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
-    { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl", index = "https://REDACTED/simple" },
+    { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2411.mr138.884.2b777729.gl", index = "https://REDACTED/simple" },
 ]
 
 [package.metadata.requires-dev]
@@ -537,13 +537,13 @@ wheels = [
 
 [[package]]
 name = "usd-exchange"
-version = "2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl"
+version = "2.0.0.dev0+usd2411.mr138.884.2b777729.gl"
 source = { registry = "https://REDACTED/simple" }
 wheels = [
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl/usd_exchange-2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:a3fffb6499b4297dbe13cc1bb37d5ba2ea569e0ce1e09ba725848ff811b8a62b" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl/usd_exchange-2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl-cp310-cp310-win_amd64.whl", hash = "sha256:b968c79102e7b977a9448ca4e9bd3d762f2fc3a0fdce5b831412576a76046e87" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl/usd_exchange-2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:91bef0d8b8d0552344f0b88a03b38dfd41f38fb610f1a3c2c9a0e7daac43252e" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl/usd_exchange-2.0.0.dev0+usd2502.mr138.848.c761cf3a.gl-cp311-cp311-win_amd64.whl", hash = "sha256:60013ab739036e88ddda123c047f1b50ae1b428ed4df0a73e214260fe2f67df3" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2411.mr138.884.2b777729.gl/usd_exchange-2.0.0.dev0+usd2411.mr138.884.2b777729.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:aa4f3583ab5da87b97c7b29223cb347a534e609a1f9468fbe5c46ed3587b61b8" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2411.mr138.884.2b777729.gl/usd_exchange-2.0.0.dev0+usd2411.mr138.884.2b777729.gl-cp310-cp310-win_amd64.whl", hash = "sha256:fb76de83cbfc5a14c1f9380185f9cfcc89df824d7f6e3986da8f3336f12ecd2b" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2411.mr138.884.2b777729.gl/usd_exchange-2.0.0.dev0+usd2411.mr138.884.2b777729.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:471f9da2216b4fce589943c559d3f65b39b06c64fbf00690e9f6fc0ad8c0962c" },
+    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2411.mr138.884.2b777729.gl/usd_exchange-2.0.0.dev0+usd2411.mr138.884.2b777729.gl-cp311-cp311-win_amd64.whl", hash = "sha256:6afe016f6039af54381459d6d1979e2a149117fba174cd822a834702a87cfd92" },
 ]
 
 [[package]]

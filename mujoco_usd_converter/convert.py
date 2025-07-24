@@ -95,7 +95,7 @@ class Converter:
             usdex.core.setDisplayName(root, spec.modelname)
 
         # setup the root layer of the payload
-        data.content[Tokens.Contents] = usdex.core.createAssetContents(asset_stage)
+        data.content[Tokens.Contents] = usdex.core.createAssetPayload(asset_stage)
 
         # author the mesh library
         convert_meshes(data)
@@ -121,7 +121,7 @@ class Converter:
         convert_actuators(data)
 
         # create the asset interface
-        usdex.core.addAssetInterface(asset_stage, data.content[Tokens.Contents])
+        usdex.core.addAssetInterface(asset_stage, source=data.content[Tokens.Contents])
 
         # optionally flatten the asset
         if not self.params.layer_structure:
