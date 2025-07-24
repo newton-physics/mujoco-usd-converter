@@ -618,9 +618,7 @@ class MenagerieBenchmark:
         previous_asset = None
         for result in sorted_results:
             success_class = "success-cell" if result.success else "failure-cell"
-            verified_class = (
-                "success-cell" if result.verified == "Yes" else "" if result.verified == "Unknown" else "failure-cell"
-            )
+            verified_class = "success-cell" if result.verified == "Yes" else "" if result.verified == "Unknown" else "failure-cell"
 
             # Determine if this is the first variant of a new asset
             is_new_asset = result.asset_name != previous_asset
@@ -633,8 +631,8 @@ class MenagerieBenchmark:
             previous_asset = result.asset_name
 
             # Convert newlines and tabs to HTML for proper display
-            error_message_html = result.error_message.replace('\n', '<br>')
-            warnings_html = result.warnings.replace('\n', '<br>')
+            error_message_html = result.error_message.replace("\n", "<br>")
+            warnings_html = result.warnings.replace("\n", "<br>")
 
             html_content += f"""
             <tr class="{row_class}">
