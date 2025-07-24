@@ -193,8 +193,31 @@ wheels = [
 ]
 
 [[package]]
+name = "mujoco"
+version = "3.3.4.dev778552679"
+source = { registry = "https://py.mujoco.org/" }
+dependencies = [
+    { name = "absl-py" },
+    { name = "etils", extra = ["epath"] },
+    { name = "glfw" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://REDACTED/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.3.1", source = { registry = "https://REDACTED/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pyopengl" },
+]
+wheels = [
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-macosx_11_0_universal2.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-win_amd64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-macosx_11_0_universal2.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
+    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-win_amd64.whl" },
+]
+
+[[package]]
 name = "mujoco-usd-converter"
-version = "0.1.0.dev4"
+version = "0.1.0.dev5"
 source = { editable = "." }
 dependencies = [
     { name = "mujoco" },
@@ -229,29 +252,6 @@ dev = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.11" },
     { name = "unittest-xml-reporting", specifier = ">=3.2.0" },
-]
-
-[[package]]
-name = "mujoco"
-version = "3.3.4.dev778552679"
-source = { registry = "https://py.mujoco.org/" }
-dependencies = [
-    { name = "absl-py" },
-    { name = "etils", extra = ["epath"] },
-    { name = "glfw" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://REDACTED/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.3.1", source = { registry = "https://REDACTED/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pyopengl" },
-]
-wheels = [
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-macosx_11_0_universal2.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp310-cp310-win_amd64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-macosx_11_0_universal2.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" },
-    { url = "https://py.mujoco.org/mujoco/mujoco-3.3.4.dev778552679-cp311-cp311-win_amd64.whl" },
 ]
 
 [[package]]
