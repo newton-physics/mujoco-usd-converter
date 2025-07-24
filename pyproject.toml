@@ -71,8 +71,8 @@ help = "Run MuJoCo Menagerie benchmark"
 cmd = "python tools/benchmark_menagerie.py"
 
 [tool.poe.tasks.benchmark-publish]
-help = "Run MuJoCo Menagerie benchmark and output the HTML report so it overwrites the committed report"
-cmd = "python tools/benchmark_menagerie.py --report-format html --report-output-dir ."
+help = "Run MuJoCo Menagerie benchmark and output the markdown report so it overwrites the committed report"
+cmd = "python tools/benchmark_menagerie.py --report-format md --report-output-dir ."
 
 [tool.poe.tasks.benchmark-csv]
 help = "Run MuJoCo Menagerie benchmark and generate CSV report only"
