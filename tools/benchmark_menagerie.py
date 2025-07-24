@@ -602,7 +602,7 @@ class MenagerieBenchmark:
                 <th>Variant</th>
                 <th>Menagerie Link</th>
                 <th>Success</th>
-                <th>Verified</th>
+                <th><a href="#manual-annotation-instructions" style="color: inherit; text-decoration: none;">Verified (Manual)</a></th>
                 <th>Errors</th>
                 <th>Warnings</th>
                 <th>Time (s)</th>
@@ -659,7 +659,7 @@ class MenagerieBenchmark:
     </table>
 
     <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
-        <h3>Manual Annotation Instructions</h3>
+        <h3 id="manual-annotation-instructions">Manual Annotation Instructions</h3>
         <p><strong>Verified:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
         based on manual inspection of the converted USD files. Update the annotations in the
         <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.
@@ -737,7 +737,7 @@ class MenagerieBenchmark:
 
         # Add table header (split to avoid long line)
         table_header = (
-            "| Asset | Variant | Link | Success | Verified | Errors | Warnings | "
+            "| Asset | Variant | Link | Success | [Verified (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
             "Time (s) | Size (MB) | Notes | Error Messages | Warning Messages |\n"
         )
         table_separator = (
