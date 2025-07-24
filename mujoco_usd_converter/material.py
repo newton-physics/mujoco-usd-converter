@@ -88,7 +88,7 @@ def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial
 
 def __convert_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
     if texture.builtin:
-        Tf.Warn(f"Unsupported builtin texture type {texture.builtin} for texture '{texture.name}'")
+        Tf.Warn(f"Unsupported builtin texture type {mujoco.mjtBuiltin(texture.builtin)} for texture '{texture.name}'")
         return Sdf.AssetPath()
     elif texture.type == mujoco.mjtTexture.mjTEXTURE_2D:
         return __convert_2d_texture(texture, data)

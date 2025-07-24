@@ -48,9 +48,6 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
             site_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
             set_schema_attribute(site_over, "mjc:group", site.group)
 
-    # FUTURE: camera
-    # FUTURE: light
-
     if body != data.spec.worldbody:
         body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
         data.references[Tokens.Physics][body.name] = body_over
@@ -60,7 +57,6 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
             rbd.CreateKinematicEnabledAttr().Set(True)
 
         # Store concept gaps as custom attributes
-        # FUTURE: use MjcPhysics schemas
         if body.gravcomp != 0:
             body_over.CreateAttribute("mjc:body:gravcomp", Sdf.ValueTypeNames.Float, custom=True).Set(body.gravcomp)
 

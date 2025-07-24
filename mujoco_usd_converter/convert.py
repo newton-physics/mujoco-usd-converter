@@ -115,8 +115,6 @@ class Converter:
         if self.params.scene:
             convert_scene(data)
 
-        # FUTURE: author the keyframes with MjcPhysicsKeyframe
-
         # author the kinematic tree
         convert_bodies(data)
 
@@ -132,4 +130,29 @@ class Converter:
         else:
             usdex.core.saveStage(asset_stage, comment=self.params.comment)
 
+        # warn about known limitations
+        self.__report_limitations(spec)
+
         return Sdf.AssetPath(asset_identifier)
+
+    def __report_limitations(self, spec: mujoco.MjSpec):
+        if spec.cameras:
+            Tf.Warn("cameras are not supported")
+        if spec.lights:
+            Tf.Warn("lights are not supported")
+        if spec.keys:
+            Tf.Warn("keys are not supported")
+        if spec.tendons:
+            Tf.Warn("tendons are not supported")
+        if spec.flexes:
+            Tf.Warn("flexes are not supported")
+        if spec.skins:
+            Tf.Warn("skins are not supported")
+        if spec.equalities:
+            Tf.Warn("equalities are not supported")
+        if spec.excludes:
+            Tf.Warn("excludes are not supported")
+        if spec.pairs:
+            Tf.Warn("pairs are not supported")
+        if spec.sensors:
+            Tf.Warn("sensors are not supported")

@@ -169,7 +169,8 @@ def __get_frame_transform(
     transform = Gf.Transform()
     transform.SetTranslation(convert_vec3d(frame.pos))
     transform.SetRotation(Gf.Rotation(__get_orientation(frame, spec)))
-    # FUTURE: recursive frames
+    if frame.frame:
+        Tf.Warn("Recursive frames are not supported")
     return transform
 
 
