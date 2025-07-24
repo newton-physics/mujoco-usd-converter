@@ -55,3 +55,8 @@ include:
   before_script:
     - !reference [.default_job, before_script]
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
+    - curl -fL https://getcli.jfrog.io | sh
+    - mkdir -p ~/bin
+    - mv jfrog ~/bin/
+    - export PATH="$HOME/bin:$PATH"
+    - ~/bin/jfrog config add --artifactory-url=https://urm.nvidia.com/artifactory --user=$ARTIFACTORY_USERNAME --password=$ARTIFACTORY_KEY --interactive=false

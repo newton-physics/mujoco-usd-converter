@@ -116,7 +116,7 @@ benchmark:
   extends: [.deploy_job]
   stage: deploy
   script:
-    - uv publish --index internal --username ${ARTIFACTORY_USERNAME} --password ${ARTIFACTORY_KEY} --verbose
+    - uv run python ./scripts/upload_wheel.py
 
 deploy_tagged:
   extends: [.deploy_base]
