@@ -33,13 +33,13 @@ HOST_ARCH = platform.machine()
 if HOST_ARCH == "AMD64":
     HOST_ARCH = "x86_64"
 
-Path("benchmark_output").mkdir(parents=True, exist_ok=True)
+Path("benchmarks").mkdir(parents=True, exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("benchmark_output/benchmark.log", mode="a")],
+    handlers=[logging.StreamHandler(), logging.FileHandler("benchmarks/benchmarks.log", mode="a")],
 )
 logger = logging.getLogger(__name__)
 
@@ -177,9 +177,16 @@ class MenagerieBenchmark:
     MENAGERIE_BASE_URL = "https://github.com/google-deepmind/mujoco_menagerie/tree/main/"
     DEFAULT_ANNOTATION_FILE = "menagerie_annotations.yaml"
 
-    def __init__(self, menagerie_path: str | None = None, output_dir: str = "benchmark_output", annotation_file: str | None = None):
+    def __init__(
+        self,
+        menagerie_path: str | None = None,
+        report_output_dir: str = "benchmarks",
+        conversion_output_dir: str = "benchmarks",
+        annotation_file: str | None = None,
+    ):
         self.menagerie_path = Path(menagerie_path) if menagerie_path else None
-        self.output_dir = Path(output_dir)
+        self.report_output_dir = Path(report_output_dir)
+        self.conversion_output_dir = Path(conversion_output_dir)
         self.temp_menagerie = False
         self.diagnostics = DiagnosticsCapture()
         self.results: list[BenchmarkResult] = []
@@ -192,7 +199,8 @@ class MenagerieBenchmark:
             self.annotation_file = Path(__file__).parent / self.DEFAULT_ANNOTATION_FILE
 
         # Create output directory
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.report_output_dir.mkdir(parents=True, exist_ok=True)
+        self.conversion_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Load annotations
         self._load_annotations()
@@ -326,7 +334,7 @@ class MenagerieBenchmark:
         )
 
         # Create output directory for this model
-        model_output_dir = self.output_dir / "conversions" / model_name
+        model_output_dir = self.conversion_output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Reset diagnostics for this model
@@ -441,13 +449,13 @@ class MenagerieBenchmark:
             reports["html"] = self._generate_html_report()
 
         # Generate summary
-        self._generate_summary()
+        self._generate_summary(save_to_file=format_type == "all")
 
         return reports
 
     def _generate_csv_report(self) -> Path:
         """Generate CSV report."""
-        csv_path = self.output_dir / "benchmark_report.csv"
+        csv_path = self.report_output_dir / "benchmarks.csv"
 
         fieldnames = [
             "Asset Name",
@@ -494,12 +502,12 @@ class MenagerieBenchmark:
                     }
                 )
 
-        logger.info("CSV report generated: %s", csv_path)
+        logger.info("CSV report generated: %s", csv_path.absolute())
         return csv_path
 
     def _generate_html_report(self) -> Path:
         """Generate HTML report."""
-        html_path = self.output_dir / "benchmark_report.html"
+        html_path = self.report_output_dir / "benchmarks.html"
 
         # Calculate statistics
         total_models = len(self.results)
@@ -650,6 +658,7 @@ class MenagerieBenchmark:
             <li>Proper hierarchy and naming</li>
             <li>Material and texture fidelity</li>
             <li>Physics properties preservation</li>
+            <li>Simulation correctness in MuJoCo Simulate compared to the original MJCF file</li>
         </ul>
         <p><strong>Notes:</strong> Document any known issues, limitations, or special considerations for each
         model variant in the <code>notes</code> field under each variant in the annotations file.</p>
@@ -670,10 +679,10 @@ class MenagerieBenchmark:
         with Path.open(html_path, "w", encoding="utf-8") as htmlfile:
             htmlfile.write(html_content)
 
-        logger.info("HTML report generated: %s", html_path)
+        logger.info("HTML report generated: %s", html_path.absolute())
         return html_path
 
-    def _generate_summary(self):
+    def _generate_summary(self, save_to_file: bool = True):
         """Generate a summary of the benchmark results."""
         if not self.results:
             return
@@ -719,12 +728,13 @@ Average Size per Model: {total_file_size/total_models:.2f} MB"""
                 for result in variants:
                     summary += f"  - {result.variant_name}: {result.error_message}\n"
 
-        summary_path = self.output_dir / "benchmark_summary.txt"
-        with Path.open(summary_path, "w", encoding="utf-8") as f:
-            f.write(summary)
-
         logger.info(summary)
-        logger.info("Summary saved to: %s", summary_path)
+
+        if save_to_file:
+            summary_path = self.report_output_dir / "benchmark_summary.txt"
+            with Path.open(summary_path, "w", encoding="utf-8") as f:
+                f.write(summary)
+            logger.info("Summary saved to: %s", summary_path.absolute())
 
     def cleanup(self):
         """Clean up temporary resources."""
@@ -743,11 +753,9 @@ def main():
     )
 
     parser.add_argument("--menagerie-path", type=str, help="Path to existing MuJoCo Menagerie repository (will clone if not provided)")
-
-    parser.add_argument("--output-dir", type=str, default="benchmark_output", help="Directory to store benchmark results and reports")
-
-    parser.add_argument("--report-format", choices=["csv", "json", "html", "all"], default="all", help="Format for the benchmark report")
-
+    parser.add_argument("--conversion-output-dir", type=str, default="benchmarks/usd_menagerie", help="Directory to store converted USD assets")
+    parser.add_argument("--report-output-dir", type=str, default="benchmarks", help="Directory to store benchmark reports")
+    parser.add_argument("--report-format", choices=["csv", "html", "all"], default="all", help="Format for the benchmark report")
     parser.add_argument(
         "--annotation-file",
         type=str,
@@ -763,7 +771,12 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Create benchmark instance
-    benchmark = MenagerieBenchmark(menagerie_path=args.menagerie_path, output_dir=args.output_dir, annotation_file=args.annotation_file)
+    benchmark = MenagerieBenchmark(
+        menagerie_path=args.menagerie_path,
+        report_output_dir=args.report_output_dir,
+        conversion_output_dir=args.conversion_output_dir,
+        annotation_file=args.annotation_file,
+    )
 
     try:
         # Run benchmark
@@ -777,10 +790,11 @@ def main():
         reports = benchmark.generate_report(args.report_format)
 
         logger.info("Benchmark completed successfully!")
-        logger.info("Results saved to: %s", args.output_dir)
+        logger.info("USD Assets saved to: %s", Path(args.conversion_output_dir).absolute())
+        logger.info("Reports saved to: %s", Path(args.report_output_dir).absolute())
 
         for format_type, path in reports.items():
-            logger.info("%s report: %s", format_type.upper(), path)
+            logger.info("%s report: %s", format_type.upper(), path.absolute())
 
         return 0
 

@@ -109,7 +109,7 @@ benchmark:
   needs: ["build_linux"]
   artifacts:
     paths:
-      - benchmark_output/*.*
+      - benchmarks/*.*
   when: manual
 
 .deploy_base:
