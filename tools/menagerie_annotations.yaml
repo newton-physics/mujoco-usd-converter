@@ -61,43 +61,11 @@ aloha:
   notes: ''
   xml_files:
   - asset: aloha
-    description: 'Model variant: keyframe_ctrl'
-    evaluation_date: ''
-    evaluator: ''
-    filename: keyframe_ctrl.xml
-    model_name: keyframe_ctrl
-    notes: ''
-    verified: Unknown
-  - asset: aloha
-    description: 'Model variant: joint_position_actuators'
-    evaluation_date: ''
-    evaluator: ''
-    filename: joint_position_actuators.xml
-    model_name: joint_position_actuators
-    notes: ''
-    verified: Unknown
-  - asset: aloha
-    description: 'Model variant: keyframe_no_act'
-    evaluation_date: ''
-    evaluator: ''
-    filename: keyframe_no_act.xml
-    model_name: keyframe_no_act
-    notes: ''
-    verified: Unknown
-  - asset: aloha
     description: 'Model variant: aloha'
     evaluation_date: ''
     evaluator: ''
     filename: aloha.xml
     model_name: aloha
-    notes: ''
-    verified: Unknown
-  - asset: aloha
-    description: 'Model variant: filtered_cartesian_actuators'
-    evaluation_date: ''
-    evaluator: ''
-    filename: filtered_cartesian_actuators.xml
-    model_name: filtered_cartesian_actuators
     notes: ''
     verified: Unknown
 anybotics_anymal_b:
@@ -306,14 +274,6 @@ franka_emika_panda:
     evaluator: ''
     filename: hand.xml
     model_name: hand
-    notes: ''
-    verified: Unknown
-  - asset: franka_emika_panda
-    description: 'Model variant: mjx_single_cube'
-    evaluation_date: ''
-    evaluator: ''
-    filename: mjx_single_cube.xml
-    model_name: mjx_single_cube
     notes: ''
     verified: Unknown
   - asset: franka_emika_panda
@@ -834,14 +794,6 @@ shadow_hand:
     evaluator: ''
     filename: left_hand.xml
     model_name: left_hand
-    notes: ''
-    verified: Unknown
-  - asset: shadow_hand
-    description: 'Model variant: keyframes'
-    evaluation_date: ''
-    evaluator: ''
-    filename: keyframes.xml
-    model_name: keyframes
     notes: ''
     verified: Unknown
 skydio_x2:
