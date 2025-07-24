@@ -4,7 +4,7 @@
 MuJoCo Menagerie Benchmark Script
 
 This script benchmarks the mujoco-usd-converter against all models in the MuJoCo Menagerie repository.
-It generates a comprehensive report with functional success/failure metrics, performance data,
+It generates a comprehensive report with success/failure metrics, performance data,
 and templates for manual evaluation.
 """
 
@@ -33,13 +33,13 @@ HOST_ARCH = platform.machine()
 if HOST_ARCH == "AMD64":
     HOST_ARCH = "x86_64"
 
-Path("benchmark_output").mkdir(parents=True, exist_ok=True)
+Path("benchmarks").mkdir(parents=True, exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("benchmark_output/benchmark.log", mode="a")],
+    handlers=[logging.StreamHandler(), logging.FileHandler("benchmarks/benchmarks.log", mode="a")],
 )
 logger = logging.getLogger(__name__)
 
@@ -81,13 +81,14 @@ class BenchmarkResult:
     variant_name: str
     menagerie_url: str
     local_path: str
-    functional_success: bool
+    success: bool
     error_count: int
     warning_count: int
     error_message: str
+    warnings: str
     conversion_time_seconds: float
     total_file_size_mb: float
-    practical_success: str = "No"  # Manual annotation template
+    verified: str = "No"  # Manual annotation template
     notes: str = ""  # Manual annotation template
 
     def to_dict(self) -> dict:
@@ -177,9 +178,16 @@ class MenagerieBenchmark:
     MENAGERIE_BASE_URL = "https://github.com/google-deepmind/mujoco_menagerie/tree/main/"
     DEFAULT_ANNOTATION_FILE = "menagerie_annotations.yaml"
 
-    def __init__(self, menagerie_path: str | None = None, output_dir: str = "benchmark_output", annotation_file: str | None = None):
+    def __init__(
+        self,
+        menagerie_path: str | None = None,
+        report_output_dir: str = "benchmarks",
+        conversion_output_dir: str = "benchmarks",
+        annotation_file: str | None = None,
+    ):
         self.menagerie_path = Path(menagerie_path) if menagerie_path else None
-        self.output_dir = Path(output_dir)
+        self.report_output_dir = Path(report_output_dir)
+        self.conversion_output_dir = Path(conversion_output_dir)
         self.temp_menagerie = False
         self.diagnostics = DiagnosticsCapture()
         self.results: list[BenchmarkResult] = []
@@ -192,7 +200,8 @@ class MenagerieBenchmark:
             self.annotation_file = Path(__file__).parent / self.DEFAULT_ANNOTATION_FILE
 
         # Create output directory
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.report_output_dir.mkdir(parents=True, exist_ok=True)
+        self.conversion_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Load annotations
         self._load_annotations()
@@ -217,7 +226,7 @@ class MenagerieBenchmark:
             logger.info("Using default annotation values.")
 
     def _get_annotation(self, asset_name: str, model_name: str) -> tuple[str, str]:
-        """Get practical success and notes for a specific model variant."""
+        """Get Verified and notes for a specific model variant."""
         if asset_name not in self.annotations:
             return "Unknown", ""
 
@@ -227,9 +236,9 @@ class MenagerieBenchmark:
         # Find the specific variant
         for xml_info in xml_files:
             if xml_info.get("model_name") == model_name:
-                practical_success = xml_info.get("practical_success", "Unknown")
+                verified = xml_info.get("verified", "Unknown")
                 notes = xml_info.get("notes", "")
-                return practical_success, notes
+                return verified, notes
 
         # If variant not found, return defaults (should not happen with properly updated annotations)
         logger.warning("Variant %s not found in annotations for asset %s", model_name, asset_name)
@@ -315,18 +324,19 @@ class MenagerieBenchmark:
             variant_name=model_name,
             menagerie_url=urljoin(self.MENAGERIE_BASE_URL, f"{asset_name}/"),
             local_path=str(mjcf_path),
-            functional_success=False,
+            success=False,
             error_count=0,
             warning_count=0,
             error_message="",
+            warnings="",
             conversion_time_seconds=0.0,
             total_file_size_mb=0.0,
-            practical_success="No",  # Initialize with default
+            verified="No",  # Initialize with default
             notes="",  # Initialize with default
         )
 
         # Create output directory for this model
-        model_output_dir = self.output_dir / "conversions" / model_name
+        model_output_dir = self.conversion_output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Reset diagnostics for this model
@@ -358,7 +368,7 @@ class MenagerieBenchmark:
             layer_files = [f for f in model_output_dir.iterdir() if f.is_file() and f.suffix.lower() == ".usda"]
 
             if layer_files:
-                result.functional_success = True
+                result.success = True
                 result.total_file_size_mb = self._get_categorized_file_sizes(model_output_dir)
                 logger.info("Successfully converted %s in %.2fs", model_name, result.conversion_time_seconds)
             else:
@@ -367,9 +377,10 @@ class MenagerieBenchmark:
 
         # Capture diagnostics counts
         result.error_count, result.warning_count = self.diagnostics.get_counts()
+        result.warnings = "\n".join([x.rpartition("] ")[2].strip() for x in self.diagnostics.warnings])
 
         # Get manual annotations
-        result.practical_success, result.notes = self._get_annotation(asset_name, model_name)
+        result.verified, result.notes = self._get_annotation(asset_name, model_name)
 
         return result
 
@@ -420,7 +431,7 @@ class MenagerieBenchmark:
             results.append(result)
 
             # Log progress
-            success_count = sum(1 for r in results if r.functional_success)
+            success_count = sum(1 for r in results if r.success)
             logger.info("Progress: %d/%d processed, %d successful", i, len(models), success_count)
 
         self.results = results
@@ -440,28 +451,31 @@ class MenagerieBenchmark:
         if format_type in ["html", "all"]:
             reports["html"] = self._generate_html_report()
 
+        if format_type in ["md", "all"]:
+            reports["md"] = self._generate_markdown_report()
+
         # Generate summary
-        self._generate_summary()
+        self._generate_summary(save_to_file=format_type == "all")
 
         return reports
 
     def _generate_csv_report(self) -> Path:
         """Generate CSV report."""
-        csv_path = self.output_dir / "benchmark_report.csv"
+        csv_path = self.report_output_dir / "benchmarks.csv"
 
         fieldnames = [
             "Asset Name",
             "Variant Name",
             "Menagerie URL",
             "Local Path",
-            "Functional Success",
+            "Success",
             "Error Count",
             "Warning Count",
-            "Error Message",
             "Conversion Time (s)",
             "Total Size (MB)",
-            "Practical Success (Manual)",
+            "Verified (Manual)",
             "Notes (Manual)",
+            "Errors",
         ]
 
         # Sort results by asset name, then variant name
@@ -483,27 +497,27 @@ class MenagerieBenchmark:
                         "Variant Name": result.variant_name,
                         "Menagerie URL": result.menagerie_url if asset_display else "",
                         "Local Path": result.local_path,
-                        "Functional Success": "Yes" if result.functional_success else "No",
+                        "Success": "Yes" if result.success else "No",
                         "Error Count": result.error_count,
                         "Warning Count": result.warning_count,
-                        "Error Message": result.error_message,
-                        "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.functional_success else "N/A",
+                        "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.success else "N/A",
                         "Total Size (MB)": f"{result.total_file_size_mb:.2f}",
-                        "Practical Success (Manual)": result.practical_success,
+                        "Verified (Manual)": result.verified,
                         "Notes (Manual)": result.notes,
+                        "Errors": result.error_message,
                     }
                 )
 
-        logger.info("CSV report generated: %s", csv_path)
+        logger.info("CSV report generated: %s", csv_path.absolute())
         return csv_path
 
     def _generate_html_report(self) -> Path:
         """Generate HTML report."""
-        html_path = self.output_dir / "benchmark_report.html"
+        html_path = self.report_output_dir / "benchmarks.html"
 
         # Calculate statistics
         total_models = len(self.results)
-        successful = sum(1 for r in self.results if r.functional_success)
+        successful = sum(1 for r in self.results if r.success)
         failed = total_models - successful
         total_errors = sum(r.error_count for r in self.results)
         total_warnings = sum(r.warning_count for r in self.results)
@@ -528,6 +542,7 @@ class MenagerieBenchmark:
         .warning {{ color: #ffc107; }}
         table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
         th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th:nth-child(10), td:nth-child(10) {{ min-width: 350px; width: 350px; }}
         th {{ background-color: #f2f2f2; }}
         .success-cell {{ background-color: #d4edda; }}
         .failure-cell {{ background-color: #f8d7da; }}
@@ -586,14 +601,15 @@ class MenagerieBenchmark:
                 <th>Asset</th>
                 <th>Variant</th>
                 <th>Menagerie Link</th>
-                <th>Functional Success</th>
+                <th>Success</th>
+                <th><a href="#manual-annotation-instructions" style="color: inherit; text-decoration: none;">Verified (Manual)</a></th>
                 <th>Errors</th>
                 <th>Warnings</th>
                 <th>Time (s)</th>
                 <th>Total Size (MB)</th>
-                <th>Practical Success</th>
                 <th>Notes</th>
-                <th>Error Message</th>
+                <th>Errors</th>
+                <th>Warnings</th>
             </tr>
         </thead>
         <tbody>
@@ -604,10 +620,8 @@ class MenagerieBenchmark:
 
         previous_asset = None
         for result in sorted_results:
-            success_class = "success-cell" if result.functional_success else "failure-cell"
-            practical_success_class = (
-                "success-cell" if result.practical_success == "Yes" else "" if result.practical_success == "Unknown" else "failure-cell"
-            )
+            success_class = "success-cell" if result.success else "failure-cell"
+            verified_class = "success-cell" if result.verified == "Yes" else "" if result.verified == "Unknown" else "failure-cell"
 
             # Determine if this is the first variant of a new asset
             is_new_asset = result.asset_name != previous_asset
@@ -619,19 +633,24 @@ class MenagerieBenchmark:
 
             previous_asset = result.asset_name
 
+            # Convert newlines and tabs to HTML for proper display
+            error_message_html = result.error_message.replace("\n", "<br>")
+            warnings_html = result.warnings.replace("\n", "<br>")
+
             html_content += f"""
             <tr class="{row_class}">
                 <td><strong>{asset_display}</strong></td>
                 <td>{result.variant_name}</td>
                 <td>{link_display}</td>
-                <td class="{success_class}">{'Yes' if result.functional_success else 'No'}</td>
+                <td class="{success_class}">{'Yes' if result.success else 'No'}</td>
+                <td class="{verified_class}">{result.verified}</td>
                 <td class="numeric">{result.error_count}</td>
                 <td class="numeric">{result.warning_count}</td>
                 <td class="numeric">{result.conversion_time_seconds:.3f}</td>
                 <td class="numeric">{result.total_file_size_mb:.2f}</td>
-                <td class="{practical_success_class}">{result.practical_success}</td>
                 <td>{result.notes}</td>
-                <td>{result.error_message}</td>
+                <td>{error_message_html}</td>
+                <td>{warnings_html}</td>
             </tr>
 """
 
@@ -640,23 +659,24 @@ class MenagerieBenchmark:
     </table>
 
     <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
-        <h3>Manual Annotation Instructions</h3>
-        <p><strong>Practical Success:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
+        <h3 id="manual-annotation-instructions">Manual Annotation Instructions</h3>
+        <p><strong>Verified:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
         based on manual inspection of the converted USD files. Update the annotations in the
-        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>practical_success</code> field.
+        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.
         Consider factors like:</p>
         <ul>
             <li>Visual correctness when loaded in USD viewer</li>
             <li>Proper hierarchy and naming</li>
             <li>Material and texture fidelity</li>
             <li>Physics properties preservation</li>
+            <li>Simulation correctness in MuJoCo Simulate compared to the original MJCF file</li>
         </ul>
         <p><strong>Notes:</strong> Document any known issues, limitations, or special considerations for each
         model variant in the <code>notes</code> field under each variant in the annotations file.</p>
 
         <h3>Annotation Structure</h3>
         <p>Annotations are now per-variant rather than per-asset. Each XML file listed under an asset's
-        <code>xml_files</code> array has its own <code>practical_success</code>, <code>notes</code>,
+        <code>xml_files</code> array has its own <code>verified</code>, <code>notes</code>,
         <code>evaluation_date</code>, <code>evaluator</code>, and <code>notes</code> fields.</p>
 
         <h3>File Size Information</h3>
@@ -670,16 +690,163 @@ class MenagerieBenchmark:
         with Path.open(html_path, "w", encoding="utf-8") as htmlfile:
             htmlfile.write(html_content)
 
-        logger.info("HTML report generated: %s", html_path)
+        logger.info("HTML report generated: %s", html_path.absolute())
         return html_path
 
-    def _generate_summary(self):
+    def _generate_markdown_report(self) -> Path:
+        """Generate Markdown report."""
+        md_path = self.report_output_dir / "benchmarks.md"
+
+        # Calculate statistics
+        total_models = len(self.results)
+        successful = sum(1 for r in self.results if r.success)
+        failed = total_models - successful
+        total_errors = sum(r.error_count for r in self.results)
+        total_warnings = sum(r.warning_count for r in self.results)
+        avg_time = sum(r.conversion_time_seconds for r in self.results) / total_models if total_models > 0 else 0
+        total_time = sum(r.conversion_time_seconds for r in self.results)
+        total_file_size = sum(r.total_file_size_mb for r in self.results)
+
+        # Start building markdown content
+        md_content = f"""# MuJoCo Menagerie Benchmark Report
+
+**Generated on:** {time.strftime("%Y-%m-%d %H:%M:%S")}
+
+**Repository:** [{self.MENAGERIE_REPO_URL}]({self.MENAGERIE_REPO_URL})
+
+## Summary Statistics
+
+| Total Models | Successful | Failed | Total Warnings | Total Errors | Average Time | Total Time | Total File Size |
+|:------------:|:----------:|:------:|:--------------:|:------------:|:------------:|:----------:|:---------------:|
+"""
+
+        # Build summary data row (split to avoid long line)
+        summary_row = (
+            f"| {total_models} | {successful} ({successful/total_models*100:.1f}%) | "
+            f"{failed} ({failed/total_models*100:.1f}%) | {total_warnings} | {total_errors} | "
+            f"{avg_time:.2f}s | {total_time:.2f}s | {total_file_size:.2f} MB |"
+        )
+        md_content += (
+            summary_row
+            + """
+
+## Detailed Results
+
+"""
+        )
+
+        # Add table header (split to avoid long line)
+        table_header = (
+            "| Asset | Variant | Link | Success | [Verified (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
+            "Time (s) | Size (MB) | Notes | Error Messages | Warning Messages |\n"
+        )
+        table_separator = (
+            "|-------|---------|------|---------|----------|-------:|--------:|"
+            "---------:|---------:|----------------------|----------------|------------------|\n"
+        )
+        md_content += table_header + table_separator
+
+        # Sort results by asset name, then variant name
+        sorted_results = sorted(self.results, key=lambda r: (r.asset_name, r.variant_name))
+
+        previous_asset = None
+        for result in sorted_results:
+            # Determine if this is the first variant of a new asset
+            is_new_asset = result.asset_name != previous_asset
+
+            # Only show asset name and link for first variant in each group
+            asset_display = f"**{result.asset_name}**" if is_new_asset else ""
+            link_display = f"[GitHub]({result.menagerie_url})" if is_new_asset else ""
+
+            previous_asset = result.asset_name
+
+            # Success status with emoji
+            success_display = "✅" if result.success else "❌"
+
+            # Verified status with emoji
+            if result.verified == "Yes":
+                verified_display = "✅"
+            elif result.verified == "Unknown":
+                verified_display = "❓"
+            else:
+                verified_display = "❌"
+
+            # Escape pipe characters and clean up text for markdown table
+            def clean_for_table(text: str) -> str:
+                if not text:
+                    return ""
+                # Replace pipes with escaped pipes, newlines with <br> for markdown, and clean carriage returns
+                cleaned = text.replace("|", "\\|").replace("\n", "<br>").replace("\r", "")
+                return cleaned
+
+            error_messages = clean_for_table(result.error_message)
+            warning_messages = clean_for_table(result.warnings)
+            notes = clean_for_table(result.notes)
+
+            # Build table row (split to avoid long line)
+            row_parts = [
+                asset_display,
+                result.variant_name,
+                link_display,
+                success_display,
+                verified_display,
+                str(result.error_count),
+                str(result.warning_count),
+                f"{result.conversion_time_seconds:.3f}",
+                f"{result.total_file_size_mb:.2f}",
+                notes,
+                error_messages,
+                warning_messages,
+            ]
+            md_content += "| " + " | ".join(row_parts) + " |\n"
+
+        # Add manual annotation instructions
+        md_content += """
+
+## Manual Annotation Instructions
+
+### Verified Status
+Each model variant can be individually annotated with "Yes", "No", or "Unknown" based on manual
+inspection of the converted USD files. Update the annotations in the `tools/menagerie_annotations.yaml`
+file under each variant's `verified` field.
+
+**Consider these factors:**
+- Visual correctness when loaded in USD viewer
+- Proper hierarchy and naming
+- Material and texture fidelity
+- Physics properties preservation
+- Simulation correctness in MuJoCo Simulate compared to the original MJCF file
+
+### Notes
+Document any known issues, limitations, or special considerations for each model variant in the
+`notes` field under each variant in the annotations file.
+
+### Annotation Structure
+Annotations are per-variant rather than per-asset. Each XML file listed under an asset's
+`xml_files` array has its own `verified`, `notes`, `evaluation_date`, `evaluator`, and `notes` fields.
+
+### File Size Information
+**Total Size:** Overall size of all files in the output directory, including USD files, textures,
+and any other generated assets.
+
+---
+
+*Report generated by mujoco-usd-converter benchmark tool*
+"""
+
+        with Path.open(md_path, "w", encoding="utf-8") as mdfile:
+            mdfile.write(md_content)
+
+        logger.info("Markdown report generated: %s", md_path.absolute())
+        return md_path
+
+    def _generate_summary(self, save_to_file: bool = True):
         """Generate a summary of the benchmark results."""
         if not self.results:
             return
 
         total_models = len(self.results)
-        successful = sum(1 for r in self.results if r.functional_success)
+        successful = sum(1 for r in self.results if r.success)
         failed = total_models - successful
         total_errors = sum(r.error_count for r in self.results)
         total_warnings = sum(r.warning_count for r in self.results)
@@ -704,7 +871,7 @@ Average Time per Model: {total_time/total_models:.2f}s
 Total File Size: {total_file_size:.2f} MB
 Average Size per Model: {total_file_size/total_models:.2f} MB"""
 
-        failed_results = [result for result in self.results if not result.functional_success]
+        failed_results = [result for result in self.results if not result.success]
         if failed_results:
             summary += "\n\n=== Failed Models ===\n"
             # Group failed results by asset for better readability
@@ -719,12 +886,13 @@ Average Size per Model: {total_file_size/total_models:.2f} MB"""
                 for result in variants:
                     summary += f"  - {result.variant_name}: {result.error_message}\n"
 
-        summary_path = self.output_dir / "benchmark_summary.txt"
-        with Path.open(summary_path, "w", encoding="utf-8") as f:
-            f.write(summary)
-
         logger.info(summary)
-        logger.info("Summary saved to: %s", summary_path)
+
+        if save_to_file:
+            summary_path = self.report_output_dir / "benchmark_summary.txt"
+            with Path.open(summary_path, "w", encoding="utf-8") as f:
+                f.write(summary)
+            logger.info("Summary saved to: %s", summary_path.absolute())
 
     def cleanup(self):
         """Clean up temporary resources."""
@@ -743,11 +911,9 @@ def main():
     )
 
     parser.add_argument("--menagerie-path", type=str, help="Path to existing MuJoCo Menagerie repository (will clone if not provided)")
-
-    parser.add_argument("--output-dir", type=str, default="benchmark_output", help="Directory to store benchmark results and reports")
-
-    parser.add_argument("--report-format", choices=["csv", "json", "html", "all"], default="all", help="Format for the benchmark report")
-
+    parser.add_argument("--conversion-output-dir", type=str, default="benchmarks/usd_menagerie", help="Directory to store converted USD assets")
+    parser.add_argument("--report-output-dir", type=str, default="benchmarks", help="Directory to store benchmark reports")
+    parser.add_argument("--report-format", choices=["csv", "html", "md", "all"], default="all", help="Format for the benchmark report")
     parser.add_argument(
         "--annotation-file",
         type=str,
@@ -763,7 +929,12 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Create benchmark instance
-    benchmark = MenagerieBenchmark(menagerie_path=args.menagerie_path, output_dir=args.output_dir, annotation_file=args.annotation_file)
+    benchmark = MenagerieBenchmark(
+        menagerie_path=args.menagerie_path,
+        report_output_dir=args.report_output_dir,
+        conversion_output_dir=args.conversion_output_dir,
+        annotation_file=args.annotation_file,
+    )
 
     try:
         # Run benchmark
@@ -777,10 +948,11 @@ def main():
         reports = benchmark.generate_report(args.report_format)
 
         logger.info("Benchmark completed successfully!")
-        logger.info("Results saved to: %s", args.output_dir)
+        logger.info("USD Assets saved to: %s", Path(args.conversion_output_dir).absolute())
+        logger.info("Reports saved to: %s", Path(args.report_output_dir).absolute())
 
         for format_type, path in reports.items():
-            logger.info("%s report: %s", format_type.upper(), path)
+            logger.info("%s report: %s", format_type.upper(), path.absolute())
 
         return 0
 
