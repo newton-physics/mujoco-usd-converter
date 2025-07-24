@@ -4,7 +4,7 @@
 MuJoCo Menagerie Benchmark Script
 
 This script benchmarks the mujoco-usd-converter against all models in the MuJoCo Menagerie repository.
-It generates a comprehensive report with functional success/failure metrics, performance data,
+It generates a comprehensive report with success/failure metrics, performance data,
 and templates for manual evaluation.
 """
 
@@ -81,13 +81,13 @@ class BenchmarkResult:
     variant_name: str
     menagerie_url: str
     local_path: str
-    functional_success: bool
+    success: bool
     error_count: int
     warning_count: int
     error_message: str
     conversion_time_seconds: float
     total_file_size_mb: float
-    practical_success: str = "No"  # Manual annotation template
+    verified: str = "No"  # Manual annotation template
     notes: str = ""  # Manual annotation template
 
     def to_dict(self) -> dict:
@@ -225,7 +225,7 @@ class MenagerieBenchmark:
             logger.info("Using default annotation values.")
 
     def _get_annotation(self, asset_name: str, model_name: str) -> tuple[str, str]:
-        """Get practical success and notes for a specific model variant."""
+        """Get Verified and notes for a specific model variant."""
         if asset_name not in self.annotations:
             return "Unknown", ""
 
@@ -235,9 +235,9 @@ class MenagerieBenchmark:
         # Find the specific variant
         for xml_info in xml_files:
             if xml_info.get("model_name") == model_name:
-                practical_success = xml_info.get("practical_success", "Unknown")
+                verified = xml_info.get("verified", "Unknown")
                 notes = xml_info.get("notes", "")
-                return practical_success, notes
+                return verified, notes
 
         # If variant not found, return defaults (should not happen with properly updated annotations)
         logger.warning("Variant %s not found in annotations for asset %s", model_name, asset_name)
@@ -323,13 +323,13 @@ class MenagerieBenchmark:
             variant_name=model_name,
             menagerie_url=urljoin(self.MENAGERIE_BASE_URL, f"{asset_name}/"),
             local_path=str(mjcf_path),
-            functional_success=False,
+            success=False,
             error_count=0,
             warning_count=0,
             error_message="",
             conversion_time_seconds=0.0,
             total_file_size_mb=0.0,
-            practical_success="No",  # Initialize with default
+            verified="No",  # Initialize with default
             notes="",  # Initialize with default
         )
 
@@ -366,7 +366,7 @@ class MenagerieBenchmark:
             layer_files = [f for f in model_output_dir.iterdir() if f.is_file() and f.suffix.lower() == ".usda"]
 
             if layer_files:
-                result.functional_success = True
+                result.success = True
                 result.total_file_size_mb = self._get_categorized_file_sizes(model_output_dir)
                 logger.info("Successfully converted %s in %.2fs", model_name, result.conversion_time_seconds)
             else:
@@ -377,7 +377,7 @@ class MenagerieBenchmark:
         result.error_count, result.warning_count = self.diagnostics.get_counts()
 
         # Get manual annotations
-        result.practical_success, result.notes = self._get_annotation(asset_name, model_name)
+        result.verified, result.notes = self._get_annotation(asset_name, model_name)
 
         return result
 
@@ -428,7 +428,7 @@ class MenagerieBenchmark:
             results.append(result)
 
             # Log progress
-            success_count = sum(1 for r in results if r.functional_success)
+            success_count = sum(1 for r in results if r.success)
             logger.info("Progress: %d/%d processed, %d successful", i, len(models), success_count)
 
         self.results = results
@@ -462,13 +462,13 @@ class MenagerieBenchmark:
             "Variant Name",
             "Menagerie URL",
             "Local Path",
-            "Functional Success",
+            "Success",
             "Error Count",
             "Warning Count",
             "Error Message",
             "Conversion Time (s)",
             "Total Size (MB)",
-            "Practical Success (Manual)",
+            "Verified (Manual)",
             "Notes (Manual)",
         ]
 
@@ -491,13 +491,13 @@ class MenagerieBenchmark:
                         "Variant Name": result.variant_name,
                         "Menagerie URL": result.menagerie_url if asset_display else "",
                         "Local Path": result.local_path,
-                        "Functional Success": "Yes" if result.functional_success else "No",
+                        "Success": "Yes" if result.success else "No",
                         "Error Count": result.error_count,
                         "Warning Count": result.warning_count,
                         "Error Message": result.error_message,
-                        "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.functional_success else "N/A",
+                        "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.success else "N/A",
                         "Total Size (MB)": f"{result.total_file_size_mb:.2f}",
-                        "Practical Success (Manual)": result.practical_success,
+                        "Verified (Manual)": result.verified,
                         "Notes (Manual)": result.notes,
                     }
                 )
@@ -511,7 +511,7 @@ class MenagerieBenchmark:
 
         # Calculate statistics
         total_models = len(self.results)
-        successful = sum(1 for r in self.results if r.functional_success)
+        successful = sum(1 for r in self.results if r.success)
         failed = total_models - successful
         total_errors = sum(r.error_count for r in self.results)
         total_warnings = sum(r.warning_count for r in self.results)
@@ -594,12 +594,12 @@ class MenagerieBenchmark:
                 <th>Asset</th>
                 <th>Variant</th>
                 <th>Menagerie Link</th>
-                <th>Functional Success</th>
+                <th>Success</th>
+                <th>Verified</th>
                 <th>Errors</th>
                 <th>Warnings</th>
                 <th>Time (s)</th>
                 <th>Total Size (MB)</th>
-                <th>Practical Success</th>
                 <th>Notes</th>
                 <th>Error Message</th>
             </tr>
@@ -612,9 +612,9 @@ class MenagerieBenchmark:
 
         previous_asset = None
         for result in sorted_results:
-            success_class = "success-cell" if result.functional_success else "failure-cell"
-            practical_success_class = (
-                "success-cell" if result.practical_success == "Yes" else "" if result.practical_success == "Unknown" else "failure-cell"
+            success_class = "success-cell" if result.success else "failure-cell"
+            verified_class = (
+                "success-cell" if result.verified == "Yes" else "" if result.verified == "Unknown" else "failure-cell"
             )
 
             # Determine if this is the first variant of a new asset
@@ -632,12 +632,12 @@ class MenagerieBenchmark:
                 <td><strong>{asset_display}</strong></td>
                 <td>{result.variant_name}</td>
                 <td>{link_display}</td>
-                <td class="{success_class}">{'Yes' if result.functional_success else 'No'}</td>
+                <td class="{success_class}">{'Yes' if result.success else 'No'}</td>
+                <td class="{verified_class}">{result.verified}</td>
                 <td class="numeric">{result.error_count}</td>
                 <td class="numeric">{result.warning_count}</td>
                 <td class="numeric">{result.conversion_time_seconds:.3f}</td>
                 <td class="numeric">{result.total_file_size_mb:.2f}</td>
-                <td class="{practical_success_class}">{result.practical_success}</td>
                 <td>{result.notes}</td>
                 <td>{result.error_message}</td>
             </tr>
@@ -649,9 +649,9 @@ class MenagerieBenchmark:
 
     <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
         <h3>Manual Annotation Instructions</h3>
-        <p><strong>Practical Success:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
+        <p><strong>Verified:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
         based on manual inspection of the converted USD files. Update the annotations in the
-        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>practical_success</code> field.
+        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.
         Consider factors like:</p>
         <ul>
             <li>Visual correctness when loaded in USD viewer</li>
@@ -665,7 +665,7 @@ class MenagerieBenchmark:
 
         <h3>Annotation Structure</h3>
         <p>Annotations are now per-variant rather than per-asset. Each XML file listed under an asset's
-        <code>xml_files</code> array has its own <code>practical_success</code>, <code>notes</code>,
+        <code>xml_files</code> array has its own <code>verified</code>, <code>notes</code>,
         <code>evaluation_date</code>, <code>evaluator</code>, and <code>notes</code> fields.</p>
 
         <h3>File Size Information</h3>
@@ -688,7 +688,7 @@ class MenagerieBenchmark:
             return
 
         total_models = len(self.results)
-        successful = sum(1 for r in self.results if r.functional_success)
+        successful = sum(1 for r in self.results if r.success)
         failed = total_models - successful
         total_errors = sum(r.error_count for r in self.results)
         total_warnings = sum(r.warning_count for r in self.results)
@@ -713,7 +713,7 @@ Average Time per Model: {total_time/total_models:.2f}s
 Total File Size: {total_file_size:.2f} MB
 Average Size per Model: {total_file_size/total_models:.2f} MB"""
 
-        failed_results = [result for result in self.results if not result.functional_success]
+        failed_results = [result for result in self.results if not result.success]
         if failed_results:
             summary += "\n\n=== Failed Models ===\n"
             # Group failed results by asset for better readability

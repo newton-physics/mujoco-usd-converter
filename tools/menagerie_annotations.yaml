@@ -10,7 +10,7 @@
 #       - filename: "model.xml"
 #         model_name: "asset_model"
 #         description: "Description of this model variant"
-#         practical_success: "Yes" | "Unknown" | "Partial"
+#         verified: "Yes" | "Unknown" | "Partial"
 #         evaluation_date: "YYYY-MM-DD"
 #         evaluator: "Name or identifier of person who evaluated this variant"
 #         notes: "Additional notes about this variant"
@@ -35,7 +35,7 @@ agilex_piper:
     filename: piper.xml
     model_name: piper
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 agility_cassie:
   _metadata:
     has_scene_xml: true
@@ -51,7 +51,7 @@ agility_cassie:
     filename: cassie.xml
     model_name: cassie
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 aloha:
   _metadata:
     has_scene_xml: true
@@ -67,7 +67,7 @@ aloha:
     filename: keyframe_ctrl.xml
     model_name: keyframe_ctrl
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: aloha
     description: 'Model variant: joint_position_actuators'
     evaluation_date: ''
@@ -75,7 +75,7 @@ aloha:
     filename: joint_position_actuators.xml
     model_name: joint_position_actuators
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: aloha
     description: 'Model variant: keyframe_no_act'
     evaluation_date: ''
@@ -83,7 +83,7 @@ aloha:
     filename: keyframe_no_act.xml
     model_name: keyframe_no_act
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: aloha
     description: 'Model variant: aloha'
     evaluation_date: ''
@@ -91,7 +91,7 @@ aloha:
     filename: aloha.xml
     model_name: aloha
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: aloha
     description: 'Model variant: filtered_cartesian_actuators'
     evaluation_date: ''
@@ -99,7 +99,7 @@ aloha:
     filename: filtered_cartesian_actuators.xml
     model_name: filtered_cartesian_actuators
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 anybotics_anymal_b:
   _metadata:
     has_scene_xml: true
@@ -115,7 +115,7 @@ anybotics_anymal_b:
     filename: anymal_b.xml
     model_name: anymal_b
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 anybotics_anymal_c:
   _metadata:
     has_scene_xml: true
@@ -131,7 +131,7 @@ anybotics_anymal_c:
     filename: anymal_c.xml
     model_name: anymal_c
     notes: 'Actuation in MuJoCo Simulate looks good'
-    practical_success: 'Yes'
+    verified: 'Yes'
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c_mjx'
     evaluation_date: ''
@@ -139,7 +139,7 @@ anybotics_anymal_c:
     filename: anymal_c_mjx.xml
     model_name: anymal_c_mjx
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 apptronik_apollo:
   _metadata:
     has_scene_xml: true
@@ -155,7 +155,7 @@ apptronik_apollo:
     filename: apptronik_apollo.xml
     model_name: apptronik_apollo
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 arx_l5:
   _metadata:
     has_scene_xml: true
@@ -171,7 +171,7 @@ arx_l5:
     filename: arx_l5.xml
     model_name: arx_l5
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 berkeley_humanoid:
   _metadata:
     has_scene_xml: true
@@ -187,7 +187,7 @@ berkeley_humanoid:
     filename: berkeley_humanoid.xml
     model_name: berkeley_humanoid
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 bitcraze_crazyflie_2:
   _metadata:
     has_scene_xml: true
@@ -203,7 +203,7 @@ bitcraze_crazyflie_2:
     filename: cf2.xml
     model_name: cf2
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 booster_t1:
   _metadata:
     has_scene_xml: true
@@ -219,7 +219,7 @@ booster_t1:
     filename: t1.xml
     model_name: t1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 boston_dynamics_spot:
   _metadata:
     has_scene_xml: true
@@ -235,7 +235,7 @@ boston_dynamics_spot:
     filename: spot.xml
     model_name: spot
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: boston_dynamics_spot
     description: 'Model variant: spot_arm'
     evaluation_date: ''
@@ -243,7 +243,7 @@ boston_dynamics_spot:
     filename: spot_arm.xml
     model_name: spot_arm
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 dynamixel_2r:
   _metadata:
     has_scene_xml: true
@@ -259,7 +259,7 @@ dynamixel_2r:
     filename: dynamixel_2r.xml
     model_name: dynamixel_2r
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 flybody:
   _metadata:
     has_scene_xml: true
@@ -275,7 +275,7 @@ flybody:
     filename: fruitfly.xml
     model_name: fruitfly
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 fourier_n1:
   _metadata:
     has_scene_xml: true
@@ -291,7 +291,7 @@ fourier_n1:
     filename: n1.xml
     model_name: n1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 franka_emika_panda:
   _metadata:
     has_scene_xml: true
@@ -307,7 +307,7 @@ franka_emika_panda:
     filename: hand.xml
     model_name: hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_single_cube'
     evaluation_date: ''
@@ -315,7 +315,7 @@ franka_emika_panda:
     filename: mjx_single_cube.xml
     model_name: mjx_single_cube
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda_nohand'
     evaluation_date: ''
@@ -323,7 +323,7 @@ franka_emika_panda:
     filename: panda_nohand.xml
     model_name: panda_nohand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda'
     evaluation_date: ''
@@ -331,7 +331,7 @@ franka_emika_panda:
     filename: mjx_panda.xml
     model_name: mjx_panda
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda'
     evaluation_date: ''
@@ -339,7 +339,7 @@ franka_emika_panda:
     filename: panda.xml
     model_name: panda
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda_nohand'
     evaluation_date: ''
@@ -347,7 +347,7 @@ franka_emika_panda:
     filename: mjx_panda_nohand.xml
     model_name: mjx_panda_nohand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 franka_fr3:
   _metadata:
     has_scene_xml: true
@@ -363,7 +363,7 @@ franka_fr3:
     filename: fr3.xml
     model_name: fr3
     notes: 'Actuation in MuJoCo Simulate looks good'
-    practical_success: 'Yes'
+    verified: 'Yes'
 google_barkour_v0:
   _metadata:
     has_scene_xml: true
@@ -379,7 +379,7 @@ google_barkour_v0:
     filename: barkour_v0_mjx.xml
     model_name: barkour_v0_mjx
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: google_barkour_v0
     description: 'Model variant: barkour_v0'
     evaluation_date: ''
@@ -387,7 +387,7 @@ google_barkour_v0:
     filename: barkour_v0.xml
     model_name: barkour_v0
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 google_barkour_vb:
   _metadata:
     has_scene_xml: true
@@ -403,7 +403,7 @@ google_barkour_vb:
     filename: barkour_vb.xml
     model_name: barkour_vb
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: google_barkour_vb
     description: 'Model variant: barkour_vb_mjx'
     evaluation_date: ''
@@ -411,7 +411,7 @@ google_barkour_vb:
     filename: barkour_vb_mjx.xml
     model_name: barkour_vb_mjx
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 google_robot:
   _metadata:
     has_scene_xml: true
@@ -427,7 +427,7 @@ google_robot:
     filename: robot.xml
     model_name: robot
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 hello_robot_stretch:
   _metadata:
     has_scene_xml: true
@@ -443,7 +443,7 @@ hello_robot_stretch:
     filename: stretch.xml
     model_name: stretch
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 hello_robot_stretch_3:
   _metadata:
     has_scene_xml: true
@@ -459,7 +459,7 @@ hello_robot_stretch_3:
     filename: stretch.xml
     model_name: stretch
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 i2rt_yam:
   _metadata:
     has_scene_xml: true
@@ -475,7 +475,7 @@ i2rt_yam:
     filename: yam.xml
     model_name: yam
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 iit_softfoot:
   _metadata:
     has_scene_xml: true
@@ -491,7 +491,7 @@ iit_softfoot:
     filename: softfoot.xml
     model_name: softfoot
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 kinova_gen3:
   _metadata:
     has_scene_xml: true
@@ -507,7 +507,7 @@ kinova_gen3:
     filename: gen3.xml
     model_name: gen3
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 kuka_iiwa_14:
   _metadata:
     has_scene_xml: true
@@ -523,7 +523,7 @@ kuka_iiwa_14:
     filename: iiwa14.xml
     model_name: iiwa14
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 leap_hand:
   _metadata:
     has_scene_xml: true
@@ -539,7 +539,7 @@ leap_hand:
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: leap_hand
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -547,7 +547,7 @@ leap_hand:
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 low_cost_robot_arm:
   _metadata:
     has_scene_xml: true
@@ -563,7 +563,7 @@ low_cost_robot_arm:
     filename: low_cost_robot_arm.xml
     model_name: low_cost_robot_arm
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 pal_talos:
   _metadata:
     has_scene_xml: true
@@ -579,7 +579,7 @@ pal_talos:
     filename: talos.xml
     model_name: talos
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_motor'
     evaluation_date: ''
@@ -587,7 +587,7 @@ pal_talos:
     filename: talos_motor.xml
     model_name: talos_motor
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_position'
     evaluation_date: ''
@@ -595,7 +595,7 @@ pal_talos:
     filename: talos_position.xml
     model_name: talos_position
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 pal_tiago:
   _metadata:
     has_scene_xml: true
@@ -611,7 +611,7 @@ pal_tiago:
     filename: tiago_position.xml
     model_name: tiago_position
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago'
     evaluation_date: ''
@@ -619,7 +619,7 @@ pal_tiago:
     filename: tiago.xml
     model_name: tiago
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_velocity'
     evaluation_date: ''
@@ -627,7 +627,7 @@ pal_tiago:
     filename: tiago_velocity.xml
     model_name: tiago_velocity
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_motor'
     evaluation_date: ''
@@ -635,7 +635,7 @@ pal_tiago:
     filename: tiago_motor.xml
     model_name: tiago_motor
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 pal_tiago_dual:
   _metadata:
     has_scene_xml: true
@@ -651,7 +651,7 @@ pal_tiago_dual:
     filename: tiago_dual_velocity.xml
     model_name: tiago_dual_velocity
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual'
     evaluation_date: ''
@@ -659,7 +659,7 @@ pal_tiago_dual:
     filename: tiago_dual.xml
     model_name: tiago_dual
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_motor'
     evaluation_date: ''
@@ -667,7 +667,7 @@ pal_tiago_dual:
     filename: tiago_dual_motor.xml
     model_name: tiago_dual_motor
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_position'
     evaluation_date: ''
@@ -675,7 +675,7 @@ pal_tiago_dual:
     filename: tiago_dual_position.xml
     model_name: tiago_dual_position
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 pndbotics_adam_lite:
   _metadata:
     has_scene_xml: true
@@ -691,7 +691,7 @@ pndbotics_adam_lite:
     filename: adam_lite.xml
     model_name: adam_lite
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 realsense_d435i:
   _metadata:
     has_scene_xml: false
@@ -707,7 +707,7 @@ realsense_d435i:
     filename: d435i.xml
     model_name: d435i
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 rethink_robotics_sawyer:
   _metadata:
     has_scene_xml: true
@@ -723,7 +723,7 @@ rethink_robotics_sawyer:
     filename: sawyer.xml
     model_name: sawyer
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 robot_soccer_kit:
   _metadata:
     has_scene_xml: true
@@ -739,7 +739,7 @@ robot_soccer_kit:
     filename: robot_soccer_kit.xml
     model_name: robot_soccer_kit
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 robotiq_2f85:
   _metadata:
     has_scene_xml: true
@@ -755,7 +755,7 @@ robotiq_2f85:
     filename: 2f85.xml
     model_name: 2f85
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 robotiq_2f85_v4:
   _metadata:
     has_scene_xml: true
@@ -771,7 +771,7 @@ robotiq_2f85_v4:
     filename: 2f85.xml
     model_name: 2f85
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: robotiq_2f85_v4
     description: 'Model variant: mjx_2f85'
     evaluation_date: ''
@@ -779,7 +779,7 @@ robotiq_2f85_v4:
     filename: mjx_2f85.xml
     model_name: mjx_2f85
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 robotis_op3:
   _metadata:
     has_scene_xml: true
@@ -795,7 +795,7 @@ robotis_op3:
     filename: op3.xml
     model_name: op3
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 shadow_dexee:
   _metadata:
     has_scene_xml: true
@@ -811,7 +811,7 @@ shadow_dexee:
     filename: shadow_dexee.xml
     model_name: shadow_dexee
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 shadow_hand:
   _metadata:
     has_scene_xml: true
@@ -827,7 +827,7 @@ shadow_hand:
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: shadow_hand
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -835,7 +835,7 @@ shadow_hand:
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: shadow_hand
     description: 'Model variant: keyframes'
     evaluation_date: ''
@@ -843,7 +843,7 @@ shadow_hand:
     filename: keyframes.xml
     model_name: keyframes
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 skydio_x2:
   _metadata:
     has_scene_xml: true
@@ -859,7 +859,7 @@ skydio_x2:
     filename: x2.xml
     model_name: x2
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 stanford_tidybot:
   _metadata:
     has_scene_xml: true
@@ -875,7 +875,7 @@ stanford_tidybot:
     filename: tidybot.xml
     model_name: tidybot
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: stanford_tidybot
     description: 'Model variant: base'
     evaluation_date: ''
@@ -883,7 +883,7 @@ stanford_tidybot:
     filename: base.xml
     model_name: base
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 trossen_vx300s:
   _metadata:
     has_scene_xml: true
@@ -899,7 +899,7 @@ trossen_vx300s:
     filename: vx300s.xml
     model_name: vx300s
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 trossen_wx250s:
   _metadata:
     has_scene_xml: true
@@ -915,7 +915,7 @@ trossen_wx250s:
     filename: wx250s.xml
     model_name: wx250s
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 trs_so_arm100:
   _metadata:
     has_scene_xml: true
@@ -931,7 +931,7 @@ trs_so_arm100:
     filename: so_arm100.xml
     model_name: so_arm100
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 ufactory_lite6:
   _metadata:
     has_scene_xml: true
@@ -947,7 +947,7 @@ ufactory_lite6:
     filename: lite6_gripper_wide.xml
     model_name: lite6_gripper_wide
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6'
     evaluation_date: ''
@@ -955,7 +955,7 @@ ufactory_lite6:
     filename: lite6.xml
     model_name: lite6
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6_gripper_narrow'
     evaluation_date: ''
@@ -963,7 +963,7 @@ ufactory_lite6:
     filename: lite6_gripper_narrow.xml
     model_name: lite6_gripper_narrow
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 ufactory_xarm7:
   _metadata:
     has_scene_xml: true
@@ -979,7 +979,7 @@ ufactory_xarm7:
     filename: hand.xml
     model_name: hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7_nohand'
     evaluation_date: ''
@@ -987,7 +987,7 @@ ufactory_xarm7:
     filename: xarm7_nohand.xml
     model_name: xarm7_nohand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7'
     evaluation_date: ''
@@ -995,7 +995,7 @@ ufactory_xarm7:
     filename: xarm7.xml
     model_name: xarm7
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 umi_gripper:
   _metadata:
     has_scene_xml: true
@@ -1011,7 +1011,7 @@ umi_gripper:
     filename: umi_gripper.xml
     model_name: umi_gripper
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_a1:
   _metadata:
     has_scene_xml: true
@@ -1027,7 +1027,7 @@ unitree_a1:
     filename: a1.xml
     model_name: a1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_g1:
   _metadata:
     has_scene_xml: true
@@ -1043,7 +1043,7 @@ unitree_g1:
     filename: g1.xml
     model_name: g1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_mjx'
     evaluation_date: ''
@@ -1051,7 +1051,7 @@ unitree_g1:
     filename: g1_mjx.xml
     model_name: g1_mjx
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_with_hands'
     evaluation_date: ''
@@ -1059,7 +1059,7 @@ unitree_g1:
     filename: g1_with_hands.xml
     model_name: g1_with_hands
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_go1:
   _metadata:
     has_scene_xml: true
@@ -1075,7 +1075,7 @@ unitree_go1:
     filename: go1.xml
     model_name: go1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_go2:
   _metadata:
     has_scene_xml: true
@@ -1091,7 +1091,7 @@ unitree_go2:
     filename: go2_mjx.xml
     model_name: go2_mjx
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: unitree_go2
     description: 'Model variant: go2'
     evaluation_date: ''
@@ -1099,7 +1099,7 @@ unitree_go2:
     filename: go2.xml
     model_name: go2
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_h1:
   _metadata:
     has_scene_xml: true
@@ -1115,7 +1115,7 @@ unitree_h1:
     filename: h1.xml
     model_name: h1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 unitree_z1:
   _metadata:
     has_scene_xml: true
@@ -1131,7 +1131,7 @@ unitree_z1:
     filename: z1.xml
     model_name: z1
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: unitree_z1
     description: 'Model variant: z1_gripper'
     evaluation_date: ''
@@ -1139,7 +1139,7 @@ unitree_z1:
     filename: z1_gripper.xml
     model_name: z1_gripper
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 universal_robots_ur10e:
   _metadata:
     has_scene_xml: true
@@ -1155,7 +1155,7 @@ universal_robots_ur10e:
     filename: ur10e.xml
     model_name: ur10e
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 universal_robots_ur5e:
   _metadata:
     has_scene_xml: true
@@ -1171,7 +1171,7 @@ universal_robots_ur5e:
     filename: ur5e.xml
     model_name: ur5e
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
 wonik_allegro:
   _metadata:
     has_scene_xml: true
@@ -1187,7 +1187,7 @@ wonik_allegro:
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
   - asset: wonik_allegro
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -1195,4 +1195,4 @@ wonik_allegro:
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    practical_success: Unknown
+    verified: Unknown
