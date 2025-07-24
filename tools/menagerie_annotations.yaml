@@ -126,12 +126,12 @@ anybotics_anymal_c:
   xml_files:
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2025/07/23'
+    evaluator: 'andrewkaufman'
     filename: anymal_c.xml
     model_name: anymal_c
-    notes: ''
-    practical_success: Unknown
+    notes: 'Actuation in MuJoCo Simulate looks good'
+    practical_success: 'Yes'
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c_mjx'
     evaluation_date: ''
@@ -358,12 +358,12 @@ franka_fr3:
   xml_files:
   - asset: franka_fr3
     description: 'Model variant: fr3'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2025/07/23'
+    evaluator: 'andrewkaufman'
     filename: fr3.xml
     model_name: fr3
-    notes: ''
-    practical_success: Unknown
+    notes: 'Actuation in MuJoCo Simulate looks good'
+    practical_success: 'Yes'
 google_barkour_v0:
   _metadata:
     has_scene_xml: true
