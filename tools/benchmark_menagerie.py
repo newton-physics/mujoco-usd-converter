@@ -85,6 +85,7 @@ class BenchmarkResult:
     error_count: int
     warning_count: int
     error_message: str
+    warnings: str
     conversion_time_seconds: float
     total_file_size_mb: float
     verified: str = "No"  # Manual annotation template
@@ -327,6 +328,7 @@ class MenagerieBenchmark:
             error_count=0,
             warning_count=0,
             error_message="",
+            warnings="",
             conversion_time_seconds=0.0,
             total_file_size_mb=0.0,
             verified="No",  # Initialize with default
@@ -375,6 +377,7 @@ class MenagerieBenchmark:
 
         # Capture diagnostics counts
         result.error_count, result.warning_count = self.diagnostics.get_counts()
+        result.warnings = "\n".join([x.rpartition("] ")[2].strip() for x in self.diagnostics.warnings])
 
         # Get manual annotations
         result.verified, result.notes = self._get_annotation(asset_name, model_name)
@@ -465,11 +468,11 @@ class MenagerieBenchmark:
             "Success",
             "Error Count",
             "Warning Count",
-            "Error Message",
             "Conversion Time (s)",
             "Total Size (MB)",
             "Verified (Manual)",
             "Notes (Manual)",
+            "Errors",
         ]
 
         # Sort results by asset name, then variant name
@@ -494,11 +497,11 @@ class MenagerieBenchmark:
                         "Success": "Yes" if result.success else "No",
                         "Error Count": result.error_count,
                         "Warning Count": result.warning_count,
-                        "Error Message": result.error_message,
                         "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.success else "N/A",
                         "Total Size (MB)": f"{result.total_file_size_mb:.2f}",
                         "Verified (Manual)": result.verified,
                         "Notes (Manual)": result.notes,
+                        "Errors": result.error_message,
                     }
                 )
 
@@ -536,6 +539,7 @@ class MenagerieBenchmark:
         .warning {{ color: #ffc107; }}
         table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
         th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th:nth-child(10), td:nth-child(10) {{ min-width: 350px; width: 350px; }}
         th {{ background-color: #f2f2f2; }}
         .success-cell {{ background-color: #d4edda; }}
         .failure-cell {{ background-color: #f8d7da; }}
@@ -601,7 +605,8 @@ class MenagerieBenchmark:
                 <th>Time (s)</th>
                 <th>Total Size (MB)</th>
                 <th>Notes</th>
-                <th>Error Message</th>
+                <th>Errors</th>
+                <th>Warnings</th>
             </tr>
         </thead>
         <tbody>
@@ -627,6 +632,10 @@ class MenagerieBenchmark:
 
             previous_asset = result.asset_name
 
+            # Convert newlines and tabs to HTML for proper display
+            error_message_html = result.error_message.replace('\n', '<br>')
+            warnings_html = result.warnings.replace('\n', '<br>')
+
             html_content += f"""
             <tr class="{row_class}">
                 <td><strong>{asset_display}</strong></td>
@@ -639,7 +648,8 @@ class MenagerieBenchmark:
                 <td class="numeric">{result.conversion_time_seconds:.3f}</td>
                 <td class="numeric">{result.total_file_size_mb:.2f}</td>
                 <td>{result.notes}</td>
-                <td>{result.error_message}</td>
+                <td>{error_message_html}</td>
+                <td>{warnings_html}</td>
             </tr>
 """
 
