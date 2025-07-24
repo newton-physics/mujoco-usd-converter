@@ -5,8 +5,7 @@ import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
-from ._future import Tokens, defineRelativeReference
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .numpy import convert_color
 from .utils import get_fromto_vectors, set_purpose, set_schema_attribute, set_transform
 
@@ -84,7 +83,7 @@ def __convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conv
     ref_mesh: Usd.Prim = data.references[Tokens.Geometry].get(geom.meshname)
     if not ref_mesh:
         Tf.RaiseRuntimeError(f"Mesh '{geom.meshname}' not found in Geometry Library {data.libraries[Tokens.Geometry].GetRootLayer().identifier}")
-    prim = defineRelativeReference(parent, ref_mesh, name)
+    prim = usdex.core.defineReference(parent, ref_mesh, name)
     # the reference mesh may have an invalid source name, and thus a display name
     # however, the prim name may already be valid and override this, in which case
     # we need to block the referenced display name
@@ -185,7 +184,7 @@ def __bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
         Tf.RaiseRuntimeError(f"Material '{name}' not found in Material Library {data.libraries[Tokens.Materials].GetRootLayer().identifier}")
     material_prim = UsdShade.Material(local_materials.GetChild(ref_material.GetName()))
     if not material_prim:
-        material_prim = UsdShade.Material(defineRelativeReference(local_materials, ref_material, ref_material.GetName()))
+        material_prim = UsdShade.Material(usdex.core.defineReference(local_materials, ref_material, ref_material.GetName()))
 
     # Check if geom_prim is not a USD mesh type
     prim = geom_prim.GetPrim()

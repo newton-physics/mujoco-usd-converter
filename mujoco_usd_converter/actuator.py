@@ -5,8 +5,7 @@ import mujoco
 import usdex.core
 from pxr import Tf, Usd
 
-from ._future import Tokens
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .utils import mj_limited_to_token, set_schema_attribute
 
 __all__ = ["convert_actuators"]

@@ -8,7 +8,6 @@ import usdex.core
 from pxr import Kind, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 import mujoco_usd_converter
-from mujoco_usd_converter._future import getLayerAuthoringMetadata
 
 
 class TestAssetStructure(unittest.TestCase):
@@ -33,12 +32,12 @@ class TestAssetStructure(unittest.TestCase):
         joint_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5/tn__Body2_f5/tn__Joint1_h6")
         self.assertEqual(usdex.core.getDisplayName(joint_prim), "Joint 1")
 
-        geometry_library = pathlib.Path(f"./tests/output/{model_name}/payload/GeometryLibrary.usdc").absolute()
+        geometry_library = pathlib.Path(f"./tests/output/{model_name}/Payload/GeometryLibrary.usdc").absolute()
         stage = Usd.Stage.Open(geometry_library.as_posix())
         mesh_prim = stage.GetPrimAtPath("/Geometry/tn__Mesh1_f5")
         self.assertEqual(usdex.core.getDisplayName(mesh_prim), "Mesh 1")
 
-        material_library = pathlib.Path(f"./tests/output/{model_name}/payload/MaterialsLibrary.usdc").absolute()
+        material_library = pathlib.Path(f"./tests/output/{model_name}/Payload/MaterialsLibrary.usdc").absolute()
         stage = Usd.Stage.Open(material_library.as_posix())
         material_prim = stage.GetPrimAtPath("/Materials/tn__Material1_n9")
         self.assertEqual(usdex.core.getDisplayName(material_prim), "Material 1")
@@ -55,7 +54,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = stage.GetDefaultPrim()
@@ -89,10 +88,10 @@ class TestAssetStructure(unittest.TestCase):
         geometry_spec: Sdf.PrimSpec = prim_stack[4]
 
         self.assertEqual(interface_spec.layer.identifier, asset.path)
-        self.assertEqual(contents_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Contents.usda")).as_posix())
-        self.assertEqual(physics_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
-        self.assertEqual(materials_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Materials.usda")).as_posix())
-        self.assertEqual(geometry_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Geometry.usda")).as_posix())
+        self.assertEqual(contents_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Contents.usda")).as_posix())
+        self.assertEqual(physics_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Physics.usda")).as_posix())
+        self.assertEqual(materials_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Materials.usda")).as_posix())
+        self.assertEqual(geometry_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Geometry.usda")).as_posix())
 
     def test_prim_stack_no_materials(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
@@ -110,17 +109,17 @@ class TestAssetStructure(unittest.TestCase):
         geometry_spec: Sdf.PrimSpec = prim_stack[3]
 
         self.assertEqual(interface_spec.layer.identifier, asset.path)
-        self.assertEqual(contents_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Contents.usda")).as_posix())
-        self.assertEqual(physics_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
-        self.assertEqual(geometry_spec.layer.identifier, (parent_path / pathlib.Path("./payload/Geometry.usda")).as_posix())
-        self.assertFalse((parent_path / pathlib.Path("./payload/Materials.usda")).exists())
+        self.assertEqual(contents_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Contents.usda")).as_posix())
+        self.assertEqual(physics_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Physics.usda")).as_posix())
+        self.assertEqual(geometry_spec.layer.identifier, (parent_path / pathlib.Path("./Payload/Geometry.usda")).as_posix())
+        self.assertFalse((parent_path / pathlib.Path("./Payload/Materials.usda")).exists())
 
     def test_contents_layer(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
         mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
-        contents_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Contents.usda").absolute()
+        contents_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Contents.usda").absolute()
         self.assertTrue(contents_layer_path.exists(), msg=f"Contents layer not found at {contents_layer_path}")
         contents_stage: Usd.Stage = Usd.Stage.Open(contents_layer_path.as_posix())
 
@@ -128,7 +127,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(contents_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(contents_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(contents_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(contents_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(contents_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = contents_stage.GetDefaultPrim()
@@ -143,7 +142,7 @@ class TestAssetStructure(unittest.TestCase):
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
 
-        geometry_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Geometry.usda").absolute()
+        geometry_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Geometry.usda").absolute()
         self.assertTrue(geometry_layer_path.exists(), msg=f"Geometry layer not found at {geometry_layer_path}")
         geometry_stage: Usd.Stage = Usd.Stage.Open(geometry_layer_path.as_posix())
 
@@ -151,7 +150,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(geometry_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(geometry_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(geometry_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(geometry_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(geometry_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = geometry_stage.GetDefaultPrim()
@@ -168,9 +167,9 @@ class TestAssetStructure(unittest.TestCase):
                 self.assertTrue(prim.GetReferences(), f"Mesh {prim.GetPath()} should be a reference")
                 prim_specs: list[Sdf.PrimSpec] = prim.GetPrimStack()
                 self.assertEqual(len(prim_specs), 2)
-                self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Geometry.usda")).as_posix())
+                self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./Payload/Geometry.usda")).as_posix())
                 self.assertEqual(prim_specs[0].path, prim.GetPath())
-                self.assertEqual(prim_specs[1].layer.identifier, (parent_path / pathlib.Path("./payload/GeometryLibrary.usdc")).as_posix())
+                self.assertEqual(prim_specs[1].layer.identifier, (parent_path / pathlib.Path("./Payload/GeometryLibrary.usdc")).as_posix())
                 self.assertEqual(prim_specs[1].path, f"/Geometry/{prim.GetName()}")
 
     def test_materials_layer(self):
@@ -179,7 +178,7 @@ class TestAssetStructure(unittest.TestCase):
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
         parent_path = pathlib.Path(asset.path).parent
 
-        materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Materials.usda").absolute()
+        materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Materials.usda").absolute()
         self.assertTrue(materials_layer_path.exists(), msg=f"Materials layer not found at {materials_layer_path}")
         materials_stage: Usd.Stage = Usd.Stage.Open(materials_layer_path.as_posix())
 
@@ -187,7 +186,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(materials_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(materials_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(materials_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(materials_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(materials_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = materials_stage.GetDefaultPrim()
@@ -202,9 +201,9 @@ class TestAssetStructure(unittest.TestCase):
             self.assertTrue(prim.IsA(UsdShade.Material), f"Material {prim.GetPath()} should be a material")
             prim_specs: list[Sdf.PrimSpec] = prim.GetPrimStack()
             self.assertEqual(len(prim_specs), 2)
-            self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Materials.usda")).as_posix())
+            self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./Payload/Materials.usda")).as_posix())
             self.assertEqual(prim_specs[0].path, prim.GetPath())
-            self.assertEqual(prim_specs[1].layer.identifier, (parent_path / pathlib.Path("./payload/MaterialsLibrary.usdc")).as_posix())
+            self.assertEqual(prim_specs[1].layer.identifier, (parent_path / pathlib.Path("./Payload/MaterialsLibrary.usdc")).as_posix())
             self.assertEqual(prim_specs[1].path, f"/Materials/{prim.GetName()}")
 
         geom_scope: Usd.Prim = materials_stage.GetDefaultPrim().GetChild("Geometry")
@@ -230,7 +229,7 @@ class TestAssetStructure(unittest.TestCase):
         parent_path = pathlib.Path(asset.path).parent
 
         # kg per unit is authored in the physics layer
-        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/payload/Physics.usda").absolute()
+        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Physics.usda").absolute()
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
@@ -239,7 +238,7 @@ class TestAssetStructure(unittest.TestCase):
         self.assertEqual(UsdGeom.GetStageUpAxis(physics_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(physics_stage), 1.0)
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
-        self.assertEqual(getLayerAuthoringMetadata(physics_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
+        self.assertEqual(usdex.core.getLayerAuthoringMetadata(physics_stage.GetRootLayer()), "MuJoCo USD Converter v0.1.0")
 
         # Test default prim structure
         default_prim: Usd.Prim = physics_stage.GetDefaultPrim()
@@ -269,7 +268,7 @@ class TestAssetStructure(unittest.TestCase):
         # physics materials are not references (visual materials are references)
         prim_specs: list[Sdf.PrimSpec] = physics_material.GetPrimStack()
         self.assertEqual(len(prim_specs), 1)
-        self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./payload/Physics.usda")).as_posix())
+        self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./Payload/Physics.usda")).as_posix())
         self.assertEqual(prim_specs[0].path, physics_material.GetPath())
 
         # Test the sidecar PhysicsScene prim
@@ -283,7 +282,7 @@ class TestAssetStructure(unittest.TestCase):
             model = pathlib.Path(f"./tests/data/{model_name}.xml")
             mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
 
-            for layer in pathlib.Path(f"./tests/output/{model_name}/payload").iterdir():
+            for layer in pathlib.Path(f"./tests/output/{model_name}/Payload").iterdir():
                 if layer.is_dir():
                     continue
                 if layer.name in ("Contents.usda", "Physics.usda"):

@@ -6,8 +6,7 @@ import numpy as np
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
-from ._future import Tokens
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .geom import convert_geom, get_geom_name
 from .joint import convert_joints
 from .numpy import convert_quat, convert_vec3d

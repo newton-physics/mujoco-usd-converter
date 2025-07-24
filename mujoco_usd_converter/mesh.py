@@ -8,8 +8,7 @@ import tinyobjloader
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, Vt
 
-from ._future import Tokens, addLibraryLayer
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .numpy import convert_vec3f_array
 from .utils import set_transform
 
@@ -20,7 +19,7 @@ def convert_meshes(data: ConversionData):
     if not len(data.spec.meshes):
         return
 
-    data.libraries[Tokens.Geometry] = addLibraryLayer(data.content[Tokens.Contents], Tokens.Geometry, format="usdc")
+    data.libraries[Tokens.Geometry] = usdex.core.addAssetLibrary(data.content[Tokens.Contents], Tokens.Geometry, format="usdc")
     data.references[Tokens.Geometry] = {}
 
     geo_scope = data.libraries[Tokens.Geometry].GetDefaultPrim()

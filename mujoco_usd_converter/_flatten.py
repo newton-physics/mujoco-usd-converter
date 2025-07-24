@@ -7,7 +7,7 @@ import tempfile
 import usdex.core
 from pxr import Sdf, Tf, Usd, UsdShade
 
-from ._future import Tokens
+from .data import Tokens
 from .utils import get_authoring_metadata
 
 
@@ -27,11 +27,11 @@ def export_flattened(asset_stage: Usd.Stage, output_dir: str, asset_dir: str, as
                 file_path = pathlib.Path(file_input.Get().path if hasattr(file_input.Get(), "path") else file_input.Get())
                 tmpdir = pathlib.Path(tempfile.gettempdir())
                 if file_path.is_relative_to(tmpdir):
-                    new_path = f"./Textures/{file_path.name}"
+                    new_path = f"./{Tokens.Textures}/{file_path.name}"
                     file_input.Set(Sdf.AssetPath(new_path))
     stage.Save()
     # copy texture to output dir
-    temp_textures_dir = pathlib.Path(asset_dir) / "payload" / Tokens.Textures
+    temp_textures_dir = pathlib.Path(asset_dir) / Tokens.Payload / Tokens.Textures
     output_textures_dir = output_path / Tokens.Textures
     if temp_textures_dir.exists() and temp_textures_dir.is_dir():
         if output_textures_dir.exists():

@@ -6,9 +6,18 @@ import mujoco
 import usdex.core
 from pxr import Usd
 
-from ._future import Tokens
+__all__ = ["ConversionData", "Tokens"]
 
-__all__ = ["ConversionData"]
+
+class Tokens:
+    Asset = usdex.core.getAssetToken()
+    Library = usdex.core.getLibraryToken()
+    Contents = usdex.core.getContentsToken()
+    Geometry = usdex.core.getGeometryToken()
+    Materials = usdex.core.getMaterialsToken()
+    Textures = usdex.core.getTexturesToken()
+    Payload = usdex.core.getPayloadToken()
+    Physics = usdex.core.getPhysicsToken()
 
 
 @dataclass

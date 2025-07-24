@@ -7,8 +7,7 @@ import mujoco
 import usdex.core
 from pxr import Gf, Sdf, Tf, Usd, UsdShade
 
-from ._future import Tokens, addAssetContent, addLibraryLayer
-from .data import ConversionData
+from .data import ConversionData, Tokens
 from .numpy import convert_color
 
 __all__ = ["convert_materials"]
@@ -18,7 +17,7 @@ def convert_materials(data: ConversionData):
     if not len(data.spec.materials):
         return
 
-    data.libraries[Tokens.Materials] = addLibraryLayer(data.content[Tokens.Contents], Tokens.Materials, format="usdc")
+    data.libraries[Tokens.Materials] = usdex.core.addAssetLibrary(data.content[Tokens.Contents], Tokens.Materials, format="usdc")
     data.references[Tokens.Materials] = {}
 
     materials_scope = data.libraries[Tokens.Materials].GetDefaultPrim()
@@ -34,7 +33,7 @@ def convert_materials(data: ConversionData):
     usdex.core.saveStage(data.libraries[Tokens.Materials], comment=f"Material Library for {data.spec.modelname}. {data.comment}")
 
     # setup a content layer for referenced materials
-    data.content[Tokens.Materials] = addAssetContent(data.content[Tokens.Contents], Tokens.Materials, format="usda")
+    data.content[Tokens.Materials] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Materials, format="usda")
 
 
 def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
