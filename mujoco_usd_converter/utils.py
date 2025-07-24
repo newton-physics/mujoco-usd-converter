@@ -7,14 +7,14 @@ import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom
 
+from ._version import __version__
 from .numpy import convert_quat, convert_vec3d
 
 __all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]
 
 
 def get_authoring_metadata() -> str:
-    # FUTURE: don't hardcode the version
-    return "MuJoCo USD Converter v0.1.0"
+    return f"MuJoCo USD Converter v{__version__}"
 
 
 def set_purpose(prim: UsdGeom.Imageable, group: int) -> None:

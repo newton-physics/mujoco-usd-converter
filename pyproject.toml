@@ -1,6 +1,6 @@
 [project]
 name = "mujoco-usd-converter"
-version = "0.1.0.dev5"
+dynamic = ["version"]
 description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "NVIDIA"}]
 license = {text = "Apache-2.0"}
@@ -25,6 +25,9 @@ dev = [
     "unittest-xml-reporting>=3.2.0",
     "pyyaml>=6.0",
 ]
+
+[tool.hatch.version]
+path = "mujoco_usd_converter/_version.py"
 
 [tool.uv]
 package = true
