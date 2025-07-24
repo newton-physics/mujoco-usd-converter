@@ -7,6 +7,7 @@ import mujoco
 import usdex.core
 from pxr import Tf, Usd
 
+from ._version import __version__
 from .convert import Converter
 
 
@@ -42,6 +43,7 @@ def run() -> int:
     usdex.core.activateDiagnosticsDelegate()
     usdex.core.setDiagnosticsLevel(usdex.core.DiagnosticsLevel.eStatus if args.verbose else usdex.core.DiagnosticsLevel.eWarning)
     Tf.Status("Running mujoco_usd_converter")
+    Tf.Status(f"Version: {__version__}")
     Tf.Status(f"USD Version: {Usd.GetVersion()}")
     Tf.Status(f"USDEX Version: {usdex.core.version()}")
     Tf.Status(f"MuJoCo Version: {mujoco.__version__}")
