@@ -54,8 +54,8 @@ def main():
             print(f"Processing wheel: {wheel_filename}")
 
             # Extract metadata from wheel filename
-            os_name = "any"
-            arch = "none"
+            os_name = "none"
+            arch = "any"
             version = get_version_from_wheel(wheel_filename)
             branch = os.environ.get("CI_COMMIT_REF_NAME", "unknown")
 
