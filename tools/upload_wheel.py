@@ -31,8 +31,9 @@ def is_stable_release(version):
     # Extract version part before "+" if it exists
     version_part = version.split("+")[0]
 
-    # Check for pre-release suffixes (dev, a, b, rc)
-    return not re.search(r"(dev|a|b|rc)", version_part)
+    # Check for pre-release suffixes (dev, rc)
+    # Allow alpha and beta tags
+    return not re.search(r"(dev|rc)", version_part)
 
 
 def main():

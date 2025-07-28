@@ -116,7 +116,7 @@ benchmark:
   extends: [.deploy_job]
   stage: deploy
   script:
-    - uv run python ./scripts/upload_wheel.py
+    - uv run python ./tools/upload_wheel.py
 
 deploy_tagged:
   extends: [.deploy_base]
