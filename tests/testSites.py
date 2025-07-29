@@ -1,25 +1,21 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestSites(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestSites(ConverterTestCase):
 
     def test_sites(self):
         model = pathlib.Path("./tests/data/sites.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/body/geom")
         geom_sphere = UsdGeom.Sphere(geom)
@@ -49,9 +45,9 @@ class TestSites(unittest.TestCase):
 
     def test_sites_in_physics_layer(self):
         model = pathlib.Path("./tests/data/sites.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/body/site")
         world_site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/worldsite")
@@ -76,7 +72,7 @@ class TestSites(unittest.TestCase):
         self.assertTrue("Physics" in prim_specs[0].layer.identifier)
 
         # site prims are in the physics layer with the MJC schemas applied
-        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Physics.usda").absolute()
+        physics_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Physics.usda"
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/body/site")

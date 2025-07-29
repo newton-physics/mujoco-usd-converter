@@ -1,31 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-import pathlib
-import shutil
-import unittest
-
-import usdex.core
-from pxr import Sdf, Usd
+import usdex.test
+from pxr import Sdf, Tf, Usd
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestActuators(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # this needs to be done in the first test, which is currently this file as the tests are run in alphabetical order
-        # FUTURE: refactor to a base class
-        usdex.core.activateDiagnosticsDelegate()
-
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestActuators(ConverterTestCase):
 
     def test_simple_actuator(self):
-        model = pathlib.Path("./tests/data/simple_actuator.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/simple_actuator.xml", self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         simple_actuator = stage.GetPrimAtPath("/simple_actuator/Physics/position")
@@ -42,10 +27,10 @@ class TestActuators(unittest.TestCase):
         self.assertEqual(simple_actuator.GetAttribute("mjc:inheritRange").Get(), 0.9)
         self.assertEqual(simple_actuator.GetAttribute("mjc:gear").Get(), [10.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
+        self.assertIsValidUsd(stage)
+
     def test_joint_actuators(self):
-        model = pathlib.Path("./tests/data/actuators.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuators.xml", self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         motor: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_0")
@@ -86,10 +71,10 @@ class TestActuators(unittest.TestCase):
         self.assertEqual(position_actuator.GetAttribute("mjc:gear").Get(), [10.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.assertEqual(position_actuator.GetAttribute("mjc:group").Get(), 2)
 
+        self.assertIsValidUsd(stage)
+
     def test_site_actuators(self):
-        model = pathlib.Path("./tests/data/actuators.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuators.xml", self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         # Test site actuator without refsite (MjcActuator)
@@ -134,11 +119,11 @@ class TestActuators(unittest.TestCase):
         self.assertEqual(len(refsite_targets), 1)
         self.assertEqual(str(refsite_targets[0]), "/actuators/Geometry/base/box/box_site")
 
+        self.assertIsValidUsd(stage)
+
     def test_body_actuator(self):
         # Test body actuator (MjcActuator)
-        model = pathlib.Path("./tests/data/actuators.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuators.xml", self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         body_actuator: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_4")
@@ -161,11 +146,11 @@ class TestActuators(unittest.TestCase):
         self.assertEqual(body_actuator.GetAttribute("mjc:forceRange:max").Get(), 100.0)
         self.assertEqual(body_actuator.GetAttribute("mjc:group").Get(), 0)
 
+        self.assertIsValidUsd(stage)
+
     def test_slider_crank_actuator(self):
         # Test slider-crank actuator (MjcActuator)
-        model = pathlib.Path("./tests/data/actuators.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuators.xml", self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
         slider_crank: Usd.Prim = stage.GetPrimAtPath("/actuators/Physics/Actuator_5")
@@ -191,29 +176,30 @@ class TestActuators(unittest.TestCase):
         self.assertEqual(len(slidersite_targets), 1)
         self.assertEqual(str(slidersite_targets[0]), "/actuators/Geometry/base/box/child/child_site")
 
+        self.assertIsValidUsd(stage)
 
-class TestActuatorEdgeCases(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # this needs to be done in the first test, which is currently this file as the tests are run in alphabetical order
-        # FUTURE: refactor to a base class
-        usdex.core.activateDiagnosticsDelegate()
 
-        model = pathlib.Path("./tests/data/actuator_edge_cases.xml")
-        model_name = pathlib.Path(model).stem
-        cls.asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
-
-    @classmethod
-    def tearDownClass(cls):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestActuatorEdgeCases(ConverterTestCase):
 
     def setUp(self):
-        self.stage: Usd.Stage = Usd.Stage.Open(self.asset.path)
+        super().setUp()
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_target'"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_refsite'"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_slidersite'"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+            ],
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuator_edge_cases.xml", self.tmpDir())
+        self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
 
     def tearDown(self):
+        self.assertIsValidUsd(self.stage)
         self.stage = None
+        super().tearDown()
 
     def test_unnamed(self):
         unnamed_actuator = self.stage.GetPrimAtPath("/actuator_edge_cases/Physics/Actuator_0")

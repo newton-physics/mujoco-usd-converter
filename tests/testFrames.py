@@ -9,10 +9,6 @@ from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestFrames(ConverterTestCase):
-    def assert_rotation_almost_equal(self, rot1, rot2, tolerance):
-        self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance))
-        self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance))
-
     def test_frames(self):
         tolerance = 1e-6
         model = pathlib.Path("./tests/data/frames.xml")

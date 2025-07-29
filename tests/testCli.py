@@ -2,67 +2,75 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 import shutil
-import unittest
+import typing
 from unittest.mock import patch
 
-# workaround for Windows not locating the USD libs, because of the way plugInfo.json in usdex is structured
-import usdex.core  # noqa: F401
-from pxr import Sdf, Usd
+import usdex.test
+from pxr import Sdf, Tf, Usd
 
 from mujoco_usd_converter import run
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestCli(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestCli(ConverterTestCase):
+
+    cli_status_diagnostics: typing.ClassVar[list[tuple[int, str]]] = [
+        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Running mujoco_usd_converter"),
+        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Version:.*"),
+        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "USD Version:.*"),
+        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "USDEX Version:.*"),
+        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "MuJoCo Version:.*"),
+    ]
 
     def test_run(self):
         for model in pathlib.Path("tests/data").glob("*.xml"):
             model_name = model.stem
-            with patch("sys.argv", ["mujoco_usd_converter", str(model), f"tests/output/{model_name}"]):
+            with patch("sys.argv", ["mujoco_usd_converter", str(model), self.tmpDir()]):
                 self.assertEqual(run(), 0, f"Failed to convert {model}")
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/Payload").is_dir())
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/Payload/Contents.usda").is_file())
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/Payload/Geometry.usda").is_file())
+            self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
 
     def test_no_layer_structure(self):
         model = "tests/data/meshes.xml"
         model_name = pathlib.Path(model).stem
-        with patch("sys.argv", ["mujoco_usd_converter", model, f"tests/output/{model_name}", "--no-layer-structure"]):
+        with patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--no-layer-structure"]):
             self.assertEqual(run(), 0, f"Failed to convert {model}")
-            self.assertFalse(pathlib.Path(f"tests/output/{model_name}/Payload").exists())
-            self.assertFalse(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usdc").exists())
+            self.assertFalse((pathlib.Path(self.tmpDir()) / "Payload").exists())
+            self.assertFalse((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
+            self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usdc").exists())
 
     def test_no_physics_scene(self):
         model = "tests/data/scene_attributes.xml"
         model_name = pathlib.Path(model).stem
-        with patch("sys.argv", ["mujoco_usd_converter", model, f"tests/output/{model_name}", "--no-physics-scene"]):
+        with patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--no-physics-scene"]):
             self.assertEqual(run(), 0, f"Failed to convert {model}")
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
-            stage = Usd.Stage.Open(f"tests/output/{model_name}/{model_name}.usda")
+            self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
+            stage = Usd.Stage.Open((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").as_posix())
             self.assertFalse(stage.GetPrimAtPath("/PhysicsScene").IsValid())
 
     def test_comment(self):
         model = "tests/data/worldgeom.xml"
         model_name = pathlib.Path(model).stem
-        with patch("sys.argv", ["mujoco_usd_converter", model, f"tests/output/{model_name}", "--comment", "from the unittests"]):
+        with patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--comment", "from the unittests"]):
             self.assertEqual(run(), 0, f"Failed to convert {model}")
-            self.assertTrue(pathlib.Path(f"tests/output/{model_name}/{model_name}.usda").exists())
-            layer = Sdf.Layer.FindOrOpen(f"tests/output/{model_name}/{model_name}.usda")
+            self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
+            layer = Sdf.Layer.FindOrOpen((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").as_posix())
             self.assertEqual(layer.comment, "from the unittests")
 
     def test_invalid_input(self):
-        with patch("sys.argv", ["mujoco_usd_converter", "tests/data/invalid.xml", "tests/output/invalid"]):
+        with (
+            patch("sys.argv", ["mujoco_usd_converter", "tests/data/invalid.xml", self.tmpDir()]),
+            usdex.test.ScopedDiagnosticChecker(self, [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Input file does not exist.*")]),
+        ):
             self.assertEqual(run(), 1, "Expected non-zero exit code for invalid input")
 
     def test_invalid_output(self):
         # create a file that is not a directory
         pathlib.Path("tests/output").mkdir(parents=True, exist_ok=True)
         pathlib.Path("tests/output/invalid").touch()
-        with patch("sys.argv", ["mujoco_usd_converter", "tests/data/worldgeom.xml", "tests/output/invalid"]):
+        with (
+            patch("sys.argv", ["mujoco_usd_converter", "tests/data/worldgeom.xml", "tests/output/invalid"]),
+            usdex.test.ScopedDiagnosticChecker(self, [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Output path exists but is not a directory.*")]),
+        ):
             self.assertEqual(run(), 1, "Expected non-zero exit code for invalid output")
 
     def test_input_path_is_directory(self):
@@ -70,7 +78,10 @@ class TestCli(unittest.TestCase):
         input_dir = pathlib.Path("tests/data/input_dir")
         input_dir.mkdir(parents=True, exist_ok=True)
         try:
-            with patch("sys.argv", ["mujoco_usd_converter", str(input_dir), "tests/output/dir_as_input"]):
+            with (
+                patch("sys.argv", ["mujoco_usd_converter", str(input_dir), self.tmpDir()]),
+                usdex.test.ScopedDiagnosticChecker(self, [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Input path is not a file.*")]),
+            ):
                 self.assertEqual(run(), 1, "Expected non-zero exit code for input path as directory")
         finally:
             shutil.rmtree(input_dir)
@@ -80,7 +91,10 @@ class TestCli(unittest.TestCase):
         not_xml = pathlib.Path("tests/data/not_xml.txt")
         not_xml.write_text("dummy content")
         try:
-            with patch("sys.argv", ["mujoco_usd_converter", str(not_xml), "tests/output/not_xml"]):
+            with (
+                patch("sys.argv", ["mujoco_usd_converter", str(not_xml), self.tmpDir()]),
+                usdex.test.ScopedDiagnosticChecker(self, [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Only MJCF.*are supported as input.*")]),
+            ):
                 self.assertEqual(run(), 1, "Expected non-zero exit code for non-xml input file")
         finally:
             not_xml.unlink()
@@ -92,6 +106,7 @@ class TestCli(unittest.TestCase):
         with (
             patch("pathlib.Path.mkdir", side_effect=OSError("Permission denied")),
             patch("sys.argv", ["mujoco_usd_converter", model, str(output_dir)]),
+            usdex.test.ScopedDiagnosticChecker(self, [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Failed to create output directory.*")]),
         ):
             self.assertEqual(run(), 1, "Expected non-zero exit code when output dir cannot be created")
 
@@ -100,7 +115,11 @@ class TestCli(unittest.TestCase):
         model = "tests/data/worldgeom.xml"
         with (
             patch("mujoco_usd_converter.convert.Converter.convert", return_value=None),
-            patch("sys.argv", ["mujoco_usd_converter", model, "tests/output/conversion_none"]),
+            patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
+            usdex.test.ScopedDiagnosticChecker(
+                self,
+                [*self.cli_status_diagnostics, (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed for unknown reason.*")],
+            ),
         ):
             self.assertEqual(run(), 1, "Expected non-zero exit code when conversion returns None")
 
@@ -109,7 +128,11 @@ class TestCli(unittest.TestCase):
         model = "tests/data/worldgeom.xml"
         with (
             patch("mujoco_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
-            patch("sys.argv", ["mujoco_usd_converter", model, "tests/output/conversion_error"]),
+            patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
+            usdex.test.ScopedDiagnosticChecker(
+                self,
+                [*self.cli_status_diagnostics, (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed: Test conversion error.*")],
+            ),
         ):
             self.assertEqual(run(), 1, "Expected non-zero exit code when conversion raises exception")
 
@@ -118,7 +141,8 @@ class TestCli(unittest.TestCase):
         model = "tests/data/worldgeom.xml"
         with (
             patch("mujoco_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
-            patch("sys.argv", ["mujoco_usd_converter", model, "tests/output/conversion_error_verbose", "--verbose"]),
+            patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--verbose"]),
             self.assertRaises(RuntimeError),
+            usdex.test.ScopedDiagnosticChecker(self, self.cli_status_diagnostics),
         ):
             run()

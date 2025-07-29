@@ -1,30 +1,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
+import omni.asset_validator
 from pxr import Gf, Sdf, Usd, UsdGeom
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestMeshReflection(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
-
-    def assert_rotation_almost_equal(self, rot1, rot2, tolerance):
-        self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance))
-        self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance))
-
+class TestMeshReflection(ConverterTestCase):
     def test_mesh_reflection(self):
         tolerance = 1e-6
         rotation_const = 0.57735
         model = pathlib.Path("./tests/data/reflected_meshes.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        # the test data contains unwelded meshes, so we disable the weld checker
+        self.validationEngine.disable_rule(omni.asset_validator.WeldChecker)
+        self.assertIsValidUsd(stage)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/reflected_meshes/Geometry/body/bodyRegular/complexCube")
         geom_mesh = UsdGeom.Mesh(geom)

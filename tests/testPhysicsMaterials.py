@@ -1,24 +1,20 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 from pxr import Sdf, Usd, UsdPhysics, UsdShade
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestPhysicsMaterials(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("./tests/output").exists():
-            shutil.rmtree("./tests/output")
+class TestPhysicsMaterials(ConverterTestCase):
 
     def test_physics_materials(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         prim1 = stage.GetPrimAtPath("/physics_materials/Geometry/custom_friction_1")
         prim2 = stage.GetPrimAtPath("/physics_materials/Geometry/custom_friction_2")
@@ -72,14 +68,14 @@ class TestPhysicsMaterials(unittest.TestCase):
         self.assertEqual(len(physics_scope.GetChildren()), 3)
 
         # Assert that the physics materials are in the physics layer & not mixed with the visual materials
-        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Physics.usda").absolute()
+        physics_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Physics.usda"
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         physics_materials_scope = physics_stage.GetPrimAtPath("/physics_materials/Physics")
         self.assertEqual(len(physics_materials_scope.GetChildren()), 3)
 
         # Assert that the visual materials are in the materials layer & not mixed with the physics materials
-        materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Materials.usda").absolute()
+        materials_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Materials.usda"
         self.assertTrue(materials_layer_path.exists(), msg=f"Materials layer not found at {materials_layer_path}")
         materials_stage: Usd.Stage = Usd.Stage.Open(materials_layer_path.as_posix())
         visual_materials_scope = materials_stage.GetPrimAtPath("/physics_materials/Materials")

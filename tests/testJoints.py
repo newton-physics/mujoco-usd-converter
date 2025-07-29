@@ -1,31 +1,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestJoints(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestJoints(ConverterTestCase):
 
     def setUp(self):
+        super().setUp()
         self.tolerance = 1e-6
-
-    def assert_rotation_almost_equal(self, rot1: Gf.Rotation, rot2: Gf.Rotation, tolerance: float = 1e-6):
-        self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance), f"Axis mismatch: {rot1.GetAxis()} != {rot2.GetAxis()}")
-        self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance), f"Angle mismatch: {rot1.GetAngle()} != {rot2.GetAngle()}")
 
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # first hinge is aligned with the x-axis
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body1"))
@@ -121,9 +114,9 @@ class TestJoints(unittest.TestCase):
 
     def test_slide_joints(self):
         model = pathlib.Path("./tests/data/slide_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # first slide is aligned with the x-axis
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body1"))
@@ -193,9 +186,9 @@ class TestJoints(unittest.TestCase):
 
     def test_ball_joints(self):
         model = pathlib.Path("./tests/data/ball_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # first ball joint is aligned with the x-axis
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body1"))
@@ -264,9 +257,9 @@ class TestJoints(unittest.TestCase):
 
     def test_fixed_and_free_joints(self):
         model = pathlib.Path("./tests/data/fixed_vs_free_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # A body without an explicit MJC joint has a fixed joint in USD
         body1_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body1")
@@ -296,9 +289,9 @@ class TestJoints(unittest.TestCase):
 
     def test_joint_group(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # Check that joint group is authored
         joint0: Usd.Prim = stage.GetPrimAtPath("/hinge_joints/Geometry/body1/body2/PhysicsRevoluteJoint")
@@ -309,9 +302,9 @@ class TestJoints(unittest.TestCase):
     def test_auto_limits(self):
         # Test with autolimits="true"
         model = pathlib.Path("./tests/data/joint_limits.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # Explicitly unlimited joint should not have limits
         unlimited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits/Geometry/body3/body4/unlimited_joint"))
@@ -333,9 +326,9 @@ class TestJoints(unittest.TestCase):
     def test_no_autolimits(self):
         # Test with autolimits="false"
         model = pathlib.Path("./tests/data/joint_limits_no_autolimits.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # Explicitly limited joint should have limits
         limited_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body1/body2/limited_joint"))
@@ -352,9 +345,9 @@ class TestJoints(unittest.TestCase):
     def test_mjc_schema(self):
         # Test that all joint attributes are authored correctly
         model = pathlib.Path("./tests/data/joint_attributes.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # A joints attributes are authored to USD if they are set to non-default values
         custom_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body1/custom_joint")
@@ -445,9 +438,9 @@ class TestJoints(unittest.TestCase):
 
     def test_joint_to_worldbody(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # A joint to the worldbody should be authored as a fixed joint
         joint_prim: UsdPhysics.RevoluteJoint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/simple_actuator/Geometry/body/hinge"))
