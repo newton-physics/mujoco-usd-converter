@@ -409,6 +409,12 @@ class MenagerieBenchmark:
 
         return total_size_mb
 
+    def _format_time_duration(self, seconds: float) -> str:
+        """Format time duration as XXmYY.ZZs."""
+        minutes = int(seconds // 60)
+        remaining_seconds = seconds % 60
+        return f"{minutes}m {remaining_seconds:.2f}s"
+
     def run_benchmark(self) -> list[BenchmarkResult]:
         """Run the complete benchmark suite."""
         logger.info("Starting MuJoCo Menagerie benchmark")
@@ -587,7 +593,7 @@ class MenagerieBenchmark:
         </div>
         <div class="stat-box">
             <h3>Total Time</h3>
-            <p>{total_time:.2f}s</p>
+            <p>{self._format_time_duration(total_time)}</p>
         </div>
         <div class="stat-box">
             <h3>Total File Size</h3>
@@ -600,7 +606,6 @@ class MenagerieBenchmark:
             <tr>
                 <th>Asset</th>
                 <th>Variant</th>
-                <th>Menagerie Link</th>
                 <th>Success</th>
                 <th><a href="#manual-annotation-instructions" style="color: inherit; text-decoration: none;">Verified (Manual)</a></th>
                 <th>Errors</th>
@@ -628,8 +633,12 @@ class MenagerieBenchmark:
             row_class = "asset-group" if is_new_asset else "variant-row"
 
             # Only show asset name and link for first variant in each group
-            asset_display = result.asset_name if is_new_asset else ""
-            link_display = f'<a href="{result.menagerie_url}" target="_blank">View on GitHub</a>' if is_new_asset else ""
+            if is_new_asset:
+                link_style = "color: inherit; text-decoration: none;"
+                asset_link = f'<a href="{result.menagerie_url}" target="_blank" style="{link_style}">{result.asset_name}</a>'
+                asset_display = f"<strong>{asset_link}</strong>"
+            else:
+                asset_display = ""
 
             previous_asset = result.asset_name
 
@@ -639,14 +648,13 @@ class MenagerieBenchmark:
 
             html_content += f"""
             <tr class="{row_class}">
-                <td><strong>{asset_display}</strong></td>
+                <td>{asset_display}</td>
                 <td>{result.variant_name}</td>
-                <td>{link_display}</td>
                 <td class="{success_class}">{'Yes' if result.success else 'No'}</td>
                 <td class="{verified_class}">{result.verified}</td>
                 <td class="numeric">{result.error_count}</td>
                 <td class="numeric">{result.warning_count}</td>
-                <td class="numeric">{result.conversion_time_seconds:.3f}</td>
+                <td class="numeric">{result.conversion_time_seconds:.2f}</td>
                 <td class="numeric">{result.total_file_size_mb:.2f}</td>
                 <td>{result.notes}</td>
                 <td>{error_message_html}</td>
@@ -724,7 +732,7 @@ class MenagerieBenchmark:
         summary_row = (
             f"| {total_models} | {successful} ({successful/total_models*100:.1f}%) | "
             f"{failed} ({failed/total_models*100:.1f}%) | {total_warnings} | {total_errors} | "
-            f"{avg_time:.2f}s | {total_time:.2f}s | {total_file_size:.2f} MB |"
+            f"{avg_time:.2f}s | {self._format_time_duration(total_time)} | {total_file_size:.2f} MB |"
         )
         md_content += (
             summary_row
@@ -737,11 +745,11 @@ class MenagerieBenchmark:
 
         # Add table header (split to avoid long line)
         table_header = (
-            "| Asset | Variant | Link | Success | [Verified (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
+            "| Asset | Variant | Success | [Verified (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
             "Time (s) | Size (MB) | Notes | Error Messages | Warning Messages |\n"
         )
         table_separator = (
-            "|-------|---------|------|---------|----------|-------:|--------:|"
+            "|-------|---------|---------|----------|-------:|--------:|"
             "---------:|---------:|----------------------|----------------|------------------|\n"
         )
         md_content += table_header + table_separator
@@ -755,9 +763,7 @@ class MenagerieBenchmark:
             is_new_asset = result.asset_name != previous_asset
 
             # Only show asset name and link for first variant in each group
-            asset_display = f"**{result.asset_name}**" if is_new_asset else ""
-            link_display = f"[GitHub]({result.menagerie_url})" if is_new_asset else ""
-
+            asset_display = f"**[{result.asset_name}]({result.menagerie_url})**" if is_new_asset else ""
             previous_asset = result.asset_name
 
             # Success status with emoji
@@ -787,12 +793,11 @@ class MenagerieBenchmark:
             row_parts = [
                 asset_display,
                 result.variant_name,
-                link_display,
                 success_display,
                 verified_display,
                 str(result.error_count),
                 str(result.warning_count),
-                f"{result.conversion_time_seconds:.3f}",
+                f"{result.conversion_time_seconds:.2f}",
                 f"{result.total_file_size_mb:.2f}",
                 notes,
                 error_messages,
@@ -864,8 +869,8 @@ Successful Conversions: {successful} ({successful/total_models*100:.1f}%)
 Failed Conversions: {failed} ({failed/total_models*100:.1f}%)
 Total Errors: {total_errors}
 Total Warnings: {total_warnings}
-Total Conversion Time: {total_time:.2f}s
-Average Time per Model: {total_time/total_models:.2f}s
+Total Conversion Time: {self._format_time_duration(total_time)}
+Average Time per Model: {self._format_time_duration(total_time/total_models)}
 
 === File Size Analysis ===
 Total File Size: {total_file_size:.2f} MB
