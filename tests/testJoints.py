@@ -14,6 +14,9 @@ class TestJoints(unittest.TestCase):
         if pathlib.Path("tests/output").exists():
             shutil.rmtree("tests/output")
 
+    def setUp(self):
+        self.tolerance = 1e-6
+
     def assert_rotation_almost_equal(self, rot1: Gf.Rotation, rot2: Gf.Rotation, tolerance: float = 1e-6):
         self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance), f"Axis mismatch: {rot1.GetAxis()} != {rot2.GetAxis()}")
         self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance), f"Angle mismatch: {rot1.GetAngle()} != {rot2.GetAngle()}")
@@ -64,7 +67,7 @@ class TestJoints(unittest.TestCase):
 
         # the expected axis is z, with a 180 degree local rotation as the -z axis on the mjc joint needs to be realigned for the limits to make sense
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
-        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0), self.tolerance))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(0.0, Gf.Vec3f(-1.0, 0.0, 0.0)))
         self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(0.0, Gf.Vec3f(-1.0, 0.0, 0.0)))
@@ -84,7 +87,7 @@ class TestJoints(unittest.TestCase):
 
         # the expected axis remains z to respect the axis alignment of the mjc joint
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
-        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0), self.tolerance))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assert_rotation_almost_equal(Gf.Rotation(joint.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.7071068, Gf.Vec3f(0, 0, 0.7071067))))
         self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
@@ -103,15 +106,15 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetBody1Rel().GetTargets(), [body6.GetPrim().GetPath()])
 
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
-        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 1.1, 0.1), 1e-6))
+        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 1.1, 0.1), self.tolerance))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assert_rotation_almost_equal(
             Gf.Rotation(joint.GetLocalRot0Attr().Get()),
-            Gf.Rotation(Gf.Quatf(0.37174806, Gf.Vec3f(0.37174806, 0.601501, 0.601501))),
+            Gf.Rotation(Gf.Quatf(0.37174803, Gf.Vec3f(0.37174803, 0.6015009, 0.6015009))),
         )
         self.assert_rotation_almost_equal(
             Gf.Rotation(joint.GetLocalRot1Attr().Get()),
-            Gf.Rotation(Gf.Quatf(0.97324901, Gf.Vec3f(0, 0.22975291, 0))),
+            Gf.Rotation(Gf.Quatf(0.97324896, Gf.Vec3f(0, 0.22975293, 0))),
         )
         self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), 0)
         self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 90)
@@ -138,7 +141,7 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetBody1Rel().GetTargets(), [body2.GetPrim().GetPath()])
 
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.y)
-        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0), self.tolerance))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0.0, 0.0, 0)))
         self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0.0, 0.0, 0)))
@@ -162,7 +165,7 @@ class TestJoints(unittest.TestCase):
 
         # the expected axis remains x as we always export x-aligned joints and instead manipulate the local rot values
         self.assertEqual(joint2.GetAxisAttr().Get(), UsdPhysics.Tokens.y)
-        self.assertEqual(joint2.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertTrue(Gf.IsClose(joint2.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0), self.tolerance))
         self.assertEqual(joint2.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assertEqual(joint2.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0.0, 0.0, 0)))
         self.assertEqual(joint2.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0.0, 0.0, 0)))
@@ -181,7 +184,7 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint3.GetBody1Rel().GetTargets(), [body5.GetPrim().GetPath()])
 
         self.assertEqual(joint3.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
-        self.assertEqual(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertTrue(Gf.IsClose(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0), self.tolerance))
         self.assertEqual(joint3.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assert_rotation_almost_equal(Gf.Rotation(joint3.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.7071068, Gf.Vec3f(0, 0, 0.7071067))))
         self.assertEqual(joint3.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
@@ -210,7 +213,7 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint.GetBody1Rel().GetTargets(), [body2.GetPrim().GetPath()])
 
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
-        self.assertEqual(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0), self.tolerance))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assertEqual(joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
@@ -233,7 +236,7 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint2.GetBody1Rel().GetTargets(), [body4.GetPrim().GetPath()])
 
         self.assertEqual(joint2.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
-        self.assertEqual(joint2.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0))
+        self.assertTrue(Gf.IsClose(joint2.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.6, 0), self.tolerance))
         self.assertEqual(joint2.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assertEqual(joint2.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertEqual(joint2.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
@@ -252,7 +255,7 @@ class TestJoints(unittest.TestCase):
         self.assertEqual(joint3.GetBody1Rel().GetTargets(), [body5.GetPrim().GetPath()])
 
         self.assertEqual(joint3.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
-        self.assertEqual(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0))
+        self.assertTrue(Gf.IsClose(joint3.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0), self.tolerance))
         self.assertEqual(joint3.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
         self.assert_rotation_almost_equal(Gf.Rotation(joint3.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(0.7071068, Gf.Vec3f(0, 0, 0.7071067))))
         self.assertEqual(joint3.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))

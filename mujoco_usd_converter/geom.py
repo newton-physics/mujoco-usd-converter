@@ -274,14 +274,14 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateDensityAttr().Set(geom.density)
 
-    physics_material: UsdPhysics.MaterialAPI = __acquire_physics_material(geom_over, geom, data)
+    physics_material: UsdPhysics.MaterialAPI = __acquire_physics_material(geom, data)
     if physics_material:
-        UsdShade.MaterialBindingAPI.Apply(geom_over).Bind(physics_material, materialPurpose="physics")
+        usdex.core.bindPhysicsMaterial(geom_over, physics_material)
 
     # FUTURE: collision filtering
 
 
-def __acquire_physics_material(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
+def __acquire_physics_material(geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
     sliding_friction = geom.friction[0]
     torsional_friction = geom.friction[1]
     rolling_friction = geom.friction[2]
@@ -303,9 +303,8 @@ def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom,
     torsional_friction = geom.friction[1]
     rolling_friction = geom.friction[2]
 
-    material: UsdShade.Material = usdex.core.createMaterial(physics_materials, data.name_cache.getPrimName(physics_materials, "PhysicsMaterial"))
-    physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI.Apply(material.GetPrim())
-    physics_material.CreateDynamicFrictionAttr().Set(sliding_friction)
+    name = data.name_cache.getPrimName(physics_materials, "PhysicsMaterial")
+    material: UsdShade.Material = usdex.core.definePhysicsMaterial(physics_materials, name, dynamicFriction=sliding_friction)
 
     # Apply MjcMaterialAPI for torsional and rolling friction
     material.GetPrim().ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMaterialAPI"))
