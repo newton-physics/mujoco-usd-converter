@@ -27,6 +27,9 @@ def convert_vec3f(source: np.ndarray) -> Gf.Vec3f:
     """
     Convert a numpy 3D vector array to a USD Vec3f.
 
+    Note:
+        This function may result in a loss of precision.
+
     Args:
         source: A numpy array of shape (3,) containing XYZ values.
 
