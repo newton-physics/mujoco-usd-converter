@@ -13,7 +13,7 @@ from pathlib import Path
 
 def get_version_from_wheel(wheel_name):
     """Extract version from wheel filename."""
-    match = re.search(r".*mujoco_usd_converter-([^-]*)-", wheel_name)
+    match = re.search(r"mujoco_usd_converter-([^-]*)-", wheel_name)
     if match:
         version = match.group(1)
         return version
