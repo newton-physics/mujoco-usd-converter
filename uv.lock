@@ -240,7 +240,7 @@ requires-dist = [
     { name = "mujoco", specifier = ">=3.3.4.dev778114814", index = "https://py.mujoco.org/" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
-    { name = "usd-exchange", specifier = "==2.0.0.dev0+usd2505.main.923.cbffa6fa.gl", index = "https://REDACTED/simple" },
+    { name = "usd-exchange", specifier = "==2.0.0rc1+usd2505", index = "https://REDACTED/simple" },
 ]
 
 [package.metadata.requires-dev]
@@ -536,13 +536,13 @@ wheels = [
 
 [[package]]
 name = "usd-exchange"
-version = "2.0.0.dev0+usd2505.main.923.cbffa6fa.gl"
+version = "2.0.0rc1+usd2505"
 source = { registry = "https://REDACTED/simple" }
 wheels = [
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.923.cbffa6fa.gl/usd_exchange-2.0.0.dev0+usd2505.main.923.cbffa6fa.gl-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:6692a4b47ea23827e1060a942e918a87052256716fcc286f7a937c562f2fafb7" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.923.cbffa6fa.gl/usd_exchange-2.0.0.dev0+usd2505.main.923.cbffa6fa.gl-cp310-cp310-win_amd64.whl", hash = "sha256:2ac442ba2787cf58e29f9a9dbdcb223c3c7442320d05836af1d18042a3db0a9f" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.923.cbffa6fa.gl/usd_exchange-2.0.0.dev0+usd2505.main.923.cbffa6fa.gl-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:95347c01ada493f9afb0da899feaa1e9d8883f4bc936b7e4745dc6b8635c5834" },
-    { url = "https://REDACTED/usd-exchange/2.0.0.dev0+usd2505.main.923.cbffa6fa.gl/usd_exchange-2.0.0.dev0+usd2505.main.923.cbffa6fa.gl-cp311-cp311-win_amd64.whl", hash = "sha256:a4e5a96dc7ebc36f25a542ccfbcbd5d7d80c0f5cb720eb074706b0e50996c64f" },
+    { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp310-cp310-manylinux_2_35_x86_64.whl", hash = "sha256:515c5515a7bc2e8288d51ca074f51215ec2166cf22246a05ffa25dca11cefbd9" },
+    { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp310-cp310-win_amd64.whl", hash = "sha256:36b2be798d637d423764e3d6d3760c205c81a7730df12596d48aa2bd7ea5e6ae" },
+    { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:557f2fd41e67eeb6bfb01832f11c793edbca6e0b639a74d2ece62f9a147808ce" },
+    { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp311-cp311-win_amd64.whl", hash = "sha256:b3a52b1f113a785c5de940ddab938afc55f11fe7be85f5848410027340b192c6" },
 ]
 
 [[package]]
