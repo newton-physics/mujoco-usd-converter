@@ -7,7 +7,7 @@ import usdex.core
 from pxr import Gf, Tf, Usd, UsdPhysics
 
 from .data import ConversionData, Tokens
-from .numpy import convert_vec3f
+from .numpy import convert_vec3d, convert_vec3f
 from .utils import mj_limited_to_token, set_schema_attribute
 
 __all__ = ["convert_joints", "get_joint_name"]
@@ -41,7 +41,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
     # so we need to author a fixed joint between the parent and the ancestor.
     if not body.joints:
         name = data.name_cache.getPrimName(parent, UsdPhysics.Tokens.PhysicsFixedJoint)
-        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, Gf.Vec3f(0, 0, 0), Gf.Quatf.GetIdentity())
+        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         usdex.core.definePhysicsFixedJoint(parent, name, body0, body1, frame)
         return
 
@@ -50,7 +50,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
     for joint, source_name, safe_name in zip(body.joints, source_names, safe_names):
         limits = __get_limits(joint, data)
         axis = convert_vec3f(joint.axis)
-        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, convert_vec3f(joint.pos), Gf.Quatf.GetIdentity())
+        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, convert_vec3d(joint.pos), Gf.Quatd.GetIdentity())
         if joint.type == mujoco.mjtJoint.mjJNT_HINGE:
             joint_prim = usdex.core.definePhysicsRevoluteJoint(parent, safe_name, body0, body1, frame, axis, limits[0], limits[1])
         elif joint.type == mujoco.mjtJoint.mjJNT_SLIDE:
