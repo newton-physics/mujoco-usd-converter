@@ -328,15 +328,8 @@ class TestAssetStructure(ConverterTestCase):
         check_layer("meshes")  # has mesh geoms
         with usdex.test.ScopedDiagnosticChecker(
             self,
-            [
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-            ],
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
         ):
             check_layer("materials")  # has textured materials
 
@@ -364,16 +357,8 @@ class TestAssetStructure(ConverterTestCase):
         # convert without layer structure
         with usdex.test.ScopedDiagnosticChecker(
             self,
-            [
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Exporting.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied.*"),
-            ],
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
         ):
             mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
 

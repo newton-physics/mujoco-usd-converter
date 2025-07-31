@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 import shutil
-import typing
 from unittest.mock import patch
 
+import usdex.core
 import usdex.test
 from pxr import Sdf, Tf, Usd
 
@@ -13,14 +13,6 @@ from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestCli(ConverterTestCase):
-
-    cli_status_diagnostics: typing.ClassVar[list[tuple[int, str]]] = [
-        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Running mujoco_usd_converter"),
-        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Version:.*"),
-        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "USD Version:.*"),
-        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "USDEX Version:.*"),
-        (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "MuJoCo Version:.*"),
-    ]
 
     def test_run(self):
         for model in pathlib.Path("tests/data").glob("*.xml"):
@@ -118,7 +110,8 @@ class TestCli(ConverterTestCase):
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
             usdex.test.ScopedDiagnosticChecker(
                 self,
-                [*self.cli_status_diagnostics, (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed for unknown reason.*")],
+                [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed for unknown reason.*")],
+                level=usdex.core.DiagnosticsLevel.eWarning,
             ),
         ):
             self.assertEqual(run(), 1, "Expected non-zero exit code when conversion returns None")
@@ -131,7 +124,8 @@ class TestCli(ConverterTestCase):
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
             usdex.test.ScopedDiagnosticChecker(
                 self,
-                [*self.cli_status_diagnostics, (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed: Test conversion error.*")],
+                [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Conversion failed: Test conversion error.*")],
+                level=usdex.core.DiagnosticsLevel.eWarning,
             ),
         ):
             self.assertEqual(run(), 1, "Expected non-zero exit code when conversion raises exception")
@@ -143,6 +137,6 @@ class TestCli(ConverterTestCase):
             patch("mujoco_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--verbose"]),
             self.assertRaises(RuntimeError),
-            usdex.test.ScopedDiagnosticChecker(self, self.cli_status_diagnostics),
+            usdex.test.ScopedDiagnosticChecker(self, [], level=usdex.core.DiagnosticsLevel.eWarning),
         ):
             run()

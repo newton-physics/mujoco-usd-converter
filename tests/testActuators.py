@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+import usdex.core
 import usdex.test
 from pxr import Sdf, Tf, Usd
 
@@ -186,12 +188,11 @@ class TestActuatorEdgeCases(ConverterTestCase):
         with usdex.test.ScopedDiagnosticChecker(
             self,
             [
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
                 (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_target'"),
                 (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_refsite'"),
                 (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*not found for actuator 'missing_slidersite'"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
             ],
+            level=usdex.core.DiagnosticsLevel.eWarning,
         ):
             asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuator_edge_cases.xml", self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)

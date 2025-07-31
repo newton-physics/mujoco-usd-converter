@@ -4,6 +4,7 @@
 import pathlib
 
 import usdex.core
+import usdex.test
 from pxr import Gf, Sdf, Tf, Usd, UsdShade
 
 import mujoco_usd_converter
@@ -18,15 +19,8 @@ class TestMaterial(ConverterTestCase):
         self.output_dir = pathlib.Path(self.tmpDir())
         with usdex.test.ScopedDiagnosticChecker(
             self,
-            [
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
-                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
-            ],
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
         ):
             asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir)
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
