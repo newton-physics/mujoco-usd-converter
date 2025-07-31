@@ -31,7 +31,7 @@ The implementation also leverages the following dependencies:
 - NVIDIA's [OpenUSD Exchange SDK](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk/latest/index.html) to author consistent & correct USD data.
 - Pixar's OpenUSD python modules & native libraries (vendored via the `usd-exchange` wheel).
 - Google DeepMind's `mujoco` python module for parsing MJCF into MjSpec
-- A codeless version of the MjcPhysics USD schema from MuJoCo to author the MuJoCo specific Prims, Applied APIs, and Attributes.
+- A codeless version of the [MjcPhysics USD schema](https://mujoco.readthedocs.io/en/latest/OpenUSD/mjcPhysics.html) from MuJoCo to author the MuJoCo specific Prims, Applied APIs, and Attributes.
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader) and [numpy-stl](https://numpy-stl.readthedocs.io) for parsing any mesh data referenced by the input MJCF datasets.
 
 # Get Started
@@ -103,7 +103,7 @@ For general questions about OpenUSD itself, use the [Alliance for OpenUSD Forum]
 
 # References
 
-- [MuJoCo Docs](https://mujoco.readthedocs.io/en/stable/overview.html)
+- [MuJoCo Docs](https://mujoco.readthedocs.io/en/latest/overview.html)
 - [NVIDIA OpenUSD Exchange SDK Docs](https://docs.omniverse.nvidia.com/usd/code-docs/usd-exchange-sdk)
 - [OpenUSD API Docs](https://openusd.org/release/api/index.html)
 - [OpenUSD User Docs](https://openusd.org/release/index.html)
