@@ -2,27 +2,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pathlib
-import shutil
-import unittest
 
 import usdex.core
-from pxr import Gf, Sdf, Usd, UsdShade
+from pxr import Gf, Sdf, Tf, Usd, UsdShade
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestMaterial(unittest.TestCase):
+class TestMaterial(ConverterTestCase):
     def setUp(self):
+        super().setUp()
         model_path = pathlib.Path("./tests/data/materials.xml")
         self.model_name = model_path.stem
-        self.output_dir = pathlib.Path(f"tests/output/{self.model_name}")
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir)
+        self.output_dir = pathlib.Path(self.tmpDir())
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+            ],
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir)
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
-
-    def tearDown(self):
-        self.stage = None
-        if self.output_dir.exists():
-            shutil.rmtree(self.output_dir)
+        self.assertIsValidUsd(self.stage)
 
     def _get_shader(self, material_name: str) -> UsdShade.Shader:
         material_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/{material_name}")

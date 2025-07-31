@@ -233,6 +233,7 @@ dev = [
     { name = "pyyaml" },
     { name = "ruff" },
     { name = "unittest-xml-reporting" },
+    { name = "usd-exchange", extra = ["test"] },
 ]
 
 [package.metadata]
@@ -251,6 +252,7 @@ dev = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.11" },
     { name = "unittest-xml-reporting", specifier = ">=3.2.0" },
+    { name = "usd-exchange", extras = ["test"], index = "https://REDACTED/simple" },
 ]
 
 [[package]]
@@ -337,6 +339,14 @@ dependencies = [
 sdist = { url = "https://REDACTED/packages/packages/cb/80/96366d1b69223d4ca55fca30f158096df169b00aa6b4dd963025980e7ede/numpy_stl-3.2.0.tar.gz", hash = "sha256:5a20c3f79cddaa0abc6a4b99f5486aceed4f88152f29b19a57acc844e183fd4d" }
 wheels = [
     { url = "https://REDACTED/packages/packages/ea/2c/e17b8814050427929077639d35a42187a006922600d4840475bdc5f64ebb/numpy_stl-3.2.0-py3-none-any.whl", hash = "sha256:697c81b107231362460aaedf4647e81ba54f54f59c896772fea7904c9c439da5" },
+]
+
+[[package]]
+name = "omniverse-asset-validator"
+version = "1.1.3"
+source = { registry = "https://REDACTED/simple" }
+wheels = [
+    { url = "https://REDACTED/omniverse-asset-validator/1.1.3/omniverse_asset_validator-1.1.3-py3-none-any.whl", hash = "sha256:ece2ac1d83f77665d653ac1eed7af540d4b18730f78b0f52bd24fef9ae6559bc" },
 ]
 
 [[package]]
@@ -543,6 +553,11 @@ wheels = [
     { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp310-cp310-win_amd64.whl", hash = "sha256:36b2be798d637d423764e3d6d3760c205c81a7730df12596d48aa2bd7ea5e6ae" },
     { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp311-cp311-manylinux_2_35_x86_64.whl", hash = "sha256:557f2fd41e67eeb6bfb01832f11c793edbca6e0b639a74d2ece62f9a147808ce" },
     { url = "https://REDACTED/usd-exchange/2.0.0rc1+usd2505/usd_exchange-2.0.0rc1+usd2505-cp311-cp311-win_amd64.whl", hash = "sha256:b3a52b1f113a785c5de940ddab938afc55f11fe7be85f5848410027340b192c6" },
+]
+
+[package.optional-dependencies]
+test = [
+    { name = "omniverse-asset-validator" },
 ]
 
 [[package]]

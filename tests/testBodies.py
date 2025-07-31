@@ -1,26 +1,22 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 import mujoco
 import numpy as np
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestBodies(unittest.TestCase):
+class TestBodies(ConverterTestCase):
     def setUp(self):
+        super().setUp()
         model = pathlib.Path("./tests/data/bodies.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
-
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+        self.assertIsValidUsd(self.stage)
 
     def test_bodies(self):
         # Root body is an Articulation Root

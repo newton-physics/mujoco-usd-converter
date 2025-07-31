@@ -1,26 +1,23 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
+import omni.asset_validator
 import usdex.core
-from pxr import Kind, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
+import usdex.test
+from pxr import Kind, Sdf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestAssetStructure(unittest.TestCase):
-
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
+class TestAssetStructure(ConverterTestCase):
 
     def test_display_name(self):
         model = pathlib.Path("./tests/data/invalid names.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"./tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         # Test that geoms get proper display names
         body_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5")
@@ -32,12 +29,12 @@ class TestAssetStructure(unittest.TestCase):
         joint_prim = stage.GetPrimAtPath("/tn__invalidnames_pC/Geometry/tn__Body1_f5/tn__Body2_f5/tn__Joint1_h6")
         self.assertEqual(usdex.core.getDisplayName(joint_prim), "Joint 1")
 
-        geometry_library = pathlib.Path(f"./tests/output/{model_name}/Payload/GeometryLibrary.usdc").absolute()
+        geometry_library = pathlib.Path(self.tmpDir()) / "Payload" / "GeometryLibrary.usdc"
         stage = Usd.Stage.Open(geometry_library.as_posix())
         mesh_prim = stage.GetPrimAtPath("/Geometry/tn__Mesh1_f5")
         self.assertEqual(usdex.core.getDisplayName(mesh_prim), "Mesh 1")
 
-        material_library = pathlib.Path(f"./tests/output/{model_name}/Payload/MaterialsLibrary.usdc").absolute()
+        material_library = pathlib.Path(self.tmpDir()) / "Payload" / "MaterialsLibrary.usdc"
         stage = Usd.Stage.Open(material_library.as_posix())
         material_prim = stage.GetPrimAtPath("/Materials/tn__Material1_n9")
         self.assertEqual(usdex.core.getDisplayName(material_prim), "Material 1")
@@ -45,10 +42,11 @@ class TestAssetStructure(unittest.TestCase):
     def test_interface_layer(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
-        self.assertEqual(stage.GetRootLayer().identifier, pathlib.Path(f"./tests/output/{model_name}/{model_name}.usda").absolute().as_posix())
+        self.assertEqual(stage.GetRootLayer().identifier, (pathlib.Path(self.tmpDir()) / f"{model_name}.usda").absolute().as_posix())
 
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(stage), UsdGeom.Tokens.z)
@@ -66,17 +64,16 @@ class TestAssetStructure(unittest.TestCase):
 
         self.assertTrue(default_prim.HasAPI(UsdGeom.ModelAPI))
         self.assertTrue(UsdGeom.ModelAPI(default_prim).GetExtentsHintAttr().HasAuthoredValue())
-        # FUTURE: use validator to check extents
 
         payloads: Usd.Payloads = default_prim.GetPayloads()
         self.assertTrue(payloads)
 
     def test_prim_stack(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         parent_path = pathlib.Path(asset.path).parent
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         prim_stack: list[Sdf.PrimSpec] = stage.GetDefaultPrim().GetPrimStack()
         self.assertEqual(len(prim_stack), 5)
@@ -95,10 +92,10 @@ class TestAssetStructure(unittest.TestCase):
 
     def test_prim_stack_no_materials(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         parent_path = pathlib.Path(asset.path).parent
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         prim_stack: list[Sdf.PrimSpec] = stage.GetDefaultPrim().GetPrimStack()
         self.assertEqual(len(prim_stack), 4)
@@ -117,11 +114,12 @@ class TestAssetStructure(unittest.TestCase):
     def test_contents_layer(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        mujoco_usd_converter.Converter().convert(model, self.tmpDir())
 
-        contents_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Contents.usda").absolute()
+        contents_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Contents.usda"
         self.assertTrue(contents_layer_path.exists(), msg=f"Contents layer not found at {contents_layer_path}")
         contents_stage: Usd.Stage = Usd.Stage.Open(contents_layer_path.as_posix())
+        self.assertIsValidUsd(contents_stage)
 
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(contents_stage), UsdGeom.Tokens.z)
@@ -141,12 +139,13 @@ class TestAssetStructure(unittest.TestCase):
     def test_geometry_layer(self):
         model = pathlib.Path("./tests/data/meshes.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         parent_path = pathlib.Path(asset.path).parent
 
-        geometry_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Geometry.usda").absolute()
+        geometry_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Geometry.usda"
         self.assertTrue(geometry_layer_path.exists(), msg=f"Geometry layer not found at {geometry_layer_path}")
         geometry_stage: Usd.Stage = Usd.Stage.Open(geometry_layer_path.as_posix())
+        self.assertIsValidUsd(geometry_stage)
 
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(geometry_stage), UsdGeom.Tokens.z)
@@ -179,12 +178,15 @@ class TestAssetStructure(unittest.TestCase):
     def test_materials_layer(self):
         model = pathlib.Path("./tests/data/physics_materials.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         parent_path = pathlib.Path(asset.path).parent
 
-        materials_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Materials.usda").absolute()
+        materials_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Materials.usda"
         self.assertTrue(materials_layer_path.exists(), msg=f"Materials layer not found at {materials_layer_path}")
         materials_stage: Usd.Stage = Usd.Stage.Open(materials_layer_path.as_posix())
+        # overrides are expected in the material layer
+        self.validationEngine.disable_rule(omni.asset_validator.DanglingOverPrimChecker)
+        self.assertIsValidUsd(materials_stage)
 
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(materials_stage), UsdGeom.Tokens.z)
@@ -231,13 +233,24 @@ class TestAssetStructure(unittest.TestCase):
     def test_physics_layer(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")
         model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         parent_path = pathlib.Path(asset.path).parent
 
         # kg per unit is authored in the physics layer
-        physics_layer_path = pathlib.Path(f"./tests/output/{model_name}/Payload/Physics.usda").absolute()
+        physics_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Physics.usda"
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
+        # overrides are expected in the physics layer and the cause untyped parent prims as well
+        self.validationEngine.disable_rule(omni.asset_validator.DanglingOverPrimChecker)
+        self.validationEngine.disable_rule(omni.asset_validator.TypeChecker)
+        self.assertIsValidUsd(
+            physics_stage,
+            issuePredicates=[
+                *self.defaultValidationIssuePredicates,
+                # this RigidBodyAPI is applied as an untyped override in this layer
+                omni.asset_validator.IssuePredicates.ContainsMessage("Rigid body API has to be applied to an xformable prim"),
+            ],
+        )
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
 
         # Test stage metrics
@@ -288,9 +301,10 @@ class TestAssetStructure(unittest.TestCase):
 
         def check_layer(model_name: str):
             model = pathlib.Path(f"./tests/data/{model_name}.xml")
-            mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+            output_dir = pathlib.Path(self.tmpDir()) / model_name
+            mujoco_usd_converter.Converter().convert(model, output_dir)
 
-            for layer in pathlib.Path(f"./tests/output/{model_name}/Payload").iterdir():
+            for layer in (output_dir / "Payload").iterdir():
                 if layer.is_dir():
                     continue
                 if layer.name in ("Contents.usda", "Physics.usda"):
@@ -311,15 +325,27 @@ class TestAssetStructure(unittest.TestCase):
                         )
 
         check_layer("hinge_joints")  # has bodies and joints and geoms
-        check_layer("materials")  # has textured materials
         check_layer("meshes")  # has mesh geoms
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+            ],
+        ):
+            check_layer("materials")  # has textured materials
 
     def test_physics_scene(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
 
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
         physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
         self.assertTrue(physics_scene)
         self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), [Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI")])
@@ -330,13 +356,26 @@ class TestAssetStructure(unittest.TestCase):
         # Test --no-layer-structure with material and textures
         model = pathlib.Path("./tests/data/materials.xml")
         model_name = model.stem
-        output_dir = pathlib.Path(f"./tests/output/{model_name}_no_layer_structure")
+        output_dir = pathlib.Path(self.tmpDir()) / f"{model_name}_no_layer_structure"
         usdc_path = output_dir / f"{model_name}.usdc"
         textures_dir = output_dir / "Textures"
         texture_file = textures_dir / "grid.png"
 
         # convert without layer structure
-        mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Converting.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied texture.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Saving.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Exporting.*"),
+                (Tf.TF_DIAGNOSTIC_STATUS_TYPE, "Copied.*"),
+            ],
+        ):
+            mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
 
         # check usdc and texture
         self.assertTrue(usdc_path.exists(), f"{usdc_path} not found")
@@ -344,6 +383,7 @@ class TestAssetStructure(unittest.TestCase):
 
         # check Shader prim inputs:file
         stage = Usd.Stage.Open(str(usdc_path))
+        self.assertIsValidUsd(stage)
         material_prim = stage.GetPrimAtPath("/materials/Materials/Grid")
         self.assertTrue(material_prim)
         shader = usdex.core.computeEffectivePreviewSurfaceShader(UsdShade.Material(material_prim))

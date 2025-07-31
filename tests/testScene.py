@@ -2,20 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pathlib
-import unittest
 
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestScene(unittest.TestCase):
+class TestScene(ConverterTestCase):
 
     def test_gravity(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
         self.assertTrue(scene)
@@ -26,9 +26,9 @@ class TestScene(unittest.TestCase):
     def test_scene_attributes_non_default(self):
         # Test with non-default scene options and flags
         model = pathlib.Path("./tests/data/scene_attributes.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
@@ -124,9 +124,9 @@ class TestScene(unittest.TestCase):
 
     def test_scene_default_values(self):
         model = pathlib.Path("./tests/data/bodies.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
@@ -228,9 +228,9 @@ class TestScene(unittest.TestCase):
 
     def test_scene_disabled(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertFalse(scene.IsValid())

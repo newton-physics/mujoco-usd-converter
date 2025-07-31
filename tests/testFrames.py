@@ -1,29 +1,20 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 from pxr import Gf, Sdf, Usd, UsdGeom
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestFrames(unittest.TestCase):
-    def tearDown(self):
-        if pathlib.Path("tests/output").exists():
-            shutil.rmtree("tests/output")
-
-    def assert_rotation_almost_equal(self, rot1, rot2, tolerance):
-        self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance))
-        self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance))
-
+class TestFrames(ConverterTestCase):
     def test_frames(self):
         tolerance = 1e-6
         model = pathlib.Path("./tests/data/frames.xml")
-        model_name = pathlib.Path(model).stem
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, pathlib.Path(f"tests/output/{model_name}"))
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/frames/Geometry/mainBody/framedBody/ObjBox")
         geom_mesh = UsdGeom.Mesh(geom)

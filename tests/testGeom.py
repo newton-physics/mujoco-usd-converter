@@ -1,29 +1,21 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-import shutil
-import unittest
 
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
 
 import mujoco_usd_converter
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestGeom(unittest.TestCase):
+class TestGeom(ConverterTestCase):
     def setUp(self):
-        self.output_dir = f"./tests/output/{self._testMethodName}"
+        super().setUp()
         model = pathlib.Path("./tests/data/geoms.xml")
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.output_dir)
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
-
-    def tearDown(self):
-        self.stage = None
-        try:
-            if pathlib.Path(self.output_dir).exists():
-                shutil.rmtree(self.output_dir)
-        except Exception as e:
-            print(f"Failed to remove {self.output_dir}: {e}")
+        self.assertIsValidUsd(self.stage)
 
     def test_sphere(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Sphere")

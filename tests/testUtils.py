@@ -1,13 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-import unittest
-
 from pxr import Tf, Usd
 
 from mujoco_usd_converter.utils import set_schema_attribute
+from tests.util.ConverterTestCase import ConverterTestCase
 
 
-class TestSetSchemaAttribute(unittest.TestCase):
+class TestSetSchemaAttribute(ConverterTestCase):
 
     def test_set_unique_value(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
