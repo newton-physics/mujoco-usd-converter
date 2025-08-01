@@ -4,7 +4,7 @@
 import numpy as np
 from pxr import Gf, Vt
 
-from mujoco_usd_converter.numpy import (
+from mujoco_usd_converter._impl.numpy import (
     convert_color,
     convert_quatd,
     convert_quatf,

@@ -17,22 +17,22 @@ def convert_actuators(data: ConversionData):
 
     # Convert each actuator to a MjcActuator prim
     physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
-    source_names = [__get_actuator_name(actuator) for actuator in data.spec.actuators]
+    source_names = [get_actuator_name(actuator) for actuator in data.spec.actuators]
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
     for actuator, source_name, safe_name in zip(data.spec.actuators, source_names, safe_names):
-        actuator_prim = __convert_actuator(physics_scope, safe_name, actuator, data)
+        actuator_prim = convert_actuator(physics_scope, safe_name, actuator, data)
         if source_name != safe_name:
             usdex.core.setDisplayName(actuator_prim, source_name)
 
 
-def __get_actuator_name(actuator: mujoco.MjsActuator) -> str:
+def get_actuator_name(actuator: mujoco.MjsActuator) -> str:
     if actuator.name:
         return actuator.name
     else:
         return f"Actuator_{actuator.id}"
 
 
-def __convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, data: ConversionData) -> Usd.Prim:
+def convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, data: ConversionData) -> Usd.Prim:
     actuator_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
     actuator_prim.SetTypeName("MjcActuator")
 
@@ -67,18 +67,18 @@ def __convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator
     set_schema_attribute(actuator_prim, "mjc:actRange:min", actuator.actrange[0])
     set_schema_attribute(actuator_prim, "mjc:actRange:max", actuator.actrange[1])
     set_schema_attribute(actuator_prim, "mjc:biasPrm", list(actuator.biasprm))
-    set_schema_attribute(actuator_prim, "mjc:biasType", __convert_bias_type(actuator.biastype))
+    set_schema_attribute(actuator_prim, "mjc:biasType", convert_bias_type(actuator.biastype))
     set_schema_attribute(actuator_prim, "mjc:crankLength", actuator.cranklength)
     set_schema_attribute(actuator_prim, "mjc:ctrlLimited", mj_limited_to_token(actuator.ctrllimited))
     set_schema_attribute(actuator_prim, "mjc:ctrlRange:min", actuator.ctrlrange[0])
     set_schema_attribute(actuator_prim, "mjc:ctrlRange:max", actuator.ctrlrange[1])
     set_schema_attribute(actuator_prim, "mjc:dynPrm", list(actuator.dynprm))
-    set_schema_attribute(actuator_prim, "mjc:dynType", __convert_dyn_type(actuator.dyntype))
+    set_schema_attribute(actuator_prim, "mjc:dynType", convert_dyn_type(actuator.dyntype))
     set_schema_attribute(actuator_prim, "mjc:forceLimited", mj_limited_to_token(actuator.forcelimited))
     set_schema_attribute(actuator_prim, "mjc:forceRange:min", actuator.forcerange[0])
     set_schema_attribute(actuator_prim, "mjc:forceRange:max", actuator.forcerange[1])
     set_schema_attribute(actuator_prim, "mjc:gainPrm", list(actuator.gainprm))
-    set_schema_attribute(actuator_prim, "mjc:gainType", __convert_gain_type(actuator.gaintype))
+    set_schema_attribute(actuator_prim, "mjc:gainType", convert_gain_type(actuator.gaintype))
     set_schema_attribute(actuator_prim, "mjc:gear", list(actuator.gear))
     set_schema_attribute(actuator_prim, "mjc:group", actuator.group)
     set_schema_attribute(actuator_prim, "mjc:inheritRange", actuator.inheritrange)
@@ -88,7 +88,7 @@ def __convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator
     return actuator_prim
 
 
-def __convert_dyn_type(dyntype: mujoco.mjtDyn) -> str:
+def convert_dyn_type(dyntype: mujoco.mjtDyn) -> str:
     if dyntype == mujoco.mjtDyn.mjDYN_NONE:
         return "none"
     elif dyntype == mujoco.mjtDyn.mjDYN_INTEGRATOR:
@@ -103,7 +103,7 @@ def __convert_dyn_type(dyntype: mujoco.mjtDyn) -> str:
         return "user"
 
 
-def __convert_gain_type(gaintype: mujoco.mjtGain) -> str:
+def convert_gain_type(gaintype: mujoco.mjtGain) -> str:
     if gaintype == mujoco.mjtGain.mjGAIN_FIXED:
         return "fixed"
     elif gaintype == mujoco.mjtGain.mjGAIN_AFFINE:
@@ -114,7 +114,7 @@ def __convert_gain_type(gaintype: mujoco.mjtGain) -> str:
         return "user"
 
 
-def __convert_bias_type(biastype: mujoco.mjtBias) -> str:
+def convert_bias_type(biastype: mujoco.mjtBias) -> str:
     if biastype == mujoco.mjtBias.mjBIAS_NONE:
         return "none"
     elif biastype == mujoco.mjtBias.mjBIAS_AFFINE:

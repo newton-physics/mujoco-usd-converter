@@ -24,7 +24,7 @@ def convert_materials(data: ConversionData):
     source_names = [x.name for x in data.spec.materials]
     safe_names = data.name_cache.getPrimNames(materials_scope, source_names)
     for material, source_name, safe_name in zip(data.spec.materials, source_names, safe_names):
-        material_prim = __convert_material(materials_scope, safe_name, material, data).GetPrim()
+        material_prim = convert_material(materials_scope, safe_name, material, data).GetPrim()
         data.references[Tokens.Materials][source_name] = material_prim
         # FUTURE: specialize from class
         if source_name != safe_name:
@@ -36,7 +36,7 @@ def convert_materials(data: ConversionData):
     data.content[Tokens.Materials] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Materials, format="usda")
 
 
-def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
+def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
     color, opacity = convert_color(material.rgba)
 
     # Build kwargs for material properties
@@ -71,7 +71,7 @@ def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial
         surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(emissive_color))
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
-        texture_path: Sdf.AssetPath = __convert_texture(data.spec.texture(main_texture_name), data)
+        texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
         if texture_path and not usdex.core.addDiffuseTextureToPreviewMaterial(material_prim, texture_path):
             Tf.Warn(f"Failed to add diffuse texture to material prim '{material_prim.GetPrim().GetPath()}'")
     elif any(material.textures):
@@ -85,18 +85,18 @@ def __convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial
     return material_prim
 
 
-def __convert_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
+def convert_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
     if texture.builtin:
         Tf.Warn(f"Unsupported builtin texture type {mujoco.mjtBuiltin(texture.builtin)} for texture '{texture.name}'")
         return Sdf.AssetPath()
     elif texture.type == mujoco.mjtTexture.mjTEXTURE_2D:
-        return __convert_2d_texture(texture, data)
+        return convert_2d_texture(texture, data)
     else:
         Tf.Warn(f"Unsupported texture type {texture.type} for texture '{texture.name}'")
         return Sdf.AssetPath()
 
 
-def __convert_2d_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
+def convert_2d_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
     if texture.content_type and texture.content_type != "image/png":
         Tf.Warn(f"Unsupported content type {texture.content_type} for texture '{texture.name}'")
         return Sdf.AssetPath()

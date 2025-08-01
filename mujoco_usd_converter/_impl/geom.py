@@ -42,17 +42,17 @@ def get_geom_name(geom: mujoco.MjsGeom) -> str:
 def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Gprim:
     source_name = get_geom_name(geom)
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
-        geom_prim = __convert_mesh(parent, name, geom, data)
+        geom_prim = convert_mesh(parent, name, geom, data)
     elif geom.type == mujoco.mjtGeom.mjGEOM_PLANE:
-        geom_prim = __convert_plane(parent, name, geom, data)
+        geom_prim = convert_plane(parent, name, geom, data)
     elif geom.type == mujoco.mjtGeom.mjGEOM_SPHERE:
-        geom_prim = __convert_sphere(parent, name, geom, data)
+        geom_prim = convert_sphere(parent, name, geom, data)
     elif geom.type == mujoco.mjtGeom.mjGEOM_BOX:
-        geom_prim = __convert_box(parent, name, geom, data)
+        geom_prim = convert_box(parent, name, geom, data)
     elif geom.type == mujoco.mjtGeom.mjGEOM_CYLINDER:
-        geom_prim = __convert_cylinder(parent, name, geom, data)
+        geom_prim = convert_cylinder(parent, name, geom, data)
     elif geom.type == mujoco.mjtGeom.mjGEOM_CAPSULE:
-        geom_prim = __convert_capsule(parent, name, geom, data)
+        geom_prim = convert_capsule(parent, name, geom, data)
     else:
         Tf.Warn(f"Unsupported or unknown geom type {geom.type} for geom '{source_name}'")
         return Usd.Prim()
@@ -65,7 +65,7 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
         usdex.core.setDisplayName(geom_prim.GetPrim(), source_name)
 
     if geom.material:
-        __bind_material(geom_prim, geom.material, data)
+        bind_material(geom_prim, geom.material, data)
 
     # set color and opacity primvars when they are not the default
     if not np.array_equal(geom.rgba, data.spec.default.geom.rgba):
@@ -74,12 +74,12 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
         usdex.core.FloatPrimvarData(UsdGeom.Tokens.constant, Vt.FloatArray([opacity])).setPrimvar(geom_prim.CreateDisplayOpacityPrimvar())
 
     if not isinstance(geom, mujoco.MjsSite):
-        __apply_physics(geom_prim.GetPrim(), geom, data)
+        apply_physics(geom_prim.GetPrim(), geom, data)
 
     return geom_prim
 
 
-def __convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Mesh:
+def convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Mesh:
     ref_mesh: Usd.Prim = data.references[Tokens.Geometry].get(geom.meshname)
     if not ref_mesh:
         Tf.RaiseRuntimeError(f"Mesh '{geom.meshname}' not found in Geometry Library {data.libraries[Tokens.Geometry].GetRootLayer().identifier}")
@@ -92,7 +92,7 @@ def __convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conv
     return UsdGeom.Mesh(prim)
 
 
-def __convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Plane:
+def convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Plane:
     plane: UsdGeom.Plane = UsdGeom.Plane.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     half_width = geom.size[0]
     half_length = geom.size[1]
@@ -108,7 +108,7 @@ def __convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Con
     return plane
 
 
-def __convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Sphere:
+def convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Sphere:
     sphere: UsdGeom.Sphere = UsdGeom.Sphere.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     sphere.GetRadiusAttr().Set(geom.size[0])
     sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
@@ -118,7 +118,7 @@ def __convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Co
     return sphere
 
 
-def __convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
+def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
     if hasattr(geom, "meshname") and geom.meshname:
@@ -139,7 +139,7 @@ def __convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conve
     return cube
 
 
-def __convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cylinder:
+def convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cylinder:
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
@@ -158,7 +158,7 @@ def __convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: 
     return cylinder
 
 
-def __convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Capsule:
+def convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Capsule:
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
     # FUTURE: mesh/fitscale
@@ -177,7 +177,7 @@ def __convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: C
     return capsule
 
 
-def __bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
+def bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
     local_materials = data.content[Tokens.Materials].GetDefaultPrim().GetChild(Tokens.Materials)
     ref_material: Usd.Prim = data.references[Tokens.Materials].get(name)
     if not ref_material:
@@ -214,7 +214,7 @@ def __bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
     usdex.core.bindMaterial(geom_over, material_prim)
 
 
-def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
+def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
     # most geom are colliders
     is_collider = True
     collider_enabled = True
@@ -257,10 +257,10 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
-        if inertia := __get_inertia_token(geom, data):
+        if inertia := get_inertia_token(geom, data):
             geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
             set_schema_attribute(geom_over, "mjc:inertia", inertia)
-        if maxhullvert := __get_maxhullvert(geom, data):
+        if maxhullvert := get_maxhullvert(geom, data):
             geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
             set_schema_attribute(geom_over, "mjc:maxhullvert", maxhullvert)
     else:
@@ -274,14 +274,14 @@ def __apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionD
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateDensityAttr().Set(geom.density)
 
-    physics_material: UsdPhysics.MaterialAPI = __acquire_physics_material(geom, data)
+    physics_material: UsdPhysics.MaterialAPI = acquire_physics_material(geom, data)
     if physics_material:
         usdex.core.bindPhysicsMaterial(geom_over, physics_material)
 
     # FUTURE: collision filtering
 
 
-def __acquire_physics_material(geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
+def acquire_physics_material(geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
     sliding_friction = geom.friction[0]
     torsional_friction = geom.friction[1]
     rolling_friction = geom.friction[2]
@@ -292,13 +292,13 @@ def __acquire_physics_material(geom: mujoco.MjsGeom, data: ConversionData) -> Us
     for child in physics_scope.GetChildren():
         if child.HasAPI(UsdPhysics.MaterialAPI):
             physics_material: UsdPhysics.MaterialAPI = UsdPhysics.MaterialAPI(child.GetPrim())
-            if Gf.IsClose(material_hash, __hash_physics_material(physics_material), 1e-6):
+            if Gf.IsClose(material_hash, hash_physics_material(physics_material), 1e-6):
                 return UsdShade.Material(physics_material)
 
-    return __create_physics_material(physics_scope, geom, data)
+    return create_physics_material(physics_scope, geom, data)
 
 
-def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
+def create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData) -> UsdShade.Material:
     sliding_friction = geom.friction[0]
     torsional_friction = geom.friction[1]
     rolling_friction = geom.friction[2]
@@ -314,7 +314,7 @@ def __create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom,
     return material
 
 
-def __hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
+def hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
     # we know that all materials in the physics layer have the values authored, so we can just get them
     sliding_friction = material.GetDynamicFrictionAttr().Get()
     torsional_friction = material.GetPrim().GetAttribute("mjc:torsionalfriction").Get()
@@ -322,7 +322,7 @@ def __hash_physics_material(material: UsdPhysics.MaterialAPI) -> Gf.Vec3f:
     return Gf.Vec3f(sliding_friction, torsional_friction, rolling_friction)
 
 
-def __get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:
+def get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:
     if geom.type != mujoco.mjtGeom.mjGEOM_MESH or not geom.meshname:
         return None
 
@@ -342,7 +342,7 @@ def __get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:
         return None
 
 
-def __get_maxhullvert(geom: mujoco.MjsGeom, data: ConversionData) -> int:
+def get_maxhullvert(geom: mujoco.MjsGeom, data: ConversionData) -> int:
     if geom.type != mujoco.mjtGeom.mjGEOM_MESH or not geom.meshname:
         return None
 

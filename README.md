@@ -39,10 +39,10 @@ The implementation also leverages the following dependencies:
 To start using the converter, install the python wheel into a virtual environment using your favorite package manager:
 
 ```bash
-python -m venv /tmp/test
-source /tmp/test/bin/activate
-python -m pip install mujoco-usd-converter
-mujoco_usd_converter /path/to/robot.xml /tmp/usd_robot
+python -m venv .venv
+source .venv/bin/activate
+pip install mujoco-usd-converter
+mujoco_usd_converter /path/to/robot.xml /path/to/usd_robot
 ```
 
 See `mujoco_usd_converter --help` for CLI arguments.
@@ -55,7 +55,7 @@ import usdex.core
 from pxr import Sdf, Usd
 
 converter = mujoco_usd_converter.Converter()
-asset: Sdf.AssetPath = converter.convert("/path/to/robot.xml", "/tmp/usd_robot")
+asset: Sdf.AssetPath = converter.convert("/path/to/robot.xml", "/path/to/usd_robot")
 stage: Usd.Stage = Usd.Stage.Open(asset.path)
 # modify further using Usd or usdex.core functionality
 usdex.core.saveStage(stage, comment="modified after conversion")

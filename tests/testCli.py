@@ -8,7 +8,7 @@ import usdex.core
 import usdex.test
 from pxr import Sdf, Tf, Usd
 
-from mujoco_usd_converter import run
+from mujoco_usd_converter._impl.cli import run
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
@@ -106,7 +106,7 @@ class TestCli(ConverterTestCase):
         # Test the case where converter.convert() returns None/false value
         model = "tests/data/worldgeom.xml"
         with (
-            patch("mujoco_usd_converter.convert.Converter.convert", return_value=None),
+            patch("mujoco_usd_converter.Converter.convert", return_value=None),
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
             usdex.test.ScopedDiagnosticChecker(
                 self,
@@ -120,7 +120,7 @@ class TestCli(ConverterTestCase):
         # Test exception handling when verbose=False (should not re-raise)
         model = "tests/data/worldgeom.xml"
         with (
-            patch("mujoco_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
+            patch("mujoco_usd_converter.Converter.convert", side_effect=RuntimeError("Test conversion error")),
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir()]),
             usdex.test.ScopedDiagnosticChecker(
                 self,
@@ -134,7 +134,7 @@ class TestCli(ConverterTestCase):
         # Test exception handling when verbose=True (should re-raise)
         model = "tests/data/worldgeom.xml"
         with (
-            patch("mujoco_usd_converter.convert.Converter.convert", side_effect=RuntimeError("Test conversion error")),
+            patch("mujoco_usd_converter.Converter.convert", side_effect=RuntimeError("Test conversion error")),
             patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--verbose"]),
             self.assertRaises(RuntimeError),
             usdex.test.ScopedDiagnosticChecker(self, [], level=usdex.core.DiagnosticsLevel.eWarning),

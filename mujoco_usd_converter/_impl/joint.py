@@ -48,7 +48,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
     source_names = [get_joint_name(x) for x in body.joints]
     safe_names = data.name_cache.getPrimNames(parent, source_names)
     for joint, source_name, safe_name in zip(body.joints, source_names, safe_names):
-        limits = __get_limits(joint, data)
+        limits = get_limits(joint, data)
         axis = convert_vec3f(joint.axis)
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, convert_vec3d(joint.pos), Gf.Quatd.GetIdentity())
         if joint.type == mujoco.mjtJoint.mjJNT_HINGE:
@@ -67,10 +67,10 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.Physics][joint.name] = joint_prim.GetPrim()
 
-        __apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
 
 
-def __apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsJointAPI"))
 
     limited_token = mj_limited_to_token(joint.actfrclimited)
@@ -93,7 +93,7 @@ def __apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:stiffness", joint.stiffness)
 
 
-def __is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
+def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
     if joint.limited == mujoco.mjtLimited.mjLIMITED_TRUE:
         return True
     elif joint.limited == mujoco.mjtLimited.mjLIMITED_FALSE:
@@ -103,8 +103,8 @@ def __is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
     return False
 
 
-def __get_limits(joint: mujoco.MjsJoint, data: ConversionData) -> tuple[float, float]:
-    if not __is_limited(joint, data):
+def get_limits(joint: mujoco.MjsJoint, data: ConversionData) -> tuple[float, float]:
+    if not is_limited(joint, data):
         return [None, None]
     if joint.type == mujoco.mjtJoint.mjJNT_SLIDE or data.spec.compiler.degree:
         return joint.range
