@@ -17,10 +17,10 @@ __all__ = ["convert_bodies"]
 
 def convert_bodies(data: ConversionData):
     geo_scope = data.content[Tokens.Geometry].GetDefaultPrim().GetChild(Tokens.Geometry).GetPrim()
-    __convert_body(parent=geo_scope, name=data.spec.modelname, body=data.spec.worldbody, data=data)
+    convert_body(parent=geo_scope, name=data.spec.modelname, body=data.spec.worldbody, data=data)
 
 
-def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: ConversionData) -> UsdGeom.Xform:
+def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: ConversionData) -> UsdGeom.Xform:
     if body == data.spec.worldbody:
         # the worldbody is already converted as the default prim and
         # its children need to be nested under the geometry scope
@@ -52,7 +52,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
         data.references[Tokens.Physics][body.name] = body_over
         rbd: UsdPhysics.RigidBodyAPI = UsdPhysics.RigidBodyAPI.Apply(body_over)
         # when the parent body is kinematic, the child body must also be kinematic
-        if __is_kinematic(body, body_over):
+        if is_kinematic(body, body_over):
             rbd.CreateKinematicEnabledAttr().Set(True)
 
         # Store concept gaps as custom attributes
@@ -67,7 +67,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
                 mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(body.iquat))
                 mass_api.CreateDiagonalInertiaAttr().Set(convert_vec3d(body.inertia))
             else:
-                quat, inertia = __extract_inertia(body.fullinertia)
+                quat, inertia = extract_inertia(body.fullinertia)
                 mass_api.CreatePrincipalAxesAttr().Set(quat)
                 mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
@@ -75,7 +75,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
 
     safe_names = data.name_cache.getPrimNames(body_prim, [x.name for x in body.bodies])
     for child_body, safe_name in zip(body.bodies, safe_names):
-        child_body_prim = __convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
+        child_body_prim = convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
         if child_body_prim and body == data.spec.worldbody:
             child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
             UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
@@ -83,7 +83,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
     return body_prim
 
 
-def __is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
+def is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
     if body.mocap:
         return True
 
@@ -91,7 +91,7 @@ def __is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
     return kinematic_attr and kinematic_attr.Get()
 
 
-def __extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
+def extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
     mat = np.zeros((3, 3))
     mat[0, 0] = fullinertia[0]
     mat[1, 1] = fullinertia[1]

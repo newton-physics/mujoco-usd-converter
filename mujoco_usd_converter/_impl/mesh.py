@@ -23,7 +23,7 @@ def convert_meshes(data: ConversionData):
     data.references[Tokens.Geometry] = {}
 
     geo_scope = data.libraries[Tokens.Geometry].GetDefaultPrim()
-    source_names = [__get_mesh_name(x) for x in data.spec.meshes]
+    source_names = [get_mesh_name(x) for x in data.spec.meshes]
     safe_names = data.name_cache.getPrimNames(geo_scope, source_names)
     for mesh, source_name, safe_name in zip(data.spec.meshes, source_names, safe_names):
         mesh_prim: Usd.Prim = usdex.core.defineXform(geo_scope, safe_name).GetPrim()
@@ -31,12 +31,12 @@ def convert_meshes(data: ConversionData):
         # FUTURE: specialize from class
         if source_name != safe_name:
             usdex.core.setDisplayName(mesh_prim, source_name)
-        __convert_mesh(mesh_prim, mesh, data)
+        convert_mesh(mesh_prim, mesh, data)
 
     usdex.core.saveStage(data.libraries[Tokens.Geometry], comment=f"Mesh Library for {data.spec.modelname}. {data.comment}")
 
 
-def __get_mesh_name(mesh: mujoco.MjsMesh) -> str:
+def get_mesh_name(mesh: mujoco.MjsMesh) -> str:
     if mesh.name:
         return mesh.name
     elif mesh.file:
@@ -45,7 +45,7 @@ def __get_mesh_name(mesh: mujoco.MjsMesh) -> str:
         return f"Mesh_{mesh.id}"
 
 
-def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
+def convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
     if not mesh.file:
         # FUTURE: support inline meshes
         raise Tf.RaiseRuntimeError(f"Mesh {mesh.name} has no file")
@@ -55,9 +55,9 @@ def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
         raise Tf.RaiseRuntimeError(f"Mesh {mesh.name} file {mesh_file} does not exist")
 
     if mesh.content_type == "model/stl" or mesh_file.suffix.lower() == ".stl":
-        mesh_prim = __convert_stl(prim, mesh_file)
+        mesh_prim = convert_stl(prim, mesh_file)
     elif mesh.content_type == "model/obj" or mesh_file.suffix.lower() == ".obj":
-        mesh_prim = __convert_obj(prim, mesh_file)
+        mesh_prim = convert_obj(prim, mesh_file)
     else:
         raise Tf.RaiseRuntimeError(
             f"Mesh {mesh.name} from file {mesh_file} has unsupported content_type {mesh.content_type} or extension {mesh_file.suffix}"
@@ -66,7 +66,7 @@ def __convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
     set_transform(mesh_prim, mesh, data.spec)
 
 
-def __convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
+def convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     stl_mesh = stl.Mesh.from_file(input_path, calculate_normals=False)
 
     points = usdex.core.Vec3fPrimvarData(UsdGeom.Tokens.vertex, convert_vec3f_array(stl_mesh.points))
@@ -92,7 +92,7 @@ def __convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     return usd_mesh
 
 
-def __convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
+def convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     reader = tinyobjloader.ObjReader()
     if not reader.ParseFromFile(str(input_path)):
         Tf.RaiseRuntimeError(f'Invalid input_path: "{input_path}" could not be parsed. {reader.Error()}')

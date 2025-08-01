@@ -58,9 +58,9 @@ def set_transform(
     current_transform = Gf.Transform(translation=pos, rotation=Gf.Rotation(orient), scale=Gf.Vec3d(scale), pivotPosition=pivot)
 
     # check for a local frame not represented in the prim hierarchy
-    frame_transform: Gf.Transform = __get_frame_transform(mjc_object, spec)
+    frame_transform: Gf.Transform = get_frame_transform(mjc_object, spec)
 
-    local_transform: Gf.Transform = __multiply_transforms_preserve_scale(frame_transform, current_transform)
+    local_transform: Gf.Transform = multiply_transforms_preserve_scale(frame_transform, current_transform)
 
     # fromto overrides position and orientation
     pos = None
@@ -68,7 +68,7 @@ def set_transform(
     start, end = get_fromto_vectors(mjc_object)
     if start is not None and end is not None:
         pos = (end + start) / 2
-        quat = __vec_to_quat(end - start)
+        quat = vec_to_quat(end - start)
 
     # position always exists
     if pos is None:
@@ -79,7 +79,7 @@ def set_transform(
 
     # orientation always exists
     if quat is None:
-        quat = __get_orientation(mjc_object, spec)
+        quat = get_orientation(mjc_object, spec)
 
     # additional scale is optional
     scale = Gf.Vec3d(1)
@@ -101,7 +101,7 @@ def set_transform(
         new_transform.SetScale(local_transform.GetScale())
         local_transform.SetScale(Gf.Vec3d(1))
 
-    final_transform: Gf.Transform = __multiply_transforms_preserve_scale(new_transform, local_transform)
+    final_transform: Gf.Transform = multiply_transforms_preserve_scale(new_transform, local_transform)
 
     # extract the translation, orientation, and scale so we can set them as components
     pos = final_transform.GetTranslation()
@@ -111,7 +111,7 @@ def set_transform(
     usdex.core.setLocalTransform(prim, pos, orient, scale)
 
 
-def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
+def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
     z_axis = Gf.Vec3d(0, 0, 1)
     vec.Normalize()
 
@@ -137,7 +137,7 @@ def __vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
         ).GetNormalized()
 
 
-def __get_orientation(
+def get_orientation(
     mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsFrame,
     spec: mujoco.MjSpec,
 ) -> Gf.Quatf:
@@ -154,7 +154,7 @@ def __get_orientation(
     return quat.GetNormalized()
 
 
-def __get_frame_transform(
+def get_frame_transform(
     mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsFrame,
     spec: mujoco.MjSpec,
 ) -> Gf.Transform:
@@ -168,13 +168,13 @@ def __get_frame_transform(
 
     transform = Gf.Transform()
     transform.SetTranslation(convert_vec3d(frame.pos))
-    transform.SetRotation(Gf.Rotation(__get_orientation(frame, spec)))
+    transform.SetRotation(Gf.Rotation(get_orientation(frame, spec)))
     if frame.frame:
         Tf.Warn("Recursive frames are not supported")
     return transform
 
 
-def __multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: Gf.Transform) -> Gf.Transform:
+def multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: Gf.Transform) -> Gf.Transform:
     """
     Multiply two Gf.Transform objects while preserving non-uniform scales.
 
