@@ -130,11 +130,11 @@ class Converter:
             usdex.core.saveStage(asset_stage, comment=self.params.comment)
 
         # warn about known limitations
-        self.__report_limitations(spec)
+        self.warn(spec)
 
         return Sdf.AssetPath(asset_identifier)
 
-    def __report_limitations(self, spec: mujoco.MjSpec):
+    def warn(self, spec: mujoco.MjSpec):
         if spec.cameras:
             Tf.Warn("cameras are not supported")
         if spec.lights:

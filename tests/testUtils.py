@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pxr import Tf, Usd
 
-from mujoco_usd_converter.utils import set_schema_attribute
+from mujoco_usd_converter._impl.utils import set_schema_attribute
 from tests.util.ConverterTestCase import ConverterTestCase
 
 

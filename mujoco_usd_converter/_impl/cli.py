@@ -7,7 +7,7 @@ import mujoco
 import usdex.core
 from pxr import Tf, Usd
 
-from ._version import __version__
+from .._version import __version__
 from .convert import Converter
 
 

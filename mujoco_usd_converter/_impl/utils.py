@@ -7,7 +7,7 @@ import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom
 
-from ._version import __version__
+from .._version import __version__
 from .numpy import convert_quatf, convert_vec3d
 
 __all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]

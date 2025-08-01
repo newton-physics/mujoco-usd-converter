@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import sys
 
-from .cli import run
+from ._impl.cli import run
 
 sys.exit(run())
