@@ -9,7 +9,7 @@ from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 from .data import ConversionData, Tokens
 from .geom import convert_geom, get_geom_name
 from .joint import convert_joints
-from .numpy import convert_quat, convert_vec3d
+from .numpy import convert_quatf, convert_vec3d
 from .utils import set_schema_attribute, set_transform
 
 __all__ = ["convert_bodies"]
@@ -64,7 +64,7 @@ def __convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conv
             mass_api.CreateMassAttr().Set(body.mass)
             mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(body.ipos))
             if np.isnan(body.fullinertia[0]):
-                mass_api.CreatePrincipalAxesAttr().Set(convert_quat(body.iquat))
+                mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(body.iquat))
                 mass_api.CreateDiagonalInertiaAttr().Set(convert_vec3d(body.inertia))
             else:
                 quat, inertia = __extract_inertia(body.fullinertia)
@@ -114,4 +114,4 @@ def __extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
     mujoco.mju_eig3(eigval, eigvec, quat, flat_mat)
     diag_inertia = Gf.Vec3f(*eigval)
 
-    return convert_quat(quat), diag_inertia
+    return convert_quatf(quat), diag_inertia

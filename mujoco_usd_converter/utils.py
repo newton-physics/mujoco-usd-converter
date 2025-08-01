@@ -8,7 +8,7 @@ import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom
 
 from ._version import __version__
-from .numpy import convert_quat, convert_vec3d
+from .numpy import convert_quatf, convert_vec3d
 
 __all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]
 
@@ -146,9 +146,9 @@ def __get_orientation(
         orient_type = mjc_object.alt.type
     if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
         if hasattr(mjc_object, "quat"):
-            quat = convert_quat(mjc_object.quat)
+            quat = convert_quatf(mjc_object.quat)
         elif hasattr(mjc_object, "refquat"):
-            quat = convert_quat(mjc_object.refquat)
+            quat = convert_quatf(mjc_object.refquat)
     else:
         quat = Gf.Quatf(*spec.resolve_orientation(degree=spec.compiler.degree, sequence=spec.compiler.eulerseq, orientation=mjc_object.alt))
     return quat.GetNormalized()
