@@ -86,11 +86,16 @@ All code changes must contain either new unittests, or updates to existing tests
 
 This project uses [uv](https://docs.astral.sh/uv/) as the primary dev tool and [poethepoet](https://github.com/nat-n/poethepoet) for command automation.
 
+If you do not have `uv` installed, see the [development requirements](#development-requirements).
+
 ### Quick Start
 
-If you have `uv` installed already, you can use it directly:
+Once `uv` is installed, you can use the following commands:
 
 ```bash
+# Build the project
+uv build
+
 # Run linting
 uv run --group dev poe lint
 
@@ -99,21 +104,19 @@ uv run --group dev poe test
 
 # Run the CLI
 uv run mujoco_usd_converter --help
-
-# Build the project
-uv build
 ```
 
-### Local Development Setup
+### Persistent Environment
 
-If you prefer a traditional workflow with a persistent virtual environment, use the build scripts:
+If you prefer a traditional workflow with a persistent virtual environment, use the build scripts. These will create a `.venv` which you can then activate and use `poe` commands directly.
 
-- **Linux/macOS**: `./build.sh`
-- **Windows**: `.\build.bat`
+- Build and setup environment: `./build.sh` or `.\build.bat`
+- Activate the venv:
+    - Linux: `source .venv/bin/activate`
+    - Windows: `call .venv\Scripts\activate.bat`
+- Run commands in activated environment: `poe lint`, `poe test`, `mujoco_usd_converter --help`.
 
-> **Note**: The build scripts are designed for local development. The CI/CD pipeline uses the streamlined `uv run` approach directly.
-
-### Installation Requirements
+### Development Requirements
 
 To use the build scripts locally, you need uv installed:
 
@@ -129,7 +132,6 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 ### Common Commands
 
-#### Direct uv Commands (Recommended)
 - Update dependencies: Edit `pyproject.toml` and then run `uv lock`
 - Build the sdist and wheel: `uv build`
 - Build just the wheel: `uv build --wheel`
@@ -138,29 +140,22 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 - Run auto-formatters: `uv run --group dev poe format`
 - Run the CLI: `uv run mujoco_usd_converter <args>`
 
-#### Traditional Workflow (via build scripts)
-- Build and setup environment: `./build.sh` or `.\build.bat`
-- Activate the venv:
-    - Linux: `source .venv/bin/activate`
-    - Windows: `call .venv\Scripts\activate.bat`
-- Run commands in activated environment: `poe lint`, `poe test`, etc.
-
 ## Testing
 
-Tests can be run in several ways:
+The unittests can be run in several ways:
 
 ```bash
-# Direct execution (recommended)
+# via uv
 uv run --group dev poe test
 
-# In activated venv (after running build script)
+# in an activated venv
 poe test
 
-# Individual test discovery
-uv run --group dev python -m unittest discover -v -s ./tests
+# individual test discovery
+poe test -k testBodies.TestBodies.test_gravity_compensated
 ```
 
-The converter CLI can be tested:
+The converter CLI can be used as well:
 
 ```bash
 # Direct execution
