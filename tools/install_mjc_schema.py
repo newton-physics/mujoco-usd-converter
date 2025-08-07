@@ -29,7 +29,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         """Download the MJC schema files from GitHub"""
         # FUTURE: lock to a tag
         schema_url = (
-            "https://raw.githubusercontent.com/google-deepmind/mujoco/541c56b46fb3e8125ee5d980bec7a067babe40e3/src/experimental/usd/mjcPhysics"
+            "https://raw.githubusercontent.com/google-deepmind/mujoco/4e67fe79f3d9cb8b10bed123e4a9351ce4b2340f/src/experimental/usd/mjcPhysics"
         )
         for url, target_path in (
             (f"{schema_url}/generatedSchema.usda", self.target_dir / "generatedSchema.usda"),
