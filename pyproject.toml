@@ -5,7 +5,7 @@ description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "NVIDIA"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "mujoco>=3.3.5.dev0",
     "usd-exchange==2.0.0rc5+usd2505",
