@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.10,<3.12"
 dependencies = [
     "mujoco>=3.3.5.dev0",
-    "usd-exchange==2.0.0rc2+usd2505",
+    "usd-exchange==2.0.0rc5+usd2505",
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",
 ]
@@ -35,18 +35,11 @@ package = true
 python-preference = "only-managed"
 
 [[tool.uv.index]]
-name = "internal"
-url = "https://REDACTED/simple"
-publish-url = "https://REDACTED"
-default = true
-
-[[tool.uv.index]]
 name = "mujoco"
 url = "https://py.mujoco.org/"
 
 [tool.uv.sources]
 mujoco = { index = "mujoco" }
-usd-exchange = { index = "internal" }
 
 # Dev Tools
 
