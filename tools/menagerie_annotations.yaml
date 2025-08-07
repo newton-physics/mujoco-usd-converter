@@ -30,12 +30,12 @@ agilex_piper:
   xml_files:
   - asset: agilex_piper
     description: 'Model variant: piper'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2025/08/05'
+    evaluator: 'andrewkaufman'
     filename: piper.xml
     model_name: piper
-    notes: ''
-    verified: Unknown
+    notes: 'Collision geometry is scaled incorrectly'
+    verified: 'No'
 agility_cassie:
   _metadata:
     has_scene_xml: true
@@ -98,7 +98,7 @@ anybotics_anymal_c:
     evaluator: 'andrewkaufman'
     filename: anymal_c.xml
     model_name: anymal_c
-    notes: 'Actuation in MuJoCo Simulate looks good'
+    notes: 'Manual actuation in MuJoCo looks good'
     verified: 'Yes'
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c_mjx'
@@ -118,12 +118,12 @@ apptronik_apollo:
   xml_files:
   - asset: apptronik_apollo
     description: 'Model variant: apptronik_apollo'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2025/08/05'
+    evaluator: 'andrewkaufman'
     filename: apptronik_apollo.xml
     model_name: apptronik_apollo
-    notes: ''
-    verified: Unknown
+    notes: 'USD View looks good, and manual articulation in MuJoCo looks good, but without exclude pairs we cannot test actuation in MuJoCo as it falls through the ground plane'
+    verified: 'No'
 arx_l5:
   _metadata:
     has_scene_xml: true
@@ -322,7 +322,7 @@ franka_fr3:
     evaluator: 'andrewkaufman'
     filename: fr3.xml
     model_name: fr3
-    notes: 'Actuation in MuJoCo Simulate looks good'
+    notes: 'Manual actuation in MuJoCo looks good'
     verified: 'Yes'
 google_barkour_v0:
   _metadata:
@@ -342,12 +342,12 @@ google_barkour_v0:
     verified: Unknown
   - asset: google_barkour_v0
     description: 'Model variant: barkour_v0'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2025/07/31'
+    evaluator: 'andrewkaufman'
     filename: barkour_v0.xml
     model_name: barkour_v0
-    notes: ''
-    verified: Unknown
+    notes: 'Manual actuation in MuJoCo looks good'
+    verified: 'Yes'
 google_barkour_vb:
   _metadata:
     has_scene_xml: true
