@@ -207,14 +207,11 @@ class TestActuatorEdgeCases(ConverterTestCase):
         self.assertTrue(unnamed_actuator.IsValid())
         self.assertEqual(unnamed_actuator.GetTypeName(), "MjcActuator")
 
-    def test_duplicate_name(self):
-        # One actuator should keep the original name, the other should get a modified name
-        dup1 = self.stage.GetPrimAtPath("/actuator_edge_cases/Physics/duplicate_name")
-        dup2 = self.stage.GetPrimAtPath("/actuator_edge_cases/Physics/duplicate_name_1")
-        self.assertTrue(dup1.IsValid() or dup2.IsValid())
-        self.assertEqual(dup1.GetTypeName(), "MjcActuator")
-        self.assertTrue(dup2.IsValid())
-        self.assertEqual(dup2.GetTypeName(), "MjcActuator")
+    def test_illegal_name(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/actuator_edge_cases/Physics/tn__illegalname_oB")
+        self.assertTrue(prim.IsValid())
+        self.assertEqual(prim.GetTypeName(), "MjcActuator")
+        self.assertEqual(prim.GetDisplayName(), "illegal name")
 
     def test_missing_target(self):
         # Test actuators with missing targets (should create actuators but with warnings)

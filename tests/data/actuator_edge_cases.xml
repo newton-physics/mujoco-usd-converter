@@ -27,9 +27,8 @@
     <!-- Unnamed actuator - will use default naming -->
     <motor joint="box1_joint"/>
 
-    <!-- Duplicate names to test name conflict resolution -->
-    <motor name="duplicate_name" joint="box2_joint"/>
-    <motor name="duplicate_name" joint="box3_joint"/>
+    <!-- Illegal name to test display name -->
+    <motor name="illegal name" joint="box2_joint"/>
 
     <!-- Actuators with missing targets to trigger warnings -->
     <general name="missing_target" body="nonexistent_body" gear="1 0 0 0 0 0"/>

@@ -78,7 +78,7 @@ test_wheel_linux:
     - source /tmp/wheel_test_env/bin/activate
 
     # Install the wheel directly using uv
-    - uv pip install dist/*.whl
+    - uv pip install --index-strategy unsafe-best-match dist/*.whl
 
     # Test conversion
     - mkdir -p /tmp/test_outputs
@@ -95,7 +95,7 @@ test_wheel_windows:
 
     # Find and install the wheel file
     - $wheelFile = Get-ChildItem -Path "dist" -Filter "*.whl" | Select-Object -First 1
-    - uv pip install $wheelFile.FullName
+    - uv pip install --index-strategy unsafe-best-match $wheelFile.FullName
 
     # Test conversion
     - New-Item -ItemType Directory -Force -Path test_outputs
