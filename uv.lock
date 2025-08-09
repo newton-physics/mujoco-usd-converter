@@ -273,7 +273,7 @@ requires-dist = [
     { name = "mujoco", specifier = ">=3.3.5" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
-    { name = "usd-exchange", specifier = "==2.0.1" },
+    { name = "usd-exchange", specifier = ">=2.0.1" },
 ]
 
 [package.metadata.requires-dev]
