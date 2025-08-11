@@ -123,6 +123,10 @@ cmd  = "ruff check . --fix-only"
 help = "Run black on the code base"
 cmd  = "black ."
 
+[tool.poe.tasks.update-readme]
+help = "Update README.md for PyPI by replacing local links with GitHub URLs"
+cmd  = "python tools/update_markdown_for_pypi.py README.md"
+
 [build-system]
 requires = ["hatchling", "requests"]
 build-backend = "hatchling.build"
