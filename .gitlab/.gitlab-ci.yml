@@ -32,7 +32,9 @@ check_code_format:
   stage: build
   needs: [] # do not wait for checks
   script:
+    - uv run --group dev poe update-readme
     - uv build
+    - git restore README.md
   artifacts:
     paths:
       - dist/
