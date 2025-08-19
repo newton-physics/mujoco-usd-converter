@@ -34,7 +34,7 @@ check_code_format:
   script:
     - uv run --group dev poe update-readme
     - uv build
-    - git checkout -- README.md
+    - git restore README.md
   artifacts:
     paths:
       - dist/

@@ -16,7 +16,7 @@ dependencies = [
 [project.urls]
 Documentation = "https://github.com/newton-physics/mujoco-usd-converter/#readme"
 Repository = "https://github.com/newton-physics/mujoco-usd-converter"
-Changelog = "https://github.com/LouRohanNV/mujoco-usd-converter/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/newton-physics/mujoco-usd-converter/blob/main/CHANGELOG.md"
 
 [project.scripts]
 mujoco_usd_converter = "mujoco_usd_converter.__main__:cli_main"
