@@ -22,51 +22,15 @@ If you intend to submit a Pull Request:
 - First, ensure alignment with the Code Owners on the associated Issue, to avoid redundant work or wasted iterations.
 - Develop your changes on a well named [development branch](#development-branches) within your personal clone/mirror/fork.
 - Run all test suites locally & ensure passing results in your dev environment.
-- Ensure all commits have a sign-off (see [Developer Certificate of Origin](#developer-certificate-of-origin))
+- Be prepared to sign the Newton Contributor License Agreement, see below.
 
 Please note that in some cases, we may not merge GitHub Pull Requests directly. We will take suggestions under advisement and discuss internally. We may rebase your commits to provide alignment with internal development branches.
 
-### Developer Certificate of Origin
+### Contributor License Agreement
 
-Rather than requiring a formal Contributor License Agreement (CLA), we use the [Developer Certificate of Origin](https://developercertificate.org/) to ensure contributors have the right to submit their contributions to this project.
+All contributions to this project require a signed Contributor License Agreement (CLA) on file, see [Legal Requirements](https://github.com/newton-physics/newton-governance/blob/main/CONTRIBUTING.md#legal-requirements) in the Newton contribution guidelines.
 
-Please ensure that all commits have a [sign-off](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt-code--signoffcode) added with an email address that matches the commit author to agree to the DCO terms for each particular contribution.
-
-```text
-Version 1.1
-
-Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
-
-Everyone is permitted to copy and distribute verbatim copies of this
-license document, but changing it is not allowed.
-
-
-Developer's Certificate of Origin 1.1
-
-By making a contribution to this project, I certify that:
-
-(a) The contribution was created in whole or in part by me and I
-    have the right to submit it under the open source license
-    indicated in the file; or
-
-(b) The contribution is based upon previous work that, to the best
-    of my knowledge, is covered under an appropriate open source
-    license and I have the right under that license to submit that
-    work with modifications, whether created in whole or in part
-    by me, under the same open source license (unless I am
-    permitted to submit under a different license), as indicated
-    in the file; or
-
-(c) The contribution was provided directly to me by some other
-    person who certified (a), (b) or (c) and I have not modified
-    it.
-
-(d) I understand and agree that this project and the contribution
-    are public and that a record of the contribution (including all
-    personal information I submit with it, including my sign-off) is
-    maintained indefinitely and may be redistributed consistent with
-    this project or the open source license(s) involved.
-```
+Newton repositories use [EasyCLA](https://lfcla.com/) for managing CLAs. You may sign the appropriate CLA in a pull-request workflow; see [the EasyCLA documentation](https://docs.linuxfoundation.org/lfx/easycla/v2-current/contributors) for instructions.
 
 ### Branches and Versions
 
