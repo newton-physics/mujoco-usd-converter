@@ -1,3 +1,13 @@
+# 0.1.0a2
+
+## Documentation
+
+- Improved PyPI README & standard pyproject urls
+- Updated docs for Newton governance standards
+  - Switched from implicit DCO to explicit CLA for code contributions
+  - Switched Code of Conduct from an adapted Contributor Covenant to the exact Linux Foundation Code of Conduct
+  - Switched security policy from an NVIDIA specific policy to the Newton governance policy
+
 # 0.1.0a1
 
 ## Features
