@@ -15,6 +15,8 @@ Key Features:
   - Suitable for visualization & rendering in any OpenUSD Ecosystem application.
   - Suitable for [import & simulation directly in MuJoCo Simulate](#loading-usd-in-mujoco-simulate).
 
+This project is part of [Newton](https://github.com/newton-physics), a [Linux Foundation](https://www.linuxfoundation.org) project which is community-built and maintained.
+
 ## Menagerie Benchmarks
 
 We run regular benchmarks on the [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie). See the latest results [here](./benchmarks.md).
@@ -91,6 +93,8 @@ Once MuJoCo is compiled, you can launch the `./bin/simulate` app and drag & drop
 
 Contributions from the community are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about contributing via GitHub issues, as well as building the project from source and our development workflow.
 
+General contribution guidelines for Newton repositories are available [here](https://github.com/newton-physics/newton-governance/blob/main/CONTRIBUTING.md).
+
 # Community
 
 For questions about this mujoco-usd-converter, feel free to join or start a [GitHub Discussions](https://github.com/newton-physics/mujoco-usd-converter/discussions).
@@ -100,6 +104,8 @@ For questions about OpenUSD Exchange SDK, use the [USD Exchange GitHub Discussio
 For questions about MuJoCo or the MjcPhysics USD Schemas, use the [MuJoCo Forums](https://github.com/google-deepmind/mujoco/discussions/categories/asking-for-help).
 
 For general questions about OpenUSD itself, use the [Alliance for OpenUSD Forum](https://forum.aousd.org).
+
+By participating in this community, you agree to abide by the Linux Foundation [Code of Conduct](https://lfprojects.org/policies/code-of-conduct/).
 
 # References
 
