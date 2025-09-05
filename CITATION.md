@@ -6,11 +6,11 @@ If you use mujoco-usd-converter in a publication, please use citations in the fo
 
 ```tex
 @software{mujoco_usd_converter,
-  title = {mujoco-usd-converter: A MuJoCo to OpenUSD Data Converter},
+  title = {{mujoco-usd-converter: A {MuJoCo} to {OpenUSD} Data Converter}},
   author = {{Newton Contributors}},
   year = {2025},
   url = {https://github.com/newton-physics/mujoco-usd-converter},
-  organization = {Newton a Series of LF Projects, LLC},
-  license = {Apache-2.0}
+  organization = {{Newton a Series of LF Projects, LLC}},
+  license = {{Apache-2.0}}
 }
 ```
