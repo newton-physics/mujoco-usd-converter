@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: Documentation - New Documentation Request
-description: Request additions to documentation
-title: "[DOC]: "
-labels: ["doc"]
+name: Documentation
+description: Request changes or additions to documentation
+labels: ["documentation"]
 
 body:
   - type: markdown
@@ -12,22 +11,10 @@ body:
       value: |
         Thanks for taking the time to improve our documentation!
 
-  - type: dropdown
-    id: criticality
-    attributes:
-      label: How would you describe the priority of this documentation request
-      options:
-        - Critical (currently preventing usage)
-        - High
-        - Medium
-        - Low (would be nice)
-    validations:
-      required: true
-
   - type: textarea
     id: problem
     attributes:
-      label: Describe the future/missing documentation
+      label: Describe the changes or additions to documentation
       placeholder: A code snippet mentions function foo(args) but I cannot find any documentation on it.
     validations:
       required: true
@@ -47,5 +34,5 @@ body:
       options:
         - label: I agree to follow mujoco-usd-converter Code of Conduct
           required: true
-        - label: I have searched the [open bugs](https://github.com/newton-physics/mujoco-usd-converter/issues?q=is%3Aopen+is%3Aissue+label%3Abug) and have found no duplicates
+        - label: I have searched the [open issues](https://github.com/newton-physics/mujoco-usd-converter/issues) and have found no duplicates
           required: true
