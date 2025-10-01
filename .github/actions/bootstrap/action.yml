@@ -1,0 +1,29 @@
+name: 'Bootstrap'
+description: 'Bootstrap the repository'
+inputs:
+  python-version:
+    description: 'Python version to use'
+    required: false
+    default: '3.11'
+  enable-uv-cache:
+    description: 'Enable uv cache'
+    required: false
+    default: 'true'
+  cache-dependency-glob:
+    description: 'Glob pattern for cache dependencies'
+    required: false
+    default: 'uv.lock'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: ${{ inputs.enable-uv-cache }}
+        cache-dependency-glob: ${{ inputs.cache-dependency-glob }}

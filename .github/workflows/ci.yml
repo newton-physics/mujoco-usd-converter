@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ '*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Manual trigger from Actions tab
+
+permissions:
+  contents: read
+  pull-requests: write  # Required to comment on PRs
+
+jobs:
+  check-code-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap
+        uses: ./.github/actions/bootstrap
+
+      - name: Check uv lock file
+        run: uv lock --check
+
+      - name: Run linting
+        run: uv run --group dev poe lint
+
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap
+        uses: ./.github/actions/bootstrap
+
+      - name: Update README
+        run: uv run --group dev poe update-readme
+
+      - name: Build package
+        run: uv build
+
+      - name: Restore README
+        run: git restore README.md
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mujoco-usd-converter-dist-${{ matrix.os }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
+          path: dist/
+
+  test:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap
+        uses: ./.github/actions/bootstrap
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mujoco-usd-converter-dist-${{ matrix.os }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
+          path: dist/
+
+      - name: Run tests
+        run: uv run --group dev poe test-ci
+
+      - name: Upload report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mujoco-usd-converter-coverage-${{ matrix.os }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
+          include-hidden-files: true
+          path: |
+            ${{ github.workspace }}/.coverage.xml
+            ${{ github.workspace }}/.results.xml
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          files: ${{ github.workspace }}/.results.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ${{ github.workspace }}/.coverage.xml
+          flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-package:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap
+        uses: ./.github/actions/bootstrap
+        with:
+          enable-uv-cache: 'false'
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mujoco-usd-converter-dist-${{ matrix.os }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
+          path: dist/
+
+      - name: Test wheel installation (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # Create a fresh virtual environment to test the wheel
+          uv venv /tmp/wheel_test_env
+          source /tmp/wheel_test_env/bin/activate
+
+          # Install the wheel directly using uv
+          uv pip install --index-strategy unsafe-best-match dist/*.whl
+
+          # Test conversion
+          mkdir -p /tmp/test_outputs
+          mujoco_usd_converter tests/data/geoms.xml /tmp/test_outputs/geoms_output
+
+      - name: Test wheel installation (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          # Create a fresh virtual environment to test the wheel
+          uv venv wheel_test_env
+          wheel_test_env\Scripts\activate.ps1
+
+          # Find and install the wheel file
+          $wheelFile = Get-ChildItem -Path "dist" -Filter "*.whl" | Select-Object -First 1
+          uv pip install --index-strategy unsafe-best-match $wheelFile.FullName
+
+          # Test conversion
+          New-Item -ItemType Directory -Force -Path test_outputs
+          mujoco_usd_converter tests/data/geoms.xml test_outputs\geoms_output
