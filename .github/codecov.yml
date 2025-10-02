@@ -5,7 +5,7 @@ coverage:
         target: 90%
     patch:
       default:
-        informational: true
+        target: 90%
 
 comment:
   layout: "diff, flags, files"
