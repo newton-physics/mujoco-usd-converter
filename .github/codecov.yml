@@ -4,13 +4,17 @@ coverage:
       default:
         target: 90%
         threshold: 1%  # Allow 1% drop without failing
+        base: auto  # Use auto base detection
         if_ci_failed: error  # Mark as error if CI fails
         informational: false  # Make this a required check
+        only_pulls: false  # Show on all commits, not just PRs
     patch:
       default:
         target: 90%
         threshold: 1%
+        base: auto
         informational: false
+        only_pulls: false
 
 comment:
   layout: "diff, flags, files"
