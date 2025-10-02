@@ -12,12 +12,24 @@ coverage:
       default:
         target: 90%
         threshold: 1%
-        base: auto
+        base: pr  # Compare against PR base, not parent commit
         informational: false
-        only_pulls: false
+        only_pulls: true  # Only run on PRs
 
 comment:
   layout: "diff, flags, files"
+  behavior: default
+  require_changes: true
+
+# GitHub-specific settings
+github_checks:
+  annotations: true  # Add line-by-line annotations
+
+# How to handle PR base selection
+codecov:
+  branch: main  # Specify your default branch
+  ci:
+    - github.com  # Ensure GitHub CI is recognized
 
 fixes:
   - "/var/snap/amazon-ssm-agent/[0-9]+/::"
