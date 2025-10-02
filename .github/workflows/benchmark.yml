@@ -1,0 +1,69 @@
+name: Benchmark
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:  # Manual trigger from Actions tab
+
+permissions:
+  contents: read
+  pull-requests: write  # Required to comment on PRs
+
+jobs:
+  benchmark:
+    # Run if: labeled with 'benchmark' OR manual trigger
+    if: |
+      (github.event_name == 'pull_request' && contains(github.event.label.name, 'benchmark')) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap
+        uses: ./.github/actions/bootstrap
+
+      - name: Run benchmarks
+        run: uv run --group dev poe benchmark
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: mujoco-usd-converter-benchmarks-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
+          path: benchmarks/*.*
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Wait a bit for artifacts to be fully uploaded
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // Get artifacts from this workflow run
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId
+            });
+
+            // Find the benchmark-results artifact (with PR number)
+            const artifactName = `benchmark-results-pr-${context.issue.number}`;
+            const benchmarkArtifact = artifacts.data.artifacts.find(a => a.name === artifactName);
+
+            let comment = `## Benchmark Results\n\n`;
+
+            if (benchmarkArtifact) {
+              const artifactUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${benchmarkArtifact.id}`;
+              comment += `[Download benchmark results](${artifactUrl})\n\n`;
+            } else {
+              const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              comment += `[View workflow run](${runUrl})\n\n`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
