@@ -3,7 +3,14 @@ coverage:
     project:
       default:
         target: 90%
-    patch: false
+        threshold: 1%  # Allow 1% drop without failing
+        if_ci_failed: error  # Mark as error if CI fails
+        informational: false  # Make this a required check
+    patch:
+      default:
+        target: 90%
+        threshold: 1%
+        informational: false
 
 comment:
   layout: "diff, flags, files"
