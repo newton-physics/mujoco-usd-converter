@@ -1,7 +1,11 @@
 coverage:
   status:
-    project: off
-    patch: off
+    project:
+      default:
+        target: 90%
+    patch:
+      default:
+        informational: true
 
 comment:
   layout: "diff, flags, files"
