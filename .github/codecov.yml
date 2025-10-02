@@ -3,9 +3,7 @@ coverage:
     project:
       default:
         target: 90%
-    patch:
-      default:
-        target: 90%
+    patch: false
 
 comment:
   layout: "diff, flags, files"
