@@ -63,6 +63,7 @@ class Converter:
         # Create the conversion data object
         data = ConversionData(
             spec=spec,
+            model=None,
             content={},
             libraries={},
             references={},

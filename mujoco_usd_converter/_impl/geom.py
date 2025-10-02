@@ -6,7 +6,7 @@ import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
 from .data import ConversionData, Tokens
-from .numpy import convert_color
+from .numpy import convert_color, convert_quatf, convert_vec3d
 from .utils import get_fromto_vectors, set_purpose, set_schema_attribute, set_transform
 
 __all__ = ["convert_geom", "get_geom_name"]
@@ -60,7 +60,6 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
     # FUTURE: specialize from class (asset: spot (type, group, scale, pos), shadow_hand (type, material, group, scale), barkour (rgba))
 
     set_purpose(geom_prim, geom.group)
-    set_transform(geom_prim, geom, data.spec)
     if source_name and geom_prim.GetPrim().GetName() != source_name:
         usdex.core.setDisplayName(geom_prim.GetPrim(), source_name)
 
@@ -89,6 +88,7 @@ def convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
     # we need to block the referenced display name
     if prim.GetPrim().GetName() != ref_mesh.GetPrim().GetName():
         usdex.core.blockDisplayName(prim.GetPrim())
+    set_transform(prim, geom, data.spec)
     return UsdGeom.Mesh(prim)
 
 
@@ -105,24 +105,78 @@ def convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conve
     plane.GetWidthAttr().Set(half_width * 2)
     plane.GetLengthAttr().Set(half_length * 2)
     plane.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(plane, Usd.TimeCode.Default()))
+    set_transform(plane, geom, data.spec)
     return plane
 
 
+def get_model_geom_id(geom: mujoco.MjsGeom, data: ConversionData) -> int:
+    if geom.name:
+        return data.model.geom(geom.name).id
+
+    # If no geom name is specified, the target geom is searched for within the parent body.
+    parent_body = geom.parent
+    if not parent_body.name:
+        Tf.Warn(f"Parent body name not found (geom id: {geom.id})")
+        return None
+
+    for i in range(data.model.ngeom):
+        body_id = data.model.geom_bodyid[i]
+        body_name = data.model.body(body_id).name
+        if body_name == parent_body.name and data.model.geom(i).type[0] == geom.type:
+            return data.model.geom(i).id
+
+    return None
+
+
+def get_mesh_fitting(geom: mujoco.MjsGeom, data: ConversionData) -> tuple[Gf.Vec3d, Gf.Vec3d, Gf.Quatf]:
+    if data.model is None:
+        try:
+            data.model = data.spec.compile()
+        except Exception as e:
+            Tf.RaiseRuntimeError(f"Failed to compile model: {e}")
+
+    size = None
+    pos = None
+    orient = None
+
+    geom_id = get_model_geom_id(geom, data)
+    if geom_id:
+        pos = convert_vec3d(data.model.geom(geom_id).pos)
+        orient = convert_quatf(data.model.geom(geom_id).quat)
+        size = convert_vec3d(data.model.geom(geom_id).size)
+
+    return size, pos, orient
+
+
 def convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Sphere:
-    sphere: UsdGeom.Sphere = UsdGeom.Sphere.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-    sphere.GetRadiusAttr().Set(geom.size[0])
-    sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
-    # FUTURE: mesh/fitscale
+    radius = geom.size[0]
+
+    # Obtain the results of the fit calculation from the compilation.
+    fit = False
+    position = None
+    rotation = None
     if hasattr(geom, "meshname") and geom.meshname:
-        Tf.Warn(f"Sphere '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
+        size, pos, orient = get_mesh_fitting(geom, data)
+        if size and pos and orient:
+            position = pos
+            rotation = orient
+            radius = size[0]
+            fit = True
+
+    sphere: UsdGeom.Sphere = UsdGeom.Sphere.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
+    sphere.GetRadiusAttr().Set(radius)
+    sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
+
+    if fit:
+        usdex.core.setLocalTransform(sphere.GetPrim(), position, rotation, Gf.Vec3f(1.0))
+    else:
+        set_transform(sphere, geom, data.spec)
+
     return sphere
 
 
 def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
     start, end = get_fromto_vectors(geom)
-    # FUTURE: mesh/fitscale
-    if hasattr(geom, "meshname") and geom.meshname:
-        Tf.Warn(f"Box '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:
         width = length = geom.size[0]
         height = (end - start).GetLength() / 2.0
@@ -131,49 +185,102 @@ def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Convers
         length = geom.size[1]
         height = geom.size[2]
 
+    # Obtain the results of the fit calculation from the compilation.
+    fit = False
+    position = None
+    rotation = None
+    if hasattr(geom, "meshname") and geom.meshname:
+        size, pos, orient = get_mesh_fitting(geom, data)
+        if size and pos and orient:
+            position = pos
+            rotation = orient
+            width = size[0]
+            length = size[1]
+            height = size[2]
+            fit = True
+
     cube: UsdGeom.Cube = UsdGeom.Cube.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     cube.GetSizeAttr().Set(2)  # author the default explicitly
     scale_op = cube.AddScaleOp()
     scale_op.Set(Gf.Vec3f(width, length, height))
     cube.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cube, Usd.TimeCode.Default()))
+
+    if fit:
+        scale = Gf.Vec3f(width, length, height)
+        usdex.core.setLocalTransform(cube.GetPrim(), position, rotation, scale)
+    else:
+        set_transform(cube, geom, data.spec)
+
     return cube
 
 
 def convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cylinder:
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
-    # FUTURE: mesh/fitscale
-    if hasattr(geom, "meshname") and geom.meshname:
-        Tf.Warn(f"Cylinder '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:  # noqa: SIM108
         height = (end - start).GetLength()
     else:
         height = geom.size[1] * 2
+
+    # Obtain the results of the fit calculation from the compilation.
+    fit = False
+    position = None
+    rotation = None
+    if hasattr(geom, "meshname") and geom.meshname:
+        size, pos, orient = get_mesh_fitting(geom, data)
+        if size and pos and orient:
+            position = pos
+            rotation = orient
+            radius = size[0]
+            height = size[1] * 2.0
+            fit = True
 
     cylinder: UsdGeom.Cylinder = UsdGeom.Cylinder.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     cylinder.GetAxisAttr().Set(UsdGeom.Tokens.z)
     cylinder.GetRadiusAttr().Set(radius)
     cylinder.GetHeightAttr().Set(height)
     cylinder.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cylinder, Usd.TimeCode.Default()))
+
+    if fit:
+        usdex.core.setLocalTransform(cylinder.GetPrim(), position, rotation, Gf.Vec3f(1.0))
+    else:
+        set_transform(cylinder, geom, data.spec)
+
     return cylinder
 
 
 def convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Capsule:
     radius = geom.size[0]
     start, end = get_fromto_vectors(geom)
-    # FUTURE: mesh/fitscale
-    if hasattr(geom, "meshname") and geom.meshname:
-        Tf.Warn(f"Capsule '{name}' has incorrect size. It needs to be scaled to fit '{geom.meshname}'")
     if start is not None and end is not None:  # noqa: SIM108
         height = (end - start).GetLength()
     else:
         height = geom.size[1] * 2
+
+    # Obtain the results of the fit calculation from the compilation.
+    fit = False
+    position = None
+    rotation = None
+    if hasattr(geom, "meshname") and geom.meshname:
+        size, pos, orient = get_mesh_fitting(geom, data)
+        if size and pos and orient:
+            position = pos
+            rotation = orient
+            radius = size[0]
+            height = size[1] * 2.0
+            fit = True
 
     capsule: UsdGeom.Capsule = UsdGeom.Capsule.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     capsule.GetAxisAttr().Set(UsdGeom.Tokens.z)
     capsule.GetRadiusAttr().Set(radius)
     capsule.GetHeightAttr().Set(height)
     capsule.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(capsule, Usd.TimeCode.Default()))
+
+    if fit:
+        usdex.core.setLocalTransform(capsule.GetPrim(), position, rotation, Gf.Vec3f(1.0))
+    else:
+        set_transform(capsule, geom, data.spec)
+
     return capsule
 
 
