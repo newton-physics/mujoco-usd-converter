@@ -18,7 +18,7 @@ class TestBodies(ConverterTestCase):
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(self.stage)
 
-    def test_bodies(self):
+    def test_articulation_roots(self):
         # Root body is an Articulation Root
         prim = self.stage.GetPrimAtPath("/bodies/Geometry/root_body")
         self.assertTrue(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
@@ -26,6 +26,11 @@ class TestBodies(ConverterTestCase):
 
         # Nested Body is not an articulation root
         prim = self.stage.GetPrimAtPath("/bodies/Geometry/root_body/nested_body")
+        self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+
+        # Kinematic Body is not an articulation root as there are no joints to its child bodies
+        prim = self.stage.GetPrimAtPath("/bodies/Geometry/kinematic_body")
         self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
 

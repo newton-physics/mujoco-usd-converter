@@ -4,6 +4,7 @@
             <geom type="box" size="0.1 0.1 0.1"/>
             <body name="nested_body" pos="0 1 0">
                 <geom type="box" size="0.1 0.1 0.1"/>
+                <joint type="hinge"/>
             </body>
         </body>
 
