@@ -129,157 +129,116 @@ def get_model_geom_id(geom: mujoco.MjsGeom, data: ConversionData) -> int:
 
 
 def get_mesh_fitting(geom: mujoco.MjsGeom, data: ConversionData) -> tuple[Gf.Vec3d, Gf.Vec3d, Gf.Quatf]:
+    if not hasattr(geom, "meshname") or not geom.meshname:
+        return None, None, None
+
     if data.model is None:
         try:
             data.model = data.spec.compile()
         except Exception as e:
             Tf.RaiseRuntimeError(f"Failed to compile model: {e}")
 
-    size = None
-    pos = None
-    orient = None
-
     geom_id = get_model_geom_id(geom, data)
-    if geom_id:
-        pos = convert_vec3d(data.model.geom(geom_id).pos)
-        orient = convert_quatf(data.model.geom(geom_id).quat)
-        size = convert_vec3d(data.model.geom(geom_id).size)
+    if geom_id is None:
+        return None, None, None
+
+    size = convert_vec3d(data.model.geom(geom_id).size)
+    pos = convert_vec3d(data.model.geom(geom_id).pos)
+    orient = convert_quatf(data.model.geom(geom_id).quat)
 
     return size, pos, orient
 
 
 def convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Sphere:
-    radius = geom.size[0]
-
-    # Obtain the results of the fit calculation from the compilation.
-    fit = False
-    position = None
-    rotation = None
-    if hasattr(geom, "meshname") and geom.meshname:
-        size, pos, orient = get_mesh_fitting(geom, data)
-        if size and pos and orient:
-            position = pos
-            rotation = orient
-            radius = size[0]
-            fit = True
-
     sphere: UsdGeom.Sphere = UsdGeom.Sphere.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
+
+    size, pos, orient = get_mesh_fitting(geom, data)
+    if size:
+        radius = size[0]
+        usdex.core.setLocalTransform(sphere.GetPrim(), pos, orient, Gf.Vec3f(1.0))
+    else:
+        radius = geom.size[0]
+        set_transform(sphere, geom, data.spec)
+
     sphere.GetRadiusAttr().Set(radius)
     sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
-
-    if fit:
-        usdex.core.setLocalTransform(sphere.GetPrim(), position, rotation, Gf.Vec3f(1.0))
-    else:
-        set_transform(sphere, geom, data.spec)
 
     return sphere
 
 
 def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
-    start, end = get_fromto_vectors(geom)
-    if start is not None and end is not None:
-        width = length = geom.size[0]
-        height = (end - start).GetLength() / 2.0
-    else:
-        width = geom.size[0]
-        length = geom.size[1]
-        height = geom.size[2]
-
-    # Obtain the results of the fit calculation from the compilation.
-    fit = False
-    position = None
-    rotation = None
-    if hasattr(geom, "meshname") and geom.meshname:
-        size, pos, orient = get_mesh_fitting(geom, data)
-        if size and pos and orient:
-            position = pos
-            rotation = orient
-            width = size[0]
-            length = size[1]
-            height = size[2]
-            fit = True
-
     cube: UsdGeom.Cube = UsdGeom.Cube.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     cube.GetSizeAttr().Set(2)  # author the default explicitly
-    scale_op = cube.AddScaleOp()
-    scale_op.Set(Gf.Vec3f(width, length, height))
-    cube.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cube, Usd.TimeCode.Default()))
 
-    if fit:
-        scale = Gf.Vec3f(width, length, height)
-        usdex.core.setLocalTransform(cube.GetPrim(), position, rotation, scale)
+    size, pos, orient = get_mesh_fitting(geom, data)
+    if size:
+        scale = Gf.Vec3f(size[0], size[1], size[2])
+        usdex.core.setLocalTransform(cube.GetPrim(), pos, orient, scale)
     else:
+        start, end = get_fromto_vectors(geom)
+        if start is not None and end is not None:
+            width = length = geom.size[0]
+            height = (end - start).GetLength() / 2.0
+        else:
+            width = geom.size[0]
+            length = geom.size[1]
+            height = geom.size[2]
+        # this is an extra scale to deform the cube into a prism
+        scale_op = cube.AddScaleOp()
+        scale_op.Set(Gf.Vec3f(width, length, height))
         set_transform(cube, geom, data.spec)
+
+    cube.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cube, Usd.TimeCode.Default()))
 
     return cube
 
 
 def convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cylinder:
-    radius = geom.size[0]
-    start, end = get_fromto_vectors(geom)
-    if start is not None and end is not None:  # noqa: SIM108
-        height = (end - start).GetLength()
-    else:
-        height = geom.size[1] * 2
-
-    # Obtain the results of the fit calculation from the compilation.
-    fit = False
-    position = None
-    rotation = None
-    if hasattr(geom, "meshname") and geom.meshname:
-        size, pos, orient = get_mesh_fitting(geom, data)
-        if size and pos and orient:
-            position = pos
-            rotation = orient
-            radius = size[0]
-            height = size[1] * 2.0
-            fit = True
-
     cylinder: UsdGeom.Cylinder = UsdGeom.Cylinder.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
+
+    size, pos, orient = get_mesh_fitting(geom, data)
+    if size:
+        radius = size[0]
+        height = size[1] * 2.0
+        usdex.core.setLocalTransform(cylinder.GetPrim(), pos, orient, Gf.Vec3f(1.0))
+    else:
+        radius = geom.size[0]
+        start, end = get_fromto_vectors(geom)
+        if start is not None and end is not None:  # noqa: SIM108
+            height = (end - start).GetLength()
+        else:
+            height = geom.size[1] * 2
+        set_transform(cylinder, geom, data.spec)
+
     cylinder.GetAxisAttr().Set(UsdGeom.Tokens.z)
     cylinder.GetRadiusAttr().Set(radius)
     cylinder.GetHeightAttr().Set(height)
     cylinder.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cylinder, Usd.TimeCode.Default()))
 
-    if fit:
-        usdex.core.setLocalTransform(cylinder.GetPrim(), position, rotation, Gf.Vec3f(1.0))
-    else:
-        set_transform(cylinder, geom, data.spec)
-
     return cylinder
 
 
 def convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Capsule:
-    radius = geom.size[0]
-    start, end = get_fromto_vectors(geom)
-    if start is not None and end is not None:  # noqa: SIM108
-        height = (end - start).GetLength()
-    else:
-        height = geom.size[1] * 2
-
-    # Obtain the results of the fit calculation from the compilation.
-    fit = False
-    position = None
-    rotation = None
-    if hasattr(geom, "meshname") and geom.meshname:
-        size, pos, orient = get_mesh_fitting(geom, data)
-        if size and pos and orient:
-            position = pos
-            rotation = orient
-            radius = size[0]
-            height = size[1] * 2.0
-            fit = True
-
     capsule: UsdGeom.Capsule = UsdGeom.Capsule.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
+
+    size, pos, orient = get_mesh_fitting(geom, data)
+    if size:
+        radius = size[0]
+        height = size[1] * 2.0
+        usdex.core.setLocalTransform(capsule.GetPrim(), pos, orient, Gf.Vec3f(1.0))
+    else:
+        radius = geom.size[0]
+        start, end = get_fromto_vectors(geom)
+        if start is not None and end is not None:  # noqa: SIM108
+            height = (end - start).GetLength()
+        else:
+            height = geom.size[1] * 2
+        set_transform(capsule, geom, data.spec)
+
     capsule.GetAxisAttr().Set(UsdGeom.Tokens.z)
     capsule.GetRadiusAttr().Set(radius)
     capsule.GetHeightAttr().Set(height)
     capsule.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(capsule, Usd.TimeCode.Default()))
-
-    if fit:
-        usdex.core.setLocalTransform(capsule.GetPrim(), position, rotation, Gf.Vec3f(1.0))
-    else:
-        set_transform(capsule, geom, data.spec)
 
     return capsule
 
