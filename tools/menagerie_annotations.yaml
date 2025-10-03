@@ -30,11 +30,11 @@ agilex_piper:
   xml_files:
   - asset: agilex_piper
     description: 'Model variant: piper'
-    evaluation_date: '2025/08/05'
+    evaluation_date: '2026/10/03'
     evaluator: 'andrewkaufman'
     filename: piper.xml
     model_name: piper
-    notes: 'Collision geometry is scaled incorrectly'
+    notes: 'Most actuation in MuJoCo looks good, but the gripper is broken without equality constraints'
     verified: 'No'
 agility_cassie:
   _metadata:
