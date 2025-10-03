@@ -1,0 +1,144 @@
+<mujoco model="geoms_fitting">
+  <compiler fitaabb="false"/>
+  <default>
+    <default class="base">
+      <default class="visual">
+        <geom group="2" type="mesh"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+      <mesh name="complex_cube" file="assets/complex_cube.obj"/>
+      <mesh name="rectangle_x" file="assets/box.obj" scale="1.2 0.3 0.2"/>
+      <mesh name="rectangle_y" file="assets/box.obj" scale="0.3 1.2 0.2"/>
+      <mesh name="rectangle_z" file="assets/box.obj" scale="0.3 0.2 1.2"/>
+  </asset>
+
+  <worldbody>
+    <!-- If the body name is not specified. -->
+    <body childclass="base" pos="0 0 -2">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="box" mesh="complex_cube"/>
+    </body>
+
+    <!-- When specifying a geom name. -->
+    <body name="use_geom_name" childclass="base" pos="2 0 -2">
+      <geom name="geom_complex_cube" class="visual" type="mesh" mesh="complex_cube"/>
+      <geom name="geom_complex_cube_collision" type="box" mesh="complex_cube"/>
+    </body>
+
+    <!-- Fitting with geometric primitives. If transform is not specified. -->
+    <body name="fitting_box_no_transform" childclass="base" pos="0 0 0">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="box" mesh="complex_cube"/>
+    </body>
+    <body name="fitting_sphere_no_transform" childclass="base" pos="2 0 0">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="sphere" mesh="complex_cube"/>
+    </body>
+    <body name="fitting_cylinder_no_transform" childclass="base" pos="4 0 0">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="cylinder" mesh="complex_cube"/>
+    </body>
+    <body name="fitting_capsule_no_transform" childclass="base" pos="6 0 0">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="capsule" mesh="complex_cube"/>
+    </body>
+
+    <!-- Unsupported geometric primitive. -->
+    <body name="fitting_ellipsoid_no_transform" childclass="base" pos="8 0 0">
+      <geom class="visual" type="mesh" mesh="complex_cube"/>
+      <geom type="ellipsoid" mesh="complex_cube"/>
+    </body>
+
+    <!-- Fitting with geometric primitives. Specify the transform. -->
+    <body name="fitting_box_with_transform" childclass="base" pos="0 0 2">
+      <geom class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="box" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+    </body>
+    <body name="fitting_sphere_with_transform" childclass="base" pos="2 0 2">
+      <geom class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="sphere" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+    </body>
+    <body name="fitting_cylinder_with_transform" childclass="base" pos="4 0 2">
+      <geom class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="cylinder" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+    </body>
+    <body name="fitting_capsule_with_transform" childclass="base" pos="6 0 2">
+      <geom class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="capsule" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+    </body>
+
+    <!-- Fitting with geometric primitives. Specify the fitscale. -->
+    <body name="fitting_box_with_fitscale" childclass="base" pos="0 0 4">
+      <geom class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="box" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2"/>
+    </body>
+    <body name="fitting_sphere_with_fitscale" childclass="base" pos="2 0 4">
+      <geom class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="sphere" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2"/>
+    </body>
+    <body name="fitting_cylinder_with_fitscale" childclass="base" pos="4 0 4">
+      <geom class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="cylinder" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2"/>
+    </body>
+    <body name="fitting_capsule_with_fitscale" childclass="base" pos="6 0 4">
+      <geom class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
+      <geom type="capsule" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2"/>
+    </body>
+
+    <!-- A box scaled non-uniformly in XYZ. -->
+    <body name="fitting_box_scaled_x" childclass="base" pos="0 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_x"/>
+      <geom type="box" mesh="rectangle_x"/>
+    </body>
+    <body name="fitting_box_scaled_y" childclass="base" pos="0 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_y"/>
+      <geom type="box" mesh="rectangle_y"/>
+    </body>
+    <body name="fitting_box_scaled_z" childclass="base" pos="0 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_z"/>
+      <geom type="box" mesh="rectangle_z"/>
+    </body>
+
+    <body name="fitting_sphere_scaled_x" childclass="base" pos="2 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_x"/>
+      <geom type="sphere" mesh="rectangle_x"/>
+    </body>
+    <body name="fitting_sphere_scaled_y" childclass="base" pos="2 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_y"/>
+      <geom type="sphere" mesh="rectangle_y"/>
+    </body>
+    <body name="fitting_sphere_scaled_z" childclass="base" pos="2 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_z"/>
+      <geom type="sphere" mesh="rectangle_z"/>
+    </body>
+
+    <body name="fitting_cylinder_scaled_x" childclass="base" pos="4 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_x"/>
+      <geom type="cylinder" mesh="rectangle_x"/>
+    </body>
+    <body name="fitting_cylinder_scaled_y" childclass="base" pos="4 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_y"/>
+      <geom type="cylinder" mesh="rectangle_y"/>
+    </body>
+    <body name="fitting_cylinder_scaled_z" childclass="base" pos="4 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_z"/>
+      <geom type="cylinder" mesh="rectangle_z"/>
+    </body>
+
+    <body name="fitting_capsule_scaled_x" childclass="base" pos="6 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_x"/>
+      <geom type="capsule" mesh="rectangle_x"/>
+    </body>
+    <body name="fitting_capsule_scaled_y" childclass="base" pos="6 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_y"/>
+      <geom type="capsule" mesh="rectangle_y"/>
+    </body>
+    <body name="fitting_capsule_scaled_z" childclass="base" pos="6 0 6">
+      <geom class="visual" type="mesh" mesh="rectangle_z"/>
+      <geom type="capsule" mesh="rectangle_z"/>
+    </body>
+  </worldbody>
+</mujoco>

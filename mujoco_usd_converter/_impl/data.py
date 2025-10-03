@@ -23,6 +23,7 @@ class Tokens:
 @dataclass
 class ConversionData:
     spec: mujoco.MjSpec
+    model: mujoco.MjModel | None
     content: dict[Tokens, Usd.Stage]
     libraries: dict[Tokens, Usd.Stage]
     references: dict[Tokens, dict[str, Usd.Prim]]
