@@ -25,7 +25,7 @@ We run regular benchmarks on the [MuJoCo Menagerie](https://github.com/google-de
 
 Specific implementation details are based on the "MJC to USD Conceptual Data Mapping" document, which is a collaboration between Google DeepMind and NVIDIA. This document will be made public once the project moves out of the alpha phase.
 
-One important detail is that this document recommends nested rigid bodies within articulations, as it more faithfully matches the kinematic tree in MuJoCo and meets the needs of reduced coordinate solvers. There is an [open proposal](https://github.com/PixarAnimationStudios/OpenUSD-proposals/pull/82) to adopt this change to the UsdPhysics specification. However, as it is a spec change, existing applications may not support this style of nesting.
+One important detail is that this document recommends nested rigid bodies within articulations, as it more faithfully matches the kinematic tree in MuJoCo and meets the needs of reduced coordinate solvers. Support for nested bodies in UsdPhysics is fairly new (as of USD 25.11), and some existing applications may not support this style of nesting.
 
 The output asset structure is based on NVIDIA's [Principles of Scalable Asset Structure in OpenUSD](https://docs.omniverse.nvidia.com/usd/latest/learn-openusd/independent/asset-structure-principles.html).
 
