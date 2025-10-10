@@ -93,7 +93,6 @@ def convert_mesh(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
 
 
 def convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Plane:
-    plane: UsdGeom.Plane = UsdGeom.Plane.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
     half_width = geom.size[0]
     half_length = geom.size[1]
     # special case for infinite plane in MuJoCo, we need to set a reasonable width and length for USD
@@ -102,9 +101,7 @@ def convert_plane(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conve
         half_width = UsdGeom.GetStageMetersPerUnit(parent.GetStage()) * 10
     if half_length == 0:
         half_length = UsdGeom.GetStageMetersPerUnit(parent.GetStage()) * 10
-    plane.GetWidthAttr().Set(half_width * 2)
-    plane.GetLengthAttr().Set(half_length * 2)
-    plane.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(plane, Usd.TimeCode.Default()))
+    plane: UsdGeom.Plane = usdex.core.definePlane(parent, name, half_width * 2, half_length * 2, UsdGeom.Tokens.z)
     set_transform(plane, geom, data.spec)
     return plane
 
@@ -150,25 +147,20 @@ def get_mesh_fitting(geom: mujoco.MjsGeom, data: ConversionData) -> tuple[Gf.Vec
 
 
 def convert_sphere(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Sphere:
-    sphere: UsdGeom.Sphere = UsdGeom.Sphere.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-
     size, pos, orient = get_mesh_fitting(geom, data)
+    radius = size[0] if size else geom.size[0]
+    sphere: UsdGeom.Sphere = usdex.core.defineSphere(parent, name, radius)
+
     if size:
-        radius = size[0]
         usdex.core.setLocalTransform(sphere.GetPrim(), pos, orient, Gf.Vec3f(1.0))
     else:
-        radius = geom.size[0]
         set_transform(sphere, geom, data.spec)
-
-    sphere.GetRadiusAttr().Set(radius)
-    sphere.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(sphere, Usd.TimeCode.Default()))
 
     return sphere
 
 
 def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cube:
-    cube: UsdGeom.Cube = UsdGeom.Cube.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-    cube.GetSizeAttr().Set(2)  # author the default explicitly
+    cube: UsdGeom.Cube = usdex.core.defineCube(parent, name, size=2)
 
     size, pos, orient = get_mesh_fitting(geom, data)
     if size:
@@ -188,19 +180,14 @@ def convert_box(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Convers
         scale_op.Set(Gf.Vec3f(width, length, height))
         set_transform(cube, geom, data.spec)
 
-    cube.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cube, Usd.TimeCode.Default()))
-
     return cube
 
 
 def convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Cylinder:
-    cylinder: UsdGeom.Cylinder = UsdGeom.Cylinder.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-
     size, pos, orient = get_mesh_fitting(geom, data)
     if size:
         radius = size[0]
         height = size[1] * 2.0
-        usdex.core.setLocalTransform(cylinder.GetPrim(), pos, orient, Gf.Vec3f(1.0))
     else:
         radius = geom.size[0]
         start, end = get_fromto_vectors(geom)
@@ -208,24 +195,22 @@ def convert_cylinder(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Co
             height = (end - start).GetLength()
         else:
             height = geom.size[1] * 2
-        set_transform(cylinder, geom, data.spec)
 
-    cylinder.GetAxisAttr().Set(UsdGeom.Tokens.z)
-    cylinder.GetRadiusAttr().Set(radius)
-    cylinder.GetHeightAttr().Set(height)
-    cylinder.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(cylinder, Usd.TimeCode.Default()))
+    cylinder: UsdGeom.Cylinder = usdex.core.defineCylinder(parent, name, radius, height, UsdGeom.Tokens.z)
+
+    if size:
+        usdex.core.setLocalTransform(cylinder.GetPrim(), pos, orient, Gf.Vec3f(1.0))
+    else:
+        set_transform(cylinder, geom, data.spec)
 
     return cylinder
 
 
 def convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: ConversionData) -> UsdGeom.Capsule:
-    capsule: UsdGeom.Capsule = UsdGeom.Capsule.Define(parent.GetStage(), parent.GetPath().AppendChild(name))
-
     size, pos, orient = get_mesh_fitting(geom, data)
     if size:
         radius = size[0]
         height = size[1] * 2.0
-        usdex.core.setLocalTransform(capsule.GetPrim(), pos, orient, Gf.Vec3f(1.0))
     else:
         radius = geom.size[0]
         start, end = get_fromto_vectors(geom)
@@ -233,12 +218,13 @@ def convert_capsule(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Con
             height = (end - start).GetLength()
         else:
             height = geom.size[1] * 2
-        set_transform(capsule, geom, data.spec)
 
-    capsule.GetAxisAttr().Set(UsdGeom.Tokens.z)
-    capsule.GetRadiusAttr().Set(radius)
-    capsule.GetHeightAttr().Set(height)
-    capsule.CreateExtentAttr().Set(UsdGeom.Boundable.ComputeExtentFromPlugins(capsule, Usd.TimeCode.Default()))
+    capsule: UsdGeom.Capsule = usdex.core.defineCapsule(parent, name, radius, height, UsdGeom.Tokens.z)
+
+    if size:
+        usdex.core.setLocalTransform(capsule.GetPrim(), pos, orient, Gf.Vec3f(1.0))
+    else:
+        set_transform(capsule, geom, data.spec)
 
     return capsule
 
