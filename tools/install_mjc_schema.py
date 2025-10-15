@@ -27,7 +27,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
 
     def download_schema_files(self):
         """Download the MJC schema files from GitHub"""
-        schema_url = "https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/3.3.5/src/experimental/usd/mjcPhysics"
+        schema_url = "https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/3.3.7/src/experimental/usd/mjcPhysics"
         for url, target_path in (
             (f"{schema_url}/generatedSchema.usda", self.target_dir / "generatedSchema.usda"),
             (f"{schema_url}/plugInfo.json", self.target_dir / "plugInfo.json"),
