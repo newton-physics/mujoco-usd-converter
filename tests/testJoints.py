@@ -20,10 +20,12 @@ class TestJoints(ConverterTestCase):
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body1"))
         self.assertTrue(body1)
         self.assertTrue(body1.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body1.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body2 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body1/body2"))
         self.assertTrue(body2)
         self.assertFalse(body2.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body2.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/hinge_joints/Geometry/body1/body2/PhysicsRevoluteJoint"))
         self.assertTrue(joint)
@@ -43,10 +45,12 @@ class TestJoints(ConverterTestCase):
         body3 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body3"))
         self.assertTrue(body3)
         self.assertTrue(body3.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body3.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body4 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4"))
         self.assertTrue(body4)
         self.assertFalse(body4.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body4.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/PhysicsRevoluteJoint"))
         self.assertTrue(joint)
@@ -67,6 +71,7 @@ class TestJoints(ConverterTestCase):
         body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body5"))
         self.assertTrue(body5)
         self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body5.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body5/PhysicsRevoluteJoint"))
         self.assertTrue(joint)
@@ -87,6 +92,7 @@ class TestJoints(ConverterTestCase):
         body6 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body6"))
         self.assertTrue(body6)
         self.assertFalse(body6.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body6.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/hinge_joints/Geometry/body3/body4/body6/PhysicsRevoluteJoint"))
         self.assertTrue(joint)
@@ -118,10 +124,12 @@ class TestJoints(ConverterTestCase):
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body1"))
         self.assertTrue(body1)
         self.assertTrue(body1.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body1.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body2 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body1/body2"))
         self.assertTrue(body2)
         self.assertFalse(body2.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body2.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/slide_joints/Geometry/body1/body2/PhysicsPrismaticJoint"))
         self.assertTrue(joint)
@@ -141,10 +149,12 @@ class TestJoints(ConverterTestCase):
         body3 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body3"))
         self.assertTrue(body3)
         self.assertTrue(body3.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body3.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body4 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4"))
         self.assertTrue(body4)
         self.assertFalse(body4.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body4.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint2 = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4/slide2"))
         self.assertTrue(joint2)
@@ -165,6 +175,7 @@ class TestJoints(ConverterTestCase):
         body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4/body5"))
         self.assertTrue(body5)
         self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body5.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint3 = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/slide_joints/Geometry/body3/body4/body5/PhysicsPrismaticJoint"))
         self.assertTrue(joint3)
@@ -190,10 +201,12 @@ class TestJoints(ConverterTestCase):
         body1 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body1"))
         self.assertTrue(body1)
         self.assertTrue(body1.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body1.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body2 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body1/body2"))
         self.assertTrue(body2)
         self.assertFalse(body2.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body2.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body1/body2/PhysicsSphericalJoint"))
         self.assertTrue(joint)
@@ -213,10 +226,12 @@ class TestJoints(ConverterTestCase):
         body3 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3"))
         self.assertTrue(body3)
         self.assertTrue(body3.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(body3.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         body4 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4"))
         self.assertTrue(body4)
         self.assertFalse(body4.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body4.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint2 = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/PhysicsSphericalJoint"))
         self.assertTrue(joint2)
@@ -236,6 +251,7 @@ class TestJoints(ConverterTestCase):
         body5 = UsdPhysics.RigidBodyAPI(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/body5"))
         self.assertTrue(body5)
         self.assertFalse(body5.GetPrim().HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertFalse(body5.GetPrim().HasAPI("NewtonArticulationRootAPI"))
 
         joint3 = UsdPhysics.SphericalJoint(stage.GetPrimAtPath("/ball_joints/Geometry/body3/body4/body5/PhysicsSphericalJoint"))
         self.assertTrue(joint3)
@@ -353,7 +369,7 @@ class TestJoints(ConverterTestCase):
         custom_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body1/custom_joint")
         self.assertTrue(custom_joint.IsValid())
         self.assertTrue(custom_joint.IsA(UsdPhysics.RevoluteJoint))
-        self.assertTrue(custom_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI")))
+        self.assertTrue(custom_joint.HasAPI("MjcJointAPI"))
 
         # Check that all MJC properties are authored
         for property in custom_joint.GetPropertiesInNamespace("mjc"):
@@ -412,7 +428,7 @@ class TestJoints(ConverterTestCase):
         default_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body2/default_joint")
         self.assertTrue(default_joint.IsValid())
         self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
-        self.assertTrue(default_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI")))
+        self.assertTrue(default_joint.HasAPI("MjcJointAPI"))
         self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrclimited").HasAuthoredValue())
         self.assertEqual(default_joint.GetAttribute("mjc:actuatorfrclimited").Get(), "auto")
         self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrcrange:min").HasAuthoredValue())

@@ -31,7 +31,7 @@ class TestSites(ConverterTestCase):
         self.assertEqual(box.GetSizeAttr().Get(), 2)
         self.assertTrue(Gf.IsClose(usdex.core.getLocalTransform(site).GetScale(), Gf.Vec3d(0.1, 0.2, 0.3), 1e-6))
         self.assertEqual(box.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
-        self.assertTrue(site.GetPrim().HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
+        self.assertTrue(site.GetPrim().HasAPI("MjcSiteAPI"))
         self.assertEqual(site.GetAttribute("mjc:group").Get(), 0)
 
         world_site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/worldsite")
@@ -40,7 +40,7 @@ class TestSites(ConverterTestCase):
         # default size for sites is 0.005
         self.assertEqual(world_sphere.GetRadiusAttr().Get(), 0.005)
         self.assertEqual(world_sphere.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
-        self.assertTrue(world_site.GetPrim().HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
+        self.assertTrue(world_site.GetPrim().HasAPI("MjcSiteAPI"))
         self.assertEqual(world_site.GetAttribute("mjc:group").Get(), 1)
 
     def test_sites_in_physics_layer(self):
@@ -76,7 +76,7 @@ class TestSites(ConverterTestCase):
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/body/site")
-        self.assertTrue(site_over.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
+        self.assertTrue(site_over.HasAPI("MjcSiteAPI"))
 
         world_site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/worldsite")
-        self.assertTrue(world_site_over.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")))
+        self.assertTrue(world_site_over.HasAPI("MjcSiteAPI"))

@@ -22,8 +22,9 @@ def convert_scene(data: ConversionData):
     # author the scene in the physics layer
     scene: UsdPhysics.Scene = UsdPhysics.Scene.Define(physics_stage, asset_stage.GetPseudoRoot().GetPath().AppendChild(safe_name))
     scene_prim: Usd.Prim = scene.GetPrim()
-    # apply the MJC scene API
-    scene_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI"))
+    # apply the Newton and MJC scene APIs
+    scene_prim.ApplyAPI("NewtonSceneAPI")
+    scene_prim.ApplyAPI("MjcSceneAPI")
 
     # reference the scene in the asset layer, but from the content layer
     content_scene: Usd.Prim = content_stage.GetPseudoRoot().GetChild(safe_name)
@@ -33,6 +34,13 @@ def convert_scene(data: ConversionData):
     gravity_vector: Gf.Vec3d = convert_vec3d(data.spec.option.gravity)
     scene.CreateGravityDirectionAttr().Set(gravity_vector.GetNormalized())
     scene.CreateGravityMagnitudeAttr().Set(gravity_vector.GetLength())
+
+    # set newton scene attributes
+    set_schema_attribute(scene_prim, "newton:maxSolverIterations", data.spec.option.iterations)
+    timestep = data.spec.option.timestep
+    set_schema_attribute(scene_prim, "newton:timeStepsPerSecond", int(1.0 / timestep) if timestep and timestep > 0 else None)
+    gravity_enabled = not is_disabled(1 << 7, data)
+    set_schema_attribute(scene_prim, "newton:gravityEnabled", gravity_enabled)
 
     # Flag attributes - disable flags (default enabled = 1, disabled when bit is set)
     set_schema_attribute(scene_prim, "mjc:flag:actuation", not is_disabled(1 << 11, data))
@@ -45,7 +53,7 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:flag:eulerdamp", not is_disabled(1 << 15, data))
     set_schema_attribute(scene_prim, "mjc:flag:filterparent", not is_disabled(1 << 10, data))
     set_schema_attribute(scene_prim, "mjc:flag:frictionloss", not is_disabled(1 << 2, data))
-    set_schema_attribute(scene_prim, "mjc:flag:gravity", not is_disabled(1 << 7, data))
+    set_schema_attribute(scene_prim, "mjc:flag:gravity", gravity_enabled)
     set_schema_attribute(scene_prim, "mjc:flag:island", not is_disabled(1 << 18, data))
     set_schema_attribute(scene_prim, "mjc:flag:limit", not is_disabled(1 << 3, data))
     set_schema_attribute(scene_prim, "mjc:flag:midphase", not is_disabled(1 << 14, data))
@@ -85,7 +93,7 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:sdf_initpoints", data.spec.option.sdf_initpoints)
     set_schema_attribute(scene_prim, "mjc:option:sdf_iterations", data.spec.option.sdf_iterations)
     set_schema_attribute(scene_prim, "mjc:option:solver", get_solver_token(data.spec.option.solver))
-    set_schema_attribute(scene_prim, "mjc:option:timestep", data.spec.option.timestep)
+    set_schema_attribute(scene_prim, "mjc:option:timestep", timestep)
     set_schema_attribute(scene_prim, "mjc:option:tolerance", data.spec.option.tolerance)
     set_schema_attribute(scene_prim, "mjc:option:viscosity", data.spec.option.viscosity)
     set_schema_attribute(scene_prim, "mjc:option:wind", convert_vec3d(data.spec.option.wind))
