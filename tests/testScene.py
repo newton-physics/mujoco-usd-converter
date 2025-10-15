@@ -51,10 +51,12 @@ class TestScene(ConverterTestCase):
             "mjc:flag:filterparent",
             "mjc:flag:frictionloss",
             "mjc:flag:gravity",
+            "mjc:flag:island",
             "mjc:flag:limit",
             "mjc:flag:midphase",
             "mjc:flag:nativeccd",
-            "mjc:flag:passive",
+            "mjc:flag:spring",
+            "mjc:flag:damper",
             "mjc:flag:refsafe",
             "mjc:flag:sensor",
             "mjc:flag:warmstart",
@@ -69,7 +71,6 @@ class TestScene(ConverterTestCase):
             "mjc:flag:energy",
             "mjc:flag:fwdinv",
             "mjc:flag:invdiscrete",
-            "mjc:flag:island",
             "mjc:flag:multiccd",
             "mjc:flag:override",
         ]
@@ -80,7 +81,6 @@ class TestScene(ConverterTestCase):
 
         self.assertEqual(list(scene.GetAttribute("mjc:option:actuatorgroupdisable").Get()), [1, 3, 5])
 
-        self.assertAlmostEqual(scene.GetAttribute("mjc:option:apirate").Get(), 50)
         self.assertEqual(scene.GetAttribute("mjc:option:ccd_iterations").Get(), 100)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:ccd_tolerance").Get(), 0.00001)
         self.assertEqual(scene.GetAttribute("mjc:option:cone").Get(), "elliptic")
@@ -156,10 +156,12 @@ class TestScene(ConverterTestCase):
             "mjc:flag:filterparent",
             "mjc:flag:frictionloss",
             "mjc:flag:gravity",
+            "mjc:flag:island",
             "mjc:flag:limit",
             "mjc:flag:midphase",
             "mjc:flag:nativeccd",
-            "mjc:flag:passive",
+            "mjc:flag:spring",
+            "mjc:flag:damper",
             "mjc:flag:refsafe",
             "mjc:flag:sensor",
             "mjc:flag:warmstart",
@@ -173,7 +175,6 @@ class TestScene(ConverterTestCase):
             "mjc:flag:energy",
             "mjc:flag:fwdinv",
             "mjc:flag:invdiscrete",
-            "mjc:flag:island",
             "mjc:flag:multiccd",
             "mjc:flag:override",
         ]
@@ -184,8 +185,7 @@ class TestScene(ConverterTestCase):
 
         # Test that default values are accessible via schema defaults
         self.assertEqual(list(scene.GetAttribute("mjc:option:actuatorgroupdisable").Get()), [])
-        self.assertAlmostEqual(scene.GetAttribute("mjc:option:apirate").Get(), 100)
-        self.assertEqual(scene.GetAttribute("mjc:option:ccd_iterations").Get(), 50)
+        self.assertEqual(scene.GetAttribute("mjc:option:ccd_iterations").Get(), 35)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:ccd_tolerance").Get(), 0.000001)
         self.assertEqual(scene.GetAttribute("mjc:option:cone").Get(), "pyramidal")
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:density").Get(), 0)
