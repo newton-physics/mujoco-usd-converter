@@ -7,7 +7,7 @@ license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [
-    "mujoco>=3.3.5",
+    "mujoco==3.3.5",
     "usd-exchange>=2.1.0a3", # locked to USD 25.05
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",
