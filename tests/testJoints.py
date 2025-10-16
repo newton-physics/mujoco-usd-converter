@@ -342,6 +342,33 @@ class TestJoints(ConverterTestCase):
         self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
 
+    def test_newton_schema(self):
+        model = pathlib.Path("./tests/data/joint_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        custom_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body1/custom_joint")
+        self.assertTrue(custom_joint.IsValid())
+        self.assertTrue(custom_joint.IsA(UsdPhysics.RevoluteJoint))
+        self.assertTrue(custom_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("NewtonJointAPI")))
+
+        # Check that all Newton properties are authored
+        for property in custom_joint.GetPropertiesInNamespace("newton"):
+            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+
+        # Check that all attributes are authored correctly
+        self.assertTrue(custom_joint.GetAttribute("newton:armature").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:armature").Get(), 0.1)
+
+        # A joint with explicitly authored default values does not need to author any values in USD
+        default_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body2/default_joint")
+        self.assertTrue(default_joint.IsValid())
+        self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
+        self.assertTrue(default_joint.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("NewtonJointAPI")))
+        self.assertFalse(default_joint.GetAttribute("newton:armature").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:armature").Get(), 0.0)
+
     def test_mjc_schema(self):
         # Test that all joint attributes are authored correctly
         model = pathlib.Path("./tests/data/joint_attributes.xml")

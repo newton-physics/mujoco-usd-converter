@@ -67,18 +67,21 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.Physics][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        convert_joint_attributes(joint_prim.GetPrim(), joint)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def convert_joint_attributes(prim: Usd.Prim, joint: mujoco.MjsJoint):
+    prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("NewtonJointAPI"))
     prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsJointAPI"))
+
+    set_schema_attribute(prim, "newton:armature", joint.armature)
+    set_schema_attribute(prim, "mjc:armature", joint.armature)  # FUTURE: Remove once MuJoCo supports Newton schemas
 
     limited_token = mj_limited_to_token(joint.actfrclimited)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
     set_schema_attribute(prim, "mjc:actuatorfrcrange:min", joint.actfrcrange[0])
     set_schema_attribute(prim, "mjc:actuatorfrcrange:max", joint.actfrcrange[1])
     set_schema_attribute(prim, "mjc:actuatorgravcomp", bool(joint.actgravcomp))
-    set_schema_attribute(prim, "mjc:armature", joint.armature)
     set_schema_attribute(prim, "mjc:damping", joint.damping)
     set_schema_attribute(prim, "mjc:frictionloss", joint.frictionloss)
     set_schema_attribute(prim, "mjc:group", joint.group)
