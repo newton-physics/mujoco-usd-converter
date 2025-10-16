@@ -10,6 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import requests
+
 
 def get_version_from_wheel(wheel_name):
     """Extract version from wheel filename."""
@@ -34,6 +36,44 @@ def is_stable_release(version):
     # Check for pre-release suffixes (dev, rc)
     # Allow alpha and beta tags
     return not re.search(r"(dev|rc)", version_part)
+
+
+def send_kitmaker_post(version: str, wheel_filename: str):
+    """Send a POST request to the KitMaker endpoint to trigger wheel publish"""
+
+    omniverse_pypi_url = os.environ.get("OMNIVERSE_PYPI_URL")
+    if not omniverse_pypi_url:
+        raise RuntimeError("OMNIVERSE_PYPI_URL is not set")
+    kitmaker_pic = os.environ.get("KITMAKER_PIC")
+    if not kitmaker_pic:
+        raise RuntimeError("KITMAKER_PIC is not set")
+
+    payload = {
+        "project_name": "mujoco-usd-converter",
+        "payload": [
+            {
+                "pic": kitmaker_pic,
+                "job_type": "wheel-release-job",
+                "publish_to": "both_devzone_pypi",
+                "url": f"{omniverse_pypi_url}/mujoco-usd-converter/{version}/{wheel_filename}",
+                "size": "small",
+                "upload": True,
+            }
+        ],
+    }
+
+    service_token = os.environ.get("KITMAKER_SERVICE_TOKEN")
+    if not service_token:
+        raise RuntimeError("KITMAKER_SERVICE_TOKEN is not set")
+    headers = {"accept": "application/json", "Authorization": f"Bearer {service_token}", "Content-Type": "application/json"}
+
+    # Mujoco project id is 171
+    usdex_kitmaker_url = os.environ.get("KITMAKER_UPLOAD_URL")
+    if not usdex_kitmaker_url:
+        raise RuntimeError("KITMAKER_UPLOAD_URL is not set")
+    response = requests.post(usdex_kitmaker_url, json=payload, headers=headers, verify=False)
+    if response.status_code not in [200, 201, 202]:
+        raise RuntimeError(f"Failed to send POST request to KitMaker: {response.status_code} | {response.text}")
 
 
 def main():
@@ -101,8 +141,16 @@ def main():
                     print(f"Failed to upload {wheel_filename} (exit code: {upload_result})")
                     sys.exit(1)
 
+                if is_stable_release(version):
+                    send_kitmaker_post(version, wheel_filename)
+                else:
+                    print(f"Skipping KitMaker post for dev release {version}")
+
             except Exception as e:
                 print(f"Failed to upload {wheel_filename}: {e}")
+                import traceback
+
+                traceback.print_exc()
                 sys.exit(1)
 
             print("")
