@@ -73,7 +73,9 @@ We recommend starting with [usdview](https://docs.omniverse.nvidia.com/usd/lates
 
 However, you cannot start simulating in usdview, as there is no native simulation engine in this application.
 
-To simulate this asset directly, the best application is [MuJoCo itself](#loading-usd-in-mujoco-simulate)!
+To simulate this asset in Newton, call [newton.ModelBuilder.add_usd()](https://newton-physics.github.io/newton/api/_generated/newton.ModelBuilder.html#newton.ModelBuilder.add_usd) to parse the asset and add it to your Newton model.
+
+It is also possible to simulate this asset directly in [MuJoCo itself](#loading-usd-in-mujoco-simulate).
 
 Simulating in other UsdPhysics enabled products (e.g. NVIDIA Omniverse, Unreal Engine, etc) may provided mixed results. The MJC physics data is structured hierarchically, which maximal coordinate solvers often do not support. Similarly, many of the important simulation settings are authored via MjcPhysics schemas, which is a USD plugin developed by Google DeepMind, that needs to be deployed & supported for import by the target runtime. In order to see faithful simulation in these applications, the USD asset will need to be modified to suit the expectations of each target runtime.
 

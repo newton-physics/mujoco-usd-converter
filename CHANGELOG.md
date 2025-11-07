@@ -1,3 +1,35 @@
+# 0.1.0a3
+
+## Features
+
+- Added geom fitting around a mesh using mujoco's native fitting algorithm
+- Simplified Gprim authoring using usd-exchange
+
+## Fixes
+
+- Removed `ArticulationRootAPI` from non-jointed bodies
+- Work around an issue with mujoco's `apirate` & `island` compiler options (by locking to older mujoco)
+
+## Documentation
+
+- Updated copyright notice as "The Newton Developers" to align with other Newton projects. License remains Apache 2.0
+- Fixed citation syntax
+- Simplified GitHub Issue forms
+- Updated Menageries benchmarks with latest results
+- Clarified that nested bodies are now officially supported in USD 25.11
+  - They also work in Newton using USD 25.05 and MuJoCO using any USD runtime
+
+## CI/CD
+
+- Added public CI/CD coverage for Windows & Linux x86
+
+## Dependencies
+
+- Updated to `usd-exchange==2.1.0`
+- Locked to `mujoco==3.3.5` due to an ABI breaking change in recent releases.
+  - This will be unlocked once we adopt 3.4.0 to move past the break
+- Fixed deployment dev dependencies
+
 # 0.1.0a2
 
 ## Documentation
@@ -76,9 +108,9 @@
   - Full programmatic access via `mujoco_usd_converter.Converter` class with configurable parameters for all CLI flags
   - Enables interactive editing of the MJCF data before conversion or of the USD Layers after conversion
 
-## Known Limitations
+# Known Limitations
 
-### USD Data Conversion
+## USD Data Conversion
 
 - **USD Asset Structure**
   - The value inheritance provided by MuJoCo's `defaults`, `class`, and `childclass` mechanism is baked down
@@ -92,7 +124,6 @@
   - Custom user properties on MuJoCo joints are not converted
 - **Geom Conversion**
   - Inline XML mesh topology is not implemented for meshes without files
-  - For basic geom (e.g cylinders), mesh/fitscale support is not implemented
   - Ellipsoid conversion is not implemented
   - Height Field conversion is not implemented
   - Signed Distance Field conversion is not implemented
@@ -121,15 +152,14 @@
   - The Visual, Statistic, and Size properties which control MuJoCo Simulate's default visualization and interactivity options are not preserved
   - Custom MuJoCo plugins & extensions are not mapped to USD
 
-### Using the USD Asset in MuJoCo Simulate
+## Using the USD Asset in MuJoCo Simulate
 
 - MuJoCo's native USD Importer may alter Prim names, mesh topology, and other properties.
   - The simulation results when loading USD in MuJoCo should match the source MJCF, but a perfect round-trip of MJCF XML is not expected.
 
-### Using the USD Asset in other USD Ecosystem applications
+## Using the USD Asset in other USD Ecosystem applications
 
 - As with MJCF and `MjSpec`, the USD Asset contains nested rigid bodies within articulations.
-  - Existing applications may not support this style of nesting.
-  - There is a [proposal](https://github.com/PixarAnimationStudios/OpenUSD-proposals/pull/82) to adopt this change to the UsdPhysics specification.
+  - Support for nested bodies in UsdPhysics is fairly new (as of USD 25.11), and some existing applications may not support this style of nesting.
 - Certain typed prims (e.g. `MjcActuator`) and applied APIs (e.g. `MjcJointAPI`) are MuJoCo specific
   - These likely will not import into other applications, unless special care is taken to account for the `MjcPhysics` schemas
