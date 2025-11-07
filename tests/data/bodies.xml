@@ -15,6 +15,17 @@
             </body>
         </body>
 
+        <body name="static_base" pos="2 0 0">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="articulated_child" pos="0 1 0">
+                <geom type="box" size="0.1 0.1 0.1"/>
+                <body name="leaf" pos="0 1 0">
+                    <geom type="box" size="0.1 0.1 0.1"/>
+                    <joint type="hinge"/>
+                </body>
+            </body>
+        </body>
+
         <body name="explicit_inertia_principal" pos="3 0 0">
             <inertial pos="0.1 0.2 0.3" quat="0.92388 0 0.38268 0" mass="2" diaginertia="0.2 0.1 0.3"/>
             <geom type="box" size="0.1 0.1 0.1"/>

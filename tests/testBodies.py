@@ -34,6 +34,11 @@ class TestBodies(ConverterTestCase):
         self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
 
+        # Static Base is an articulation root as it has a descendant body with a non-free joint
+        prim = self.stage.GetPrimAtPath("/bodies/Geometry/static_base")
+        self.assertTrue(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+
     def test_kinematic_body(self):
         # mocap body is kinematic
         prim = self.stage.GetPrimAtPath("/bodies/Geometry/kinematic_body")
