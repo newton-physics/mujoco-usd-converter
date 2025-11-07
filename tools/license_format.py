@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import logging
@@ -7,7 +7,7 @@ import re
 import sys
 from datetime import datetime
 
-__copyright = "# SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved."
+__copyright = "# SPDX-FileCopyrightText: Copyright (c) {years} The Newton Developers"
 __identifier = "# SPDX-License-Identifier: Apache-2.0"
 # Escape special regex characters in the copyright template
 __copyright_template = re.escape(__copyright).replace(re.escape("{years}"), "{years}")

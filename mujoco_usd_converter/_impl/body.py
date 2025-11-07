@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 
 import mujoco
@@ -76,7 +76,7 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
     safe_names = data.name_cache.getPrimNames(body_prim, [x.name for x in body.bodies])
     for child_body, safe_name in zip(body.bodies, safe_names):
         child_body_prim = convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
-        if child_body_prim and body == data.spec.worldbody and has_articulated_children(child_body):
+        if child_body_prim and body == data.spec.worldbody and has_articulated_descendants(child_body):
             child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
             UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
 
@@ -91,13 +91,16 @@ def is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
     return kinematic_attr and kinematic_attr.Get()
 
 
-def has_articulated_children(body: mujoco.MjsBody) -> bool:
-    # Check if this body has child bodies with non-free joints
+def has_articulated_descendants(body: mujoco.MjsBody) -> bool:
+    # Check if this body has child bodies with non-free joints (recursively)
     for child_body in body.bodies:
         if child_body.joints:
             for joint in child_body.joints:
                 if joint.type != mujoco.mjtJoint.mjJNT_FREE:
                     return True
+        # Recursively check all descendants until we find a body with non-free joints
+        if has_articulated_descendants(child_body):
+            return True
     return False
 
 
