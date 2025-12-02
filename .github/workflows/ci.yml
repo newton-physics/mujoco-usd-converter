@@ -31,7 +31,12 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+          [
+            ubuntu-latest,
+            ubuntu-24.04-arm,
+            windows-latest,
+          ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -59,7 +64,12 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+          [
+            ubuntu-latest,
+            ubuntu-24.04-arm,
+            windows-latest,
+          ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -104,7 +114,12 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+          [
+            ubuntu-latest,
+            ubuntu-24.04-arm,
+            windows-latest,
+          ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository

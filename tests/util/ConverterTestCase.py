@@ -6,7 +6,7 @@ import typing
 import omni.asset_validator
 import usdex.core
 import usdex.test
-from pxr import Gf, UsdGeom
+from pxr import UsdGeom
 
 
 class ConverterTestCase(usdex.test.TestCase):
@@ -22,10 +22,6 @@ class ConverterTestCase(usdex.test.TestCase):
         omni.asset_validator.IssuePredicates.ContainsMessage("Enabled rigid body is missing xformstack reset, when a child of a rigid body"),
         omni.asset_validator.IssuePredicates.ContainsMessage("ArticulationRootAPI definition on a kinematic rigid body is not allowed"),
     ]
-
-    def assert_rotation_almost_equal(self, rot1: Gf.Rotation, rot2: Gf.Rotation, tolerance: float = 1e-6):
-        self.assertTrue(Gf.IsClose(rot1.GetAxis(), rot2.GetAxis(), tolerance), f"Axis mismatch: {rot1.GetAxis()} != {rot2.GetAxis()}")
-        self.assertTrue(Gf.IsClose(rot1.GetAngle(), rot2.GetAngle(), tolerance), f"Angle mismatch: {rot1.GetAngle()} != {rot2.GetAngle()}")
 
     def setUp(self):
         super().setUp()
