@@ -22,7 +22,7 @@ class TestFrames(ConverterTestCase):
         transform = Gf.Transform(geom_mesh.ComputeLocalToWorldTransform(Usd.TimeCode.Default()))
 
         self.assertTrue(Gf.IsClose(transform.GetTranslation(), Gf.Vec3d(-pow(2, 0.5) / 2, -pow(2, 0.5) / 2, 0), 1e-6))
-        self.assert_rotation_almost_equal(transform.GetRotation(), Gf.Rotation(Gf.Vec3d(0, 0, 1), 90), 1e-4)
+        self.assertRotationsAlmostEqual(transform.GetRotation(), Gf.Rotation(Gf.Vec3d(0, 0, 1), 90), 1e-4)
         self.assertTrue(Gf.IsClose(transform.GetScale(), Gf.Vec3d(0.2, 0.2, 0.8), 1e-6))
 
         geom: Usd.Prim = stage.GetPrimAtPath("/frames/Geometry/mainBody/framedGeom")
@@ -32,5 +32,5 @@ class TestFrames(ConverterTestCase):
         transform = Gf.Transform(geom_cube.ComputeLocalToWorldTransform(Usd.TimeCode.Default()))
 
         self.assertTrue(Gf.IsClose(transform.GetTranslation(), Gf.Vec3d(pow(2, 0.5) / 2, -pow(2, 0.5) / 2, 0), 1e-6))
-        self.assert_rotation_almost_equal(transform.GetRotation(), Gf.Rotation(Gf.Vec3d(0, 0, 1), 90), 1e-4)
+        self.assertRotationsAlmostEqual(transform.GetRotation(), Gf.Rotation(Gf.Vec3d(0, 0, 1), 90), 1e-4)
         self.assertTrue(Gf.IsClose(transform.GetScale(), Gf.Vec3d(0.1, 0.1, 0.4), 1e-6))

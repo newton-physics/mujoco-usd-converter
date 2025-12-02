@@ -80,7 +80,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.47636932, 0.49139905, 0.5194262), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03074589395921, 0.501516571216, -0.02411530172992), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_with_transform/Box"
@@ -93,7 +93,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.47636932, 0.49139905, 0.5194262), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.13713980789211, 0.012144646664811, 0.001516571216727), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_with_fitscale/Box"
@@ -106,7 +106,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.5716432, 0.5896788, 0.62331146), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03713980789211, 0.012144646664811, 0.5015165712167), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_scaled_x/Box"
@@ -119,7 +119,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.1, 0.15, 0.6), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
 
         # A box scaled non-uniformly in XYZ. Long in the Y direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_scaled_y/Box"
@@ -132,7 +132,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.1, 0.15, 0.6), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
 
         # A box scaled non-uniformly in XYZ. Long in the Z direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_scaled_z/Box"
@@ -145,7 +145,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (0.1, 0.15, 0.6), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
 
     def test_geom_fitting_fitting_sphere(self):
         default_prim = self.stage.GetDefaultPrim()
@@ -161,7 +161,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03074589395921, 0.501516571216, -0.02411530172992), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_with_transform/Sphere"
@@ -174,7 +174,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.13713980789211, 0.012144646664811, 0.001516571216727), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_with_fitscale/Sphere"
@@ -187,7 +187,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03713980789211, 0.012144646664811, 0.5015165712167), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_scaled_x/Sphere"
@@ -200,7 +200,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
 
         # A box scaled non-uniformly in XYZ. Long in the Y direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_scaled_y/Sphere"
@@ -213,7 +213,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
 
         # A box scaled non-uniformly in XYZ. Long in the Z direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_scaled_z/Sphere"
@@ -226,7 +226,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
 
     def test_geom_fitting_cylinder(self):
         default_prim = self.stage.GetDefaultPrim()
@@ -244,7 +244,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03074589395921, 0.501516571216, -0.02411530172992), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_with_transform/Cylinder"
@@ -259,7 +259,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.1371398078921, 0.01214464666481, 0.00151657121672), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_with_fitscale/Cylinder"
@@ -274,7 +274,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03713980789211787, 0.012144646664811277, 0.5015165712167277), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_scaled_x/Cylinder"
@@ -289,7 +289,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
 
         # A box scaled non-uniformly in XYZ. Long in the y direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_scaled_y/Cylinder"
@@ -304,7 +304,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
 
         # A box scaled non-uniformly in XYZ. Long in the z direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_scaled_z/Cylinder"
@@ -319,7 +319,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
 
     def test_geom_fitting_capsule(self):
         default_prim = self.stage.GetDefaultPrim()
@@ -337,7 +337,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03074589395921, 0.501516571216, -0.02411530172992), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_with_transform/Capsule"
@@ -352,7 +352,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.13713980789211788, 0.012144646664811277, 0.001516571216727658), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_with_fitscale/Capsule"
@@ -367,7 +367,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0.03713980789211787, 0.012144646664811277, 0.5015165712167277), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_x/Capsule"
@@ -382,7 +382,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
 
         # A box scaled non-uniformly in XYZ. Long in the Y direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_y/Capsule"
@@ -397,7 +397,7 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
 
         # A box scaled non-uniformly in XYZ. Long in the Z direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_z/Capsule"
@@ -412,4 +412,4 @@ class TestGeomFitting(ConverterTestCase):
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
-        self.assert_rotation_almost_equal(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
