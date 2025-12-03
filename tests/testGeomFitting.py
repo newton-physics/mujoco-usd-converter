@@ -4,7 +4,7 @@ import pathlib
 
 import omni.asset_validator
 import usdex.core
-from pxr import Gf, Sdf, Usd, UsdGeom
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -14,7 +14,15 @@ class TestGeomFitting(ConverterTestCase):
     def setUp(self):
         super().setUp()
         model = pathlib.Path("./tests/data/geoms_fitting.xml")
-        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Parent body name not found.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Unsupported or unknown geom type mjtGeom.mjGEOM_ELLIPSOID for geom 'Ellipsoid'"),
+            ],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
         # the test data contains unwelded meshes, so we disable the weld checker
         self.validationEngine.disable_rule(omni.asset_validator.WeldChecker)

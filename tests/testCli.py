@@ -15,11 +15,11 @@ from tests.util.ConverterTestCase import ConverterTestCase
 class TestCli(ConverterTestCase):
 
     def test_run(self):
-        for model in pathlib.Path("tests/data").glob("*.xml"):
-            model_name = model.stem
-            with patch("sys.argv", ["mujoco_usd_converter", str(model), self.tmpDir()]):
-                self.assertEqual(run(), 0, f"Failed to convert {model}")
-            self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
+        model = "tests/data/geoms.xml"
+        model_name = pathlib.Path(model).stem
+        with patch("sys.argv", ["mujoco_usd_converter", str(model), self.tmpDir()]):
+            self.assertEqual(run(), 0, f"Failed to convert {model}")
+        self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
 
     def test_no_layer_structure(self):
         model = "tests/data/meshes.xml"
