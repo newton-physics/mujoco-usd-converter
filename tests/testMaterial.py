@@ -76,7 +76,7 @@ class TestMaterial(ConverterTestCase):
         self.assertEqual(material.GetPrim().GetName(), "Grid")
         self.assertEqual(material.GetPrim().GetParent(), self.stage.GetPrimAtPath(f"/{self.model_name}/Materials"))
         # materials are references to the material library layer
-        self.assertTrue(material.GetPrim().GetReferences())
+        self.assertTrue(material.GetPrim().HasAuthoredReferences())
 
     def test_unnamed_texture_material(self):
         shader = self._get_shader("UnnamedTexture")
