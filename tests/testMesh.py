@@ -22,7 +22,7 @@ class TestMesh(ConverterTestCase):
         stl_mesh_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/body1/StlBox")
         self.assertTrue(stl_mesh_prim)
         # meshes are references to the geometry library layer
-        self.assertTrue(stl_mesh_prim.GetReferences())
+        self.assertTrue(stl_mesh_prim.HasAuthoredReferences())
         usd_mesh_stl = UsdGeom.Mesh(stl_mesh_prim)
         self.assertTrue(usd_mesh_stl.GetPointsAttr().HasAuthoredValue())
         self.assertTrue(usd_mesh_stl.GetFaceVertexCountsAttr().HasAuthoredValue())
@@ -38,7 +38,7 @@ class TestMesh(ConverterTestCase):
         obj_mesh_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/body1/body2/ObjBox")
         self.assertTrue(obj_mesh_prim)
         # meshes are references to the geometry library layer
-        self.assertTrue(obj_mesh_prim.GetReferences())
+        self.assertTrue(obj_mesh_prim.HasAuthoredReferences())
         usd_mesh_obj = UsdGeom.Mesh(obj_mesh_prim)
         self.assertTrue(usd_mesh_obj.GetPointsAttr().HasAuthoredValue())
         self.assertTrue(usd_mesh_obj.GetFaceVertexCountsAttr().HasAuthoredValue())
@@ -57,7 +57,7 @@ class TestMesh(ConverterTestCase):
         mesh_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/body1/body2/box")
         self.assertTrue(mesh_prim)
         # meshes are references to the geometry library layer
-        self.assertTrue(mesh_prim.GetReferences())
+        self.assertTrue(mesh_prim.HasAuthoredReferences())
         usd_mesh = UsdGeom.Mesh(mesh_prim)
         self.assertTrue(usd_mesh.GetPointsAttr().HasAuthoredValue())
         self.assertTrue(usd_mesh.GetFaceVertexCountsAttr().HasAuthoredValue())

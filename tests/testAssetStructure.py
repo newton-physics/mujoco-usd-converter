@@ -167,7 +167,7 @@ class TestAssetStructure(ConverterTestCase):
         # Test that all descendant prims which are meshes are references
         for prim in geometry_stage.TraverseAll():
             if prim.IsA(UsdGeom.Mesh):
-                self.assertTrue(prim.GetReferences(), f"Mesh {prim.GetPath()} should be a reference")
+                self.assertTrue(prim.HasAuthoredReferences(), f"Mesh {prim.GetPath()} should be a reference")
                 prim_specs: list[Sdf.PrimSpec] = prim.GetPrimStack()
                 self.assertEqual(len(prim_specs), 2)
                 self.assertEqual(prim_specs[0].layer.identifier, (parent_path / pathlib.Path("./Payload/Geometry.usda")).as_posix())
