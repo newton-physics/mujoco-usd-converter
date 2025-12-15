@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import json
+import tomllib
 from pathlib import Path
 
 import requests
@@ -27,10 +28,25 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
 
     def download_schema_files(self):
         """Download the MJC schema files from GitHub"""
-        schema_url = "https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/3.3.5/src/experimental/usd/mjcPhysics"
+
+        # Get the mujoco version from the uv.lock file
+        mujoco_version = None
+        with open("uv.lock", "rb") as f:
+            uv_lock = tomllib.load(f)
+        packages = uv_lock["package"]
+        for package in packages:
+            if package["name"] == "mujoco":
+                mujoco_version = package["version"]
+                break
+        if mujoco_version is None:
+            raise RuntimeError("Mujoco version not found in uv.lock")
+
+        # Get the schema url from the mujoco version
+        schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
+
         for url, target_path in (
             (f"{schema_url}/generatedSchema.usda", self.target_dir / "generatedSchema.usda"),
-            (f"{schema_url}/plugInfo.json", self.target_dir / "plugInfo.json"),
+            (f"{schema_url}/plugInfo.json", self.target_dir / "plugInfo.json")
         ):
             self.download_schema_file(url, target_path)
 
