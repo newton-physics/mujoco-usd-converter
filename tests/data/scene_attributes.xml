@@ -5,7 +5,7 @@
             inertiagrouprange="1 3" saveinertial="true"
             settotalmass="10.5" usethread="false"/>
 
-  <option timestep="0.01" apirate="50"
+  <option timestep="0.01"
           impratio="0.5" tolerance="1e-6"
           ls_tolerance="0.02" noslip_tolerance="0.00001"
           ccd_tolerance="0.00001"
@@ -23,16 +23,16 @@
           actuatorgroupdisable="1 3 5">
     <flag constraint="disable" equality="disable"
           frictionloss="disable" limit="disable"
-          contact="disable" passive="disable"
+          contact="disable" spring="disable" damper="disable"
           gravity="disable" clampctrl="disable"
           warmstart="disable" filterparent="disable"
           actuation="disable" refsafe="disable"
           sensor="disable" midphase="disable"
           eulerdamp="disable" autoreset="disable"
-          nativeccd="disable"
+          nativeccd="disable" island="disable"
           energy="enable" fwdinv="enable"
           invdiscrete="enable" multiccd="enable"
-          island="enable" override="enable"/>
+          override="enable"/>
   </option>
 
   <worldbody>
