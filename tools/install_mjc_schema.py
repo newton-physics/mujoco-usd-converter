@@ -1,15 +1,63 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import json
+import re
 from pathlib import Path
 
 import requests
-import tomllib
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 class MjcPhysicsSchemaBuildHook(BuildHookInterface):
     PLUGIN_NAME = "mjc_physics_schema"
+
+    @staticmethod
+    def __read_uv_lock_package_version(lock_path: Path, package_name: str) -> str:
+        """
+        Extract a package version from uv's lockfile without requiring a TOML parser.
+
+        `uv.lock` is TOML, but for our purposes we only need to scan `[[package]]` blocks:
+          [[package]]
+          name = "mujoco"
+          version = "3.4.0"
+        """
+        pkg_start_re = re.compile(r"^\s*\[\[package\]\]\s*$")
+        name_re = re.compile(r'^\s*name\s*=\s*"([^"]+)"\s*$')
+        version_re = re.compile(r'^\s*version\s*=\s*"([^"]+)"\s*$')
+
+        current_name: str | None = None
+        current_version: str | None = None
+        in_pkg = False
+
+        with lock_path.open("r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.rstrip("\n")
+
+                # Start of a new [[package]] block
+                if pkg_start_re.match(line):
+                    in_pkg = True
+                    current_name = None
+                    current_version = None
+                    continue
+
+                if not in_pkg:
+                    continue
+
+                m = name_re.match(line)
+                if m:
+                    current_name = m.group(1)
+                    if current_name == package_name and current_version is not None:
+                        return current_version
+                    continue
+
+                m = version_re.match(line)
+                if m:
+                    current_version = m.group(1)
+                    if current_name == package_name and current_version is not None:
+                        return current_version
+                    continue
+
+        raise RuntimeError(f"{package_name} version not found in {lock_path}")
 
     def initialize(self, version, build_data):
         """Called before the build starts"""
@@ -30,16 +78,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         """Download the MJC schema files from GitHub"""
 
         # Get the mujoco version from the uv.lock file
-        mujoco_version = None
-        with Path.open("uv.lock", "rb") as f:
-            uv_lock = tomllib.load(f)
-        packages = uv_lock["package"]
-        for package in packages:
-            if package["name"] == "mujoco":
-                mujoco_version = package["version"]
-                break
-        if mujoco_version is None:
-            raise RuntimeError("Mujoco version not found in uv.lock")
+        mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco")
 
         # Get the schema url from the mujoco version
         schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
