@@ -290,6 +290,9 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
 
     geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
 
+    if geom.name is not None and geom.name != "":
+        data.references[Tokens.Physics][geom.name] = geom_over
+
     collider: UsdPhysics.CollisionAPI = UsdPhysics.CollisionAPI.Apply(geom_over)
     if not collider_enabled:
         collider.CreateCollisionEnabledAttr().Set(False)
