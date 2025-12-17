@@ -1,0 +1,135 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-License-Identifier: Apache-2.0
+
+import mujoco
+import usdex.core
+from pxr import Gf, Tf, Usd, Vt
+
+from .data import ConversionData, Tokens
+from .numpy import convert_color
+from .utils import mj_limited_to_token, set_schema_attribute
+
+__all__ = ["convert_tendons"]
+
+
+def convert_tendons(data: ConversionData):
+    if not data.spec.tendons:
+        return
+
+    # Convert each tendon to a MjcTendon prim
+    physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
+    source_names = [get_tendon_name(tendon) for tendon in data.spec.tendons]
+    safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
+    for tendon, source_name, safe_name in zip(data.spec.tendons, source_names, safe_names):
+        tendon_prim = convert_tendon(physics_scope, safe_name, tendon, data)
+        if source_name != safe_name:
+            usdex.core.setDisplayName(tendon_prim, source_name)
+
+
+def get_tendon_name(tendon: mujoco.MjsTendon) -> str:
+    if tendon.name:
+        return tendon.name
+    else:
+        return f"Tendon_{tendon.id}"
+
+
+def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: ConversionData) -> Usd.Prim:
+    tendon_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
+    tendon_prim.SetTypeName("MjcTendon")
+
+    # stiffness, damping, friction, armature
+    set_schema_attribute(tendon_prim, "mjc:stiffness", tendon.stiffness)
+    # springlength can be a single value or a pair of values
+    if len(tendon.springlength) == 1:
+        springlength = [tendon.springlength[0], tendon.springlength[0]]
+    elif len(tendon.springlength) == 2:
+        springlength = tendon.springlength
+    else:
+        Tf.Warn(f"Springlength for tendon '{tendon.name}' is not a single value or a pair of values")
+        return tendon_prim
+    set_schema_attribute(tendon_prim, "mjc:springlength", Vt.DoubleArray(springlength))
+    set_schema_attribute(tendon_prim, "mjc:damping", tendon.damping)
+    set_schema_attribute(tendon_prim, "mjc:frictionloss", tendon.frictionloss)
+    # this must be an array of 2 elements
+    set_schema_attribute(tendon_prim, "mjc:solreffriction", Vt.DoubleArray(tendon.solref_friction))
+    # this must be an array of 5 elements
+    set_schema_attribute(tendon_prim, "mjc:solimpfriction", Vt.DoubleArray(tendon.solimp_friction))
+    set_schema_attribute(tendon_prim, "mjc:armature", tendon.armature)
+
+    # length range
+    set_schema_attribute(tendon_prim, "mjc:limited", mj_limited_to_token(tendon.limited))
+    set_schema_attribute(tendon_prim, "mjc:actuatorfrclimited", mj_limited_to_token(tendon.actfrclimited))
+    set_schema_attribute(tendon_prim, "mjc:range:min", tendon.range[0])
+    set_schema_attribute(tendon_prim, "mjc:range:max", tendon.range[1])
+    set_schema_attribute(tendon_prim, "mjc:actuatorfrcrange:min", tendon.actfrcrange[0])
+    set_schema_attribute(tendon_prim, "mjc:actuatorfrcrange:max", tendon.actfrcrange[1])
+    set_schema_attribute(tendon_prim, "mjc:margin", tendon.margin)
+    # this must be an array of 2 elements
+    set_schema_attribute(tendon_prim, "mjc:solreflimit", Vt.DoubleArray(tendon.solref_limit))
+    # this must be an array of 5 elements
+    set_schema_attribute(tendon_prim, "mjc:solimplimit", Vt.DoubleArray(tendon.solimp_limit))
+
+    # visual
+    color, opacity = convert_color(tendon.rgba)
+    set_schema_attribute(tendon_prim, "mjc:rgba", Gf.Vec4f(color[0], color[1], color[2], opacity))
+    set_schema_attribute(tendon_prim, "mjc:width", tendon.width)
+    set_schema_attribute(tendon_prim, "mjc:group", tendon.group)
+
+    # path
+    current_divisor = 1.0
+    divisors = [current_divisor]
+    side_sites = []
+    side_sites_indices = []
+    segment_counter = 0
+    segments = []
+    coefficients = []
+    for i in range(len(tendon.path)):
+        point = tendon.path[i]
+        segments.append(segment_counter)
+
+        if point.target:
+            if point.target.name in data.references[Tokens.Physics]:
+                target_path = data.references[Tokens.Physics][point.target.name].GetPath()
+                tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
+            else:
+                Tf.Warn(f"Target '{point.target}' not found for tendon '{tendon.name}'")
+                return tendon_prim
+
+        if point.sidesite:
+            # add only if it is not already in the list
+            if point.sidesite.name not in side_sites:
+                side_sites.append(point.sidesite.name)
+            if point.sidesite.name in data.references[Tokens.Physics]:
+                target_path = data.references[Tokens.Physics][point.sidesite.name].GetPath()
+                tendon_prim.CreateRelationship("mjc:sideSites", custom=False).AddTarget(target_path)
+                # Find this side site in the list of side sites
+                for j in range(len(side_sites)):
+                    if side_sites[j] == point.sidesite.name:
+                        side_sites_indices.append(j)
+                        break
+            else:
+                Tf.Warn(f"Sidesite '{point.sidesite}' not found for tendon '{tendon.name}'")
+                return tendon_prim
+        else:
+            side_sites_indices.append(-1)
+
+        if point.type == mujoco.mjtWrap.mjWRAP_PULLEY:
+            segment_counter += 1
+        elif point.type == mujoco.mjtWrap.mjWRAP_JOINT:
+            coefficients.append(point.coef)
+            divisors.append(current_divisor)
+            current_divisor = point.divisor
+
+    if len(coefficients) > 0:
+        # Force-write the type
+        tendon_prim.GetAttribute("mjc:type").Set("fixed")
+        set_schema_attribute(tendon_prim, "mjc:path:coef", Vt.DoubleArray(coefficients))
+    elif len(segments) > 0:
+        # Force-write the type
+        tendon_prim.GetAttribute("mjc:type").Set("spatial")
+        set_schema_attribute(tendon_prim, "mjc:path:segments", Vt.IntArray(segments))
+        set_schema_attribute(tendon_prim, "mjc:path:divisors", Vt.DoubleArray(divisors))
+        if len(side_sites_indices) > 0:
+            set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
+
+    return tendon_prim

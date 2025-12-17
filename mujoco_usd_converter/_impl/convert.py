@@ -15,6 +15,7 @@ from .data import ConversionData, Tokens
 from .material import convert_materials
 from .mesh import convert_meshes
 from .scene import convert_scene
+from .tendon import convert_tendons
 from .utils import get_authoring_metadata
 
 __all__ = ["Converter"]
@@ -117,6 +118,9 @@ class Converter:
         # author the kinematic tree
         convert_bodies(data)
 
+        # author the tendons
+        convert_tendons(data)
+
         # author the actuators
         convert_actuators(data)
 
@@ -141,8 +145,6 @@ class Converter:
             Tf.Warn("lights are not supported")
         if spec.keys:
             Tf.Warn("keys are not supported")
-        if spec.tendons:
-            Tf.Warn("tendons are not supported")
         if spec.flexes:
             Tf.Warn("flexes are not supported")
         if spec.skins:
