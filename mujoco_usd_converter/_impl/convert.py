@@ -87,10 +87,10 @@ class Converter:
             defaultPrimName=asset_name,
             upAxis=UsdGeom.Tokens.z,
             linearUnits=UsdGeom.LinearUnits.meters,
+            massUnits=UsdPhysics.MassUnits.kilograms,
             authoringMetadata=get_authoring_metadata(),
         )
         data.content[Tokens.Asset] = asset_stage
-        data.content[Tokens.Asset].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         root: Usd.Prim = usdex.core.defineXform(asset_stage, asset_stage.GetDefaultPrim().GetPath()).GetPrim()
         if asset_name != spec.modelname:
             usdex.core.setDisplayName(root, spec.modelname)
@@ -108,7 +108,6 @@ class Converter:
 
         # setup a content layer for physics
         data.content[Tokens.Physics] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
-        data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         data.references[Tokens.Physics] = {}
 
         # author the physics scene
