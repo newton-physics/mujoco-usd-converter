@@ -229,3 +229,32 @@ class TestTendons(ConverterTestCase):
                 self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
             else:
                 self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
+
+    def test_tendon_actuator(self):
+        # Test that the actuator is using tendon transmission correctly
+        model = pathlib.Path("./tests/data/tendon_actuator.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # A tendon is authored to USD if it is set to non-default values
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_actuator/Physics/coupled_tendon")
+        self.assertTrue(tendon.IsValid())
+        self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+
+        # Check that all attributes are authored correctly
+        self.assertEqual(tendon.GetAttribute("mjc:type").Get(), "fixed")
+        target_paths = [
+            "/tendon_actuator/Geometry/body1/hinge1",
+            "/tendon_actuator/Geometry/body1/body2/hinge2",
+        ]
+        self.assertEqual(tendon.GetRelationship("mjc:path").GetTargets(), target_paths)
+        self.assertEqual(tendon.GetAttribute("mjc:path:coef").Get(), [1.0, 1.0])
+
+        # Check that the actuator is using tendon transmission correctly
+        actuator: Usd.Prim = stage.GetPrimAtPath("/tendon_actuator/Physics/tendon_actuator")
+        self.assertTrue(actuator.IsValid())
+        self.assertEqual(actuator.GetTypeName(), "MjcActuator")
+
+        # Check that the actuator is using tendon transmission correctly
+        self.assertEqual(actuator.GetRelationship("mjc:target").GetTargets(), ["/tendon_actuator/Physics/coupled_tendon"])

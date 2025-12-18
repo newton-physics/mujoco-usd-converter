@@ -134,7 +134,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
 
     # Add this in case an actuator targets it
-    # @TODO: Add a test for this
     data.references[Tokens.Physics][tendon.name] = tendon_prim
 
     return tendon_prim
