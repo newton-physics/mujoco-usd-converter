@@ -258,3 +258,120 @@ class TestTendons(ConverterTestCase):
 
         # Check that the actuator is using tendon transmission correctly
         self.assertEqual(actuator.GetRelationship("mjc:target").GetTargets(), ["/tendon_actuator/Physics/coupled_tendon"])
+
+    def test_sidesites(self):
+        # Test that the spatial tendon is using sidesites correctly, also checks that non-collision geoms are targeted correctly
+        model = pathlib.Path("./tests/data/tendon_spatial_sidesites.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        base_path = "/tendon_spatial_sidesites"
+        geom_path = f"{base_path}/Geometry"
+        physics_path = f"{base_path}/Physics"
+
+        # Test multi_wrap_tendon - has 3 geom wraps with sidesites
+        multi_wrap: Usd.Prim = stage.GetPrimAtPath(f"{physics_path}/multi_wrap_tendon")
+        self.assertTrue(multi_wrap.IsValid())
+        self.assertEqual(multi_wrap.GetTypeName(), "MjcTendon")
+
+        # mjc:path - 7 elements: start_site, wrap_geom0, mid_site, wrap_geom1, between_site, wrap_geom2, end_site
+        expected_multi_wrap_path = [
+            f"{geom_path}/body0/start_site",
+            f"{geom_path}/body0/wrap_geom0",
+            f"{geom_path}/body0/body1/mid_site",
+            f"{geom_path}/body0/body1/wrap_geom1",
+            f"{geom_path}/body0/body1/body2/between_site",
+            f"{geom_path}/body0/body1/body2/wrap_geom2",
+            f"{geom_path}/body0/body1/body2/body3/end_site",
+        ]
+        self.assertEqual(multi_wrap.GetRelationship("mjc:path").GetTargets(), expected_multi_wrap_path)
+
+        # mjc:path:segments - all 0 since no pulleys
+        expected_multi_wrap_segments = [0, 0, 0, 0, 0, 0, 0]
+        self.assertEqual(list(multi_wrap.GetAttribute("mjc:path:segments").Get()), expected_multi_wrap_segments)
+
+        # mjc:sideSites - 3 sidesites
+        expected_multi_wrap_sidesites = [
+            f"{geom_path}/body0/sidesite0",
+            f"{geom_path}/body0/body1/sidesite1",
+            f"{geom_path}/body0/body1/body2/sidesite2",
+        ]
+        self.assertEqual(multi_wrap.GetRelationship("mjc:sideSites").GetTargets(), expected_multi_wrap_sidesites)
+
+        # mjc:sideSites:indices - index into sideSites array, -1 if no sidesite
+        expected_multi_wrap_indices = [-1, 0, -1, 1, -1, 2, -1]
+        self.assertEqual(list(multi_wrap.GetAttribute("mjc:sideSites:indices").Get()), expected_multi_wrap_indices)
+
+        # mjc:path:divisors - [1.0] since no pulleys
+        expected_multi_wrap_divisors = [1.0]
+        self.assertEqual(list(multi_wrap.GetAttribute("mjc:path:divisors").Get()), expected_multi_wrap_divisors)
+
+        # Test single_wrap_tendon - has 1 geom wrap with sidesite
+        single_wrap: Usd.Prim = stage.GetPrimAtPath(f"{physics_path}/single_wrap_tendon")
+        self.assertTrue(single_wrap.IsValid())
+
+        expected_single_wrap_path = [
+            f"{geom_path}/body0/start_site",
+            f"{geom_path}/body0/body1/wrap_geom1",
+            f"{geom_path}/body0/body1/body2/body3/end_site",
+        ]
+        self.assertEqual(single_wrap.GetRelationship("mjc:path").GetTargets(), expected_single_wrap_path)
+
+        expected_single_wrap_segments = [0, 0, 0]
+        self.assertEqual(list(single_wrap.GetAttribute("mjc:path:segments").Get()), expected_single_wrap_segments)
+
+        expected_single_wrap_sidesites = [f"{geom_path}/body0/body1/sidesite1"]
+        self.assertEqual(single_wrap.GetRelationship("mjc:sideSites").GetTargets(), expected_single_wrap_sidesites)
+
+        expected_single_wrap_indices = [-1, 0, -1]
+        self.assertEqual(list(single_wrap.GetAttribute("mjc:sideSites:indices").Get()), expected_single_wrap_indices)
+
+        expected_single_wrap_divisors = [1.0]
+        self.assertEqual(list(single_wrap.GetAttribute("mjc:path:divisors").Get()), expected_single_wrap_divisors)
+
+        # Test geom_no_sidesite_tendon - has 1 geom wrap but NO sidesite
+        geom_no_sidesite: Usd.Prim = stage.GetPrimAtPath(f"{physics_path}/geom_no_sidesite_tendon")
+        self.assertTrue(geom_no_sidesite.IsValid())
+
+        expected_geom_no_sidesite_path = [
+            f"{geom_path}/body0/start_site",
+            f"{geom_path}/body0/body1/wrap_geom1",
+            f"{geom_path}/body0/body1/body2/body3/end_site",
+        ]
+        self.assertEqual(geom_no_sidesite.GetRelationship("mjc:path").GetTargets(), expected_geom_no_sidesite_path)
+
+        expected_geom_no_sidesite_segments = [0, 0, 0]
+        self.assertEqual(list(geom_no_sidesite.GetAttribute("mjc:path:segments").Get()), expected_geom_no_sidesite_segments)
+
+        # No sidesites - relationship should have no targets
+        self.assertEqual(geom_no_sidesite.GetRelationship("mjc:sideSites").GetTargets(), [])
+
+        # sideSites:indices should NOT be authored when there are no sidesites
+        self.assertFalse(self.__has_authored_value(geom_no_sidesite.GetAttribute("mjc:sideSites:indices")))
+
+        expected_geom_no_sidesite_divisors = [1.0]
+        self.assertEqual(list(geom_no_sidesite.GetAttribute("mjc:path:divisors").Get()), expected_geom_no_sidesite_divisors)
+
+        # Test no_wrap_tendon - no geom wraps, just sites
+        no_wrap: Usd.Prim = stage.GetPrimAtPath(f"{physics_path}/no_wrap_tendon")
+        self.assertTrue(no_wrap.IsValid())
+
+        expected_no_wrap_path = [
+            f"{geom_path}/body0/start_site",
+            f"{geom_path}/body0/body1/mid_site",
+            f"{geom_path}/body0/body1/body2/body3/end_site",
+        ]
+        self.assertEqual(no_wrap.GetRelationship("mjc:path").GetTargets(), expected_no_wrap_path)
+
+        expected_no_wrap_segments = [0, 0, 0]
+        self.assertEqual(list(no_wrap.GetAttribute("mjc:path:segments").Get()), expected_no_wrap_segments)
+
+        # No sidesites - relationship should have no targets
+        self.assertEqual(no_wrap.GetRelationship("mjc:sideSites").GetTargets(), [])
+
+        # sideSites:indices should NOT be authored when there are no sidesites
+        self.assertFalse(self.__has_authored_value(no_wrap.GetAttribute("mjc:sideSites:indices")))
+
+        expected_no_wrap_divisors = [1.0]
+        self.assertEqual(list(no_wrap.GetAttribute("mjc:path:divisors").Get()), expected_no_wrap_divisors)
