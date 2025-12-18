@@ -45,7 +45,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     elif len(tendon.springlength) == 2:
         springlength = tendon.springlength
     else:
-        Tf.Warn(f"Springlength for tendon '{tendon.name}' is not a single value or a pair of values")
+        Tf.Warn(f"Springlength for tendon '{get_tendon_name(tendon)}' is not a single value or a pair of values")
         return tendon_prim
     set_schema_attribute(tendon_prim, "mjc:springlength", Vt.DoubleArray(springlength))
     set_schema_attribute(tendon_prim, "mjc:damping", tendon.damping)
@@ -76,6 +76,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     set_schema_attribute(tendon_prim, "mjc:group", tendon.group)
 
     # path
+    # @TODO: When a target exists more than once in the path the mjc:path will not work correctly because it's a set, not a list
     current_divisor = 1.0
     divisors = [current_divisor]
     side_sites = []
@@ -92,7 +93,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 target_path = data.references[Tokens.Physics][point.target.name].GetPath()
                 tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
             else:
-                Tf.Warn(f"Target '{point.target}' not found for tendon '{tendon.name}'")
+                Tf.Warn(f"Target '{point.target.name}' not found for tendon `{get_tendon_name(tendon)}`")
                 return tendon_prim
 
         if point.sidesite:
@@ -108,7 +109,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                         side_sites_indices.append(j)
                         break
             else:
-                Tf.Warn(f"Sidesite '{point.sidesite}' not found for tendon '{tendon.name}'")
+                Tf.Warn(f"Sidesite '{point.sidesite}' not found for tendon '{get_tendon_name(tendon)}'")
                 return tendon_prim
         else:
             side_sites_indices.append(-1)
@@ -129,7 +130,11 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
         tendon_prim.GetAttribute("mjc:type").Set("spatial")
         set_schema_attribute(tendon_prim, "mjc:path:segments", Vt.IntArray(segments))
         set_schema_attribute(tendon_prim, "mjc:path:divisors", Vt.DoubleArray(divisors))
-        if len(side_sites_indices) > 0:
+        if len(side_sites) > 0 and len(side_sites_indices) > 0:
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
+
+    # Add this in case an actuator targets it
+    # @TODO: Add a test for this
+    data.references[Tokens.Physics][tendon.name] = tendon_prim
 
     return tendon_prim

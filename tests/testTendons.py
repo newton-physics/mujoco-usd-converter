@@ -223,7 +223,6 @@ class TestTendons(ConverterTestCase):
             "mjc:path",
             "mjc:path:divisors",
             "mjc:path:segments",
-            "mjc:sideSites:indices",
         ]
         for property in default_tendon.GetPropertiesInNamespace("mjc"):
             if property.GetName() in authored_properties:
