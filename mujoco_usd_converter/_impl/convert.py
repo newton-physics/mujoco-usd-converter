@@ -126,7 +126,7 @@ class Converter:
 
         # optionally flatten the asset
         if not self.params.layer_structure:
-            export_flattened(asset_stage, output_dir, asset_dir, asset_stem, asset_format, self.params.comment)
+            asset_identifier = export_flattened(asset_stage, output_dir, asset_dir, asset_stem, asset_format, self.params.comment)
         else:
             usdex.core.saveStage(asset_stage, comment=self.params.comment)
 
