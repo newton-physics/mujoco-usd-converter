@@ -360,7 +360,11 @@ class TestAssetStructure(ConverterTestCase):
             [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time")],
             level=usdex.core.DiagnosticsLevel.eWarning,
         ):
-            mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
+            asset_identifier = mujoco_usd_converter.Converter(layer_structure=False).convert(model, output_dir)
+
+        # check that the asset identifier returned from convert() is the same as the usdc path
+        flattened_usdc_path = pathlib.Path(asset_identifier.path).absolute().as_posix()
+        self.assertEqual(flattened_usdc_path, usdc_path.absolute().as_posix())
 
         # check usdc and texture
         self.assertTrue(usdc_path.exists(), f"{usdc_path} not found")
