@@ -1,3 +1,18 @@
+# 0.1.0a4
+
+## Fixes
+
+- Fixed `AssetPath` returned by `Converter.convert()` when layer structure is disabled
+
+## CI/CD
+
+- Added public CI/CD coverage for Linux ARM
+
+## Dependencies
+
+- Updated to `usd-exchange==2.2.0`
+- Updated to `mujoco==3.4.0` due to ABI breaking changes in the 3.3 series
+
 # 0.1.0a3
 
 ## Features
