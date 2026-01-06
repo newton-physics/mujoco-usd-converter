@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import logging
@@ -9,9 +9,20 @@ from datetime import datetime
 
 __copyright = "# SPDX-FileCopyrightText: Copyright (c) {years} The Newton Developers"
 __identifier = "# SPDX-License-Identifier: Apache-2.0"
+__start_year = 2025
+
+# Build regex to match valid year patterns
+# Valid: single year (2025-current) OR range (start_year-end_year) where both <= current year
+# Invalid: future years beyond current year
+__current_year = datetime.now().year
+__single_years = "|".join(str(year) for year in range(__start_year, __current_year + 1))
+__range_starts = "|".join(str(year) for year in range(__start_year, __current_year + 1))
+__range_ends = "|".join(str(year) for year in range(__start_year, __current_year + 1))
+__years_pattern = f"(?:{__single_years}|(?:{__range_starts})-(?:{__range_ends}))"
+
 # Escape special regex characters in the copyright template
 __copyright_template = re.escape(__copyright).replace(re.escape("{years}"), "{years}")
-__copyright_years = __copyright_template.replace("{years}", f"(?:2025|(?:20[0-9][0-4])-{datetime.now().year})")
+__copyright_years = __copyright_template.replace("{years}", __years_pattern)
 __copyright_regex = re.compile(f"^{__copyright_years}$")
 
 
