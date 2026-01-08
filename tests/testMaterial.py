@@ -46,7 +46,8 @@ class TestMaterial(ConverterTestCase):
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
-        self.assertEqual(shader.GetInput("emissiveColor").Get(), Gf.Vec3f(0.5))
+        self.assertEqual(shader.GetInput("diffuseColor").Get(), Gf.Vec3f(1, 0, 0))
+        self.assertEqual(shader.GetInput("emissiveColor").Get(), Gf.Vec3f(0.5, 0, 0))
 
     def test_textured_material(self):
         shader = self._get_shader("Grid")

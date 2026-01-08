@@ -65,10 +65,10 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
         surface_shader.CreateInput("useSpecularWorkflow", Sdf.ValueTypeNames.Int).Set(1)
         surface_shader.CreateInput("specularColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(specular_color))
 
-    emissive_color = material.emission
-    if emissive_color != data.spec.default.material.emission:
+    emission_scalar = material.emission
+    if emission_scalar != data.spec.default.material.emission:
         surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
-        surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(emissive_color))
+        surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(emission_scalar * color)
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
         texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
