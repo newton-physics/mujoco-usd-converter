@@ -380,6 +380,10 @@ class TestAssetStructure(ConverterTestCase):
 
         texture_input: UsdShade.Input = shader.GetInput("diffuseColor")
         connected_source = texture_input.GetConnectedSource()
-        texture_prim = connected_source[0].GetPrim()
-        texture_file_attr = texture_prim.GetAttribute("inputs:file")
+        texture_shader_prim = UsdShade.Shader(connected_source[0].GetPrim())
+
+        # The values are defined in the material interface, not in the shader
+        value_attrs = UsdShade.Utils.GetValueProducingAttributes(texture_shader_prim.GetInput("file"))
+        self.assertEqual(value_attrs[0].GetPrim(), material_prim)
+        texture_file_attr = value_attrs[0]
         self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")

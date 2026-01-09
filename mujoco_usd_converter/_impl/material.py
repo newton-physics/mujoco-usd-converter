@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 import shutil
@@ -65,10 +65,10 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
         surface_shader.CreateInput("useSpecularWorkflow", Sdf.ValueTypeNames.Int).Set(1)
         surface_shader.CreateInput("specularColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(specular_color))
 
-    emissive_color = material.emission
-    if emissive_color != data.spec.default.material.emission:
+    emission_scalar = material.emission
+    if emission_scalar != data.spec.default.material.emission:
         surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
-        surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(emissive_color))
+        surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(emission_scalar * color)
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
         texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
@@ -82,6 +82,13 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     if not material_prim:
         Tf.RaiseRuntimeError(f'Failed to convert material "{name}"')
+
+    result = usdex.core.addPreviewMaterialInterface(material_prim)
+    if not result:
+        Tf.RaiseRuntimeError(f'Failed to add material instance to material prim "{material_prim.GetPath()}"')
+
+    material_prim.GetPrim().SetInstanceable(True)
+
     return material_prim
 
 
