@@ -17,18 +17,18 @@ def export_flattened(asset_stage: Usd.Stage, output_dir: str, asset_dir: str, as
     asset_identifier = f"{output_path.absolute().as_posix()}/{asset_stem}.{asset_format}"
     usdex.core.exportLayer(layer, asset_identifier, get_authoring_metadata(), comment)
 
-    # fix all PreviewMaterial inputs:file to ./Textures/xxx
+    # fix all PreviewMaterial material interface asset inputs from abs to rel paths (./Textures/xxx)
     stage = Usd.Stage.Open(asset_identifier)
     for prim in stage.Traverse():
-        if prim.IsA(UsdShade.Shader):
-            shader = UsdShade.Shader(prim)
-            file_input = shader.GetInput("file")
-            if file_input and file_input.Get() is not None:
-                file_path = pathlib.Path(file_input.Get().path if hasattr(file_input.Get(), "path") else file_input.Get())
-                tmpdir = pathlib.Path(tempfile.gettempdir())
-                if file_path.is_relative_to(tmpdir):
-                    new_path = f"./{Tokens.Textures}/{file_path.name}"
-                    file_input.Set(Sdf.AssetPath(new_path))
+        if prim.IsA(UsdShade.Material):
+            material = UsdShade.Material(prim)
+            for input in material.GetInputs(onlyAuthored=True):
+                if input.GetTypeName() == Sdf.ValueTypeNames.Asset:
+                    file_path = pathlib.Path(input.Get().path)
+                    tmpdir = pathlib.Path(tempfile.gettempdir())
+                    if file_path.is_relative_to(tmpdir):
+                        new_path = f"./{Tokens.Textures}/{file_path.name}"
+                        input.Set(Sdf.AssetPath(new_path))
     stage.Save()
     # copy texture to output dir
     temp_textures_dir = pathlib.Path(asset_dir) / Tokens.Payload / Tokens.Textures

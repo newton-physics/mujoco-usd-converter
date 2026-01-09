@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 
 import pathlib
@@ -31,23 +31,31 @@ class TestMaterial(ConverterTestCase):
         self.assertTrue(material_prim)
         return usdex.core.computeEffectivePreviewSurfaceShader(UsdShade.Material(material_prim))
 
+    def _get_input_value(self, shader: UsdShade.Shader, input_name: str):
+        value_attrs = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput(input_name))
+
+        # The values are defined in the material interface, not in the shader
+        self.assertEqual(value_attrs[0].GetPrim(), shader.GetPrim().GetParent())
+
+        return value_attrs[0].Get()
+
     def test_metallic_material(self):
         shader = self._get_shader("BlueMetallic")
-        self.assertEqual(shader.GetInput("diffuseColor").Get(), Gf.Vec3f(0, 0, 1))
-        self.assertEqual(shader.GetInput("opacity").Get(), 1)
-        self.assertAlmostEqual(shader.GetInput("roughness").Get(), 0.7)
-        self.assertAlmostEqual(shader.GetInput("metallic").Get(), 0.8)
+        self.assertEqual(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(0, 0, 1))
+        self.assertEqual(self._get_input_value(shader, "opacity"), 1)
+        self.assertAlmostEqual(self._get_input_value(shader, "roughness"), 0.7)
+        self.assertAlmostEqual(self._get_input_value(shader, "metallic"), 0.8)
         self.assertFalse(shader.GetInput("useSpecularWorkflow"))
 
     def test_specular_material(self):
         shader = self._get_shader("GreenSpecular")
-        self.assertEqual(shader.GetInput("useSpecularWorkflow").Get(), 1)
-        self.assertAlmostEqual(shader.GetInput("specularColor").Get(), Gf.Vec3f(0.8))
+        self.assertEqual(self._get_input_value(shader, "useSpecularWorkflow"), 1)
+        self.assertAlmostEqual(self._get_input_value(shader, "specularColor"), Gf.Vec3f(0.8))
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
-        self.assertEqual(shader.GetInput("diffuseColor").Get(), Gf.Vec3f(1, 0, 0))
-        self.assertEqual(shader.GetInput("emissiveColor").Get(), Gf.Vec3f(0.5, 0, 0))
+        self.assertEqual(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(1, 0, 0))
+        self.assertEqual(self._get_input_value(shader, "emissiveColor"), Gf.Vec3f(0.5, 0, 0))
 
     def test_textured_material(self):
         shader = self._get_shader("Grid")
@@ -60,9 +68,8 @@ class TestMaterial(ConverterTestCase):
 
         # Check that the connected source is a relative asset path to the expected texture
         connected_source = texture_input.GetConnectedSource()
-        texture_prim = connected_source[0].GetPrim()
-        texture_file_attr = texture_prim.GetAttribute("inputs:file")
-        self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")
+        texture_shader = UsdShade.Shader(connected_source[0].GetPrim())
+        self.assertEqual(self._get_input_value(texture_shader, "file").path, "./Textures/grid.png")
 
     def test_material_binding(self):
         textured_box_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Geometry/TexturedBox")
@@ -79,6 +86,15 @@ class TestMaterial(ConverterTestCase):
         # materials are references to the material library layer
         self.assertTrue(material.GetPrim().HasAuthoredReferences())
 
+    def test_instanceable_material(self):
+        shader = self._get_shader("BlueMetallic")
+        self.assertTrue(shader)
+        material_prim = shader.GetPrim().GetParent()
+        self.assertTrue(material_prim)
+        self.assertTrue(material_prim.GetPrim().IsInstanceable())
+        self.assertTrue(material_prim.GetPrim().IsInstance())
+        self.assertTrue(shader.GetPrim().IsInstanceProxy())
+
     def test_unnamed_texture_material(self):
         shader = self._get_shader("UnnamedTexture")
         self.assertTrue(shader)
@@ -86,6 +102,5 @@ class TestMaterial(ConverterTestCase):
         self.assertTrue(texture_input.HasConnectedSource())
 
         connected_source = texture_input.GetConnectedSource()
-        texture_prim = connected_source[0].GetPrim()
-        texture_file_attr = texture_prim.GetAttribute("inputs:file")
-        self.assertEqual(texture_file_attr.Get().path, "./Textures/grid.png")
+        texture_shader = UsdShade.Shader(connected_source[0].GetPrim())
+        self.assertEqual(self._get_input_value(texture_shader, "file").path, "./Textures/grid.png")

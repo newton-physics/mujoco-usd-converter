@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 import shutil
@@ -82,6 +82,13 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     if not material_prim:
         Tf.RaiseRuntimeError(f'Failed to convert material "{name}"')
+
+    result = usdex.core.addPreviewMaterialInterface(material_prim)
+    if not result:
+        Tf.RaiseRuntimeError(f'Failed to add material instance to material prim "{material_prim.GetPath()}"')
+
+    material_prim.GetPrim().SetInstanceable(True)
+
     return material_prim
 
 
