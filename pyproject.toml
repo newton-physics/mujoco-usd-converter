@@ -2,7 +2,7 @@
 name = "mujoco-usd-converter"
 dynamic = ["version"]
 description = "A MuJoCo to OpenUSD Data Converter"
-authors = [{name = "NVIDIA"}]
+authors = [{name = "Newton Developers"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
