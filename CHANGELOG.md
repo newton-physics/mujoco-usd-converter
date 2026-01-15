@@ -1,3 +1,21 @@
+# 0.1.0a5
+
+## Features
+
+- Added material interfaces and made materials instanceable
+
+## Fixes
+
+- Fixed material emission
+
+## Documentation
+
+- Fixed license linter
+
+## Dependencies
+
+- Updated to `usd-exchange==2.2.0`
+
 # 0.1.0a4
 
 ## Fixes
@@ -10,7 +28,7 @@
 
 ## Dependencies
 
-- Updated to `usd-exchange==2.2.0`
+- Updated to `usd-exchange==2.2.0rc2`
 - Updated to `mujoco==3.4.0` due to ABI breaking changes in the 3.3 series
 
 # 0.1.0a3
