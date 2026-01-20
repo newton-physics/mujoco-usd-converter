@@ -116,8 +116,7 @@ def convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     points = Vt.Vec3fArray.FromNumpy(vertices_array[unique_vertex_indices])
 
     normals = None
-    source_normals = attrib.normals
-    if len(source_normals) > 0:
+    if len(attrib.normals) > 0:
         normal_indices_in_shape = np.array(obj_mesh.normal_indices(), dtype=np.int32)
         unique_normal_indices = np.unique(normal_indices_in_shape)
 
@@ -133,8 +132,7 @@ def convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
         normals.index()  # re-index the normals to remove duplicates
 
     uvs = None
-    source_uvs = attrib.texcoords
-    if len(source_uvs) > 0:
+    if len(attrib.texcoords) > 0:
         texcoord_indices_in_shape = np.array(obj_mesh.texcoord_indices(), dtype=np.int32)
         unique_texcoord_indices = np.unique(texcoord_indices_in_shape)
 
