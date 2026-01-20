@@ -114,9 +114,6 @@ def convert_vec3f_array(source: np.ndarray) -> Vt.Vec3fArray:
     Raises:
         AssertionError: If the second dimension of the input array is not divisible by 3.
     """
-    num_elements, element_size = source.shape
+    _, element_size = source.shape
     assert element_size % 3 == 0
-    result = []
-    for i in range(num_elements):
-        result.extend([Gf.Vec3f(float(source[i][j]), float(source[i][j + 1]), float(source[i][j + 2])) for j in range(0, element_size, 3)])
-    return Vt.Vec3fArray(result)
+    return Vt.Vec3fArray.FromNumpy(source.reshape(-1, 3))
