@@ -81,7 +81,9 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco")
 
         # Get the schema url from the mujoco version
-        schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
+        # schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
+
+        schema_url = "https://raw.githubusercontent.com/google-deepmind/mujoco/refs/heads/main/src/experimental/usd/mjcPhysics/"
 
         for url, target_path in (
             (f"{schema_url}/generatedSchema.usda", self.target_dir / "generatedSchema.usda"),

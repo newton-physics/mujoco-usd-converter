@@ -133,7 +133,7 @@ mujoco_usd_converter --help
 
 By default the mujoco-usd-converter uses OpenUSD v25.05 & OpenUSD Exchange compiled for this same flavor. OpenUSD Exchange SDK can be compiled for many flavors of OpenUSD and Python. You can switch to a different flavor of OpenUSD by changing the `usd-exchange` version metadata within the the pyproject.toml or sdist.
 
-The converter also uses MuJoCo 3.3.5, which contains the newest MjcPhysics schemas & newest features required for USD interop in MuJoCo. You may update the pyproject.toml or sdist to a newer version of MuJoCo as needed, but you cannot use an older version.
+The converter also uses MuJoCo 3.4.1, which contains the newest MjcPhysics schemas & newest features required for USD interop in MuJoCo. You may update the pyproject.toml or sdist to a newer version of MuJoCo as needed, but you cannot use an older version.
 
 ### Requesting new Build Flavors
 
