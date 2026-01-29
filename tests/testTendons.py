@@ -102,6 +102,7 @@ class TestTendons(ConverterTestCase):
         authored_properties = [
             "mjc:type",
             "mjc:path",
+            "mjc:path:indices",
             "mjc:path:coef",
         ]
         for property in default_tendon.GetPropertiesInNamespace("mjc"):
@@ -221,6 +222,7 @@ class TestTendons(ConverterTestCase):
         authored_properties = [
             "mjc:type",
             "mjc:path",
+            "mjc:path:indices",
             "mjc:path:divisors",
             "mjc:path:segments",
         ]
@@ -249,6 +251,11 @@ class TestTendons(ConverterTestCase):
             "/tendon_actuator/Geometry/body1/body2/hinge2",
         ]
         self.assertEqual(tendon.GetRelationship("mjc:path").GetTargets(), target_paths)
+
+        expected_path_indices = [0, 1]
+        self.assertEqual(list(tendon.GetAttribute("mjc:path:indices").Get()), expected_path_indices)
+
+        # mjc:path:coef - [1.0, 1.0] since no pulleys
         self.assertEqual(tendon.GetAttribute("mjc:path:coef").Get(), [1.0, 1.0])
 
         # Check that the actuator is using tendon transmission correctly
@@ -286,6 +293,10 @@ class TestTendons(ConverterTestCase):
             f"{geom_path}/body0/body1/body2/body3/end_site",
         ]
         self.assertEqual(multi_wrap.GetRelationship("mjc:path").GetTargets(), expected_multi_wrap_path)
+
+        # mjc:path:indices - index into path array
+        expected_multi_wrap_indices = [0, 1, 2, 3, 4, 5, 6]
+        self.assertEqual(list(multi_wrap.GetAttribute("mjc:path:indices").Get()), expected_multi_wrap_indices)
 
         # mjc:path:segments - all 0 since no pulleys
         expected_multi_wrap_segments = [0, 0, 0, 0, 0, 0, 0]
@@ -375,3 +386,44 @@ class TestTendons(ConverterTestCase):
 
         expected_no_wrap_divisors = [1.0]
         self.assertEqual(list(no_wrap.GetAttribute("mjc:path:divisors").Get()), expected_no_wrap_divisors)
+
+    def test_tendon_pulley(self):
+        # @TODO: The pulley doesn't behave the same in mujoco, need to fix that...
+        # Test that the pulley tendon is authored correctly
+        model = pathlib.Path("./tests/data/tendon_pulley.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # A tendon is authored to USD if it is set to non-default values
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_pulley/Physics/four_to_one_pulley")
+        self.assertTrue(tendon.IsValid())
+        self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+
+        # Check that the path is authored correctly
+        targets = [
+            "/tendon_pulley/Geometry/support/anchor_left",
+            "/tendon_pulley/Geometry/heavy_weight/heavy_site",
+            "/tendon_pulley/Geometry/support/anchor_right",
+            "/tendon_pulley/Geometry/light_weight/light_site",
+        ]
+        self.assertEqual(tendon.GetRelationship("mjc:path").GetTargets(), targets)
+
+        expected_path_indices = [0, 1, 2, 3]
+        self.assertEqual(list(tendon.GetAttribute("mjc:path:indices").Get()), expected_path_indices)
+
+        expected_path_divisors = [0.5, 2.0]
+        actual_path_divisors = tendon.GetAttribute("mjc:path:divisors").Get()
+        self.assertEqual(len(actual_path_divisors), len(expected_path_divisors))
+        for i in range(len(actual_path_divisors)):
+            self.assertAlmostEqual(actual_path_divisors[i], expected_path_divisors[i])
+
+        expected_path_segments = [0, 0, 1, 1]
+        actual_path_segments = tendon.GetAttribute("mjc:path:segments").Get()
+        self.assertEqual(len(actual_path_segments), len(expected_path_segments))
+        for i in range(len(actual_path_segments)):
+            self.assertEqual(actual_path_segments[i], expected_path_segments[i])
+
+        # No sidesites - relationship should have no targets
+        self.assertEqual(tendon.GetRelationship("mjc:sideSites").GetTargets(), [])
+        self.assertFalse(self.__has_authored_value(tendon.GetAttribute("mjc:sideSites:indices")))

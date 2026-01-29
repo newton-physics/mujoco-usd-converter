@@ -1,0 +1,50 @@
+<mujoco model="tendon_pulley">
+  <compiler angle="radian" autolimits="true"/>
+
+  <option gravity="0 0 -9.81"/>
+
+  <default>
+    <joint damping="0.5" armature="0.01"/>
+    <geom rgba="0.6 0.6 0.6 1"/>
+  </default>
+
+  <worldbody>
+    <!-- Fixed support beam with two anchor points -->
+    <body name="support" pos="0 0 1.5">
+      <geom type="box" size="0.5 0.05 0.02" rgba="0.3 0.3 0.3 1"/>
+      <site name="anchor_left" pos="-0.2 0 -0.02" size="0.02" rgba="1 1 0 1"/>
+      <site name="anchor_right" pos="0.2 0 -0.02" size="0.02" rgba="1 1 0 1"/>
+    </body>
+
+    <!-- Left side: heavy weight (2kg) - positioned directly under anchor_left -->
+    <body name="heavy_weight" pos="-0.2 0 1.0">
+      <freejoint name="heavy_free"/>
+      <inertial mass="4.0" pos="0 0 0" diaginertia="0.01 0.01 0.01"/>
+      <geom type="box" size="0.08 0.08 0.08" rgba="0.8 0.2 0.2 1"/>
+      <site name="heavy_site" pos="0 0 0.08" size="0.015" rgba="1 0 0 1"/>
+    </body>
+
+    <!-- Right side: light weight (1kg) - slightly offset for gentle movement, balances with 2:1 pulley ratio -->
+    <body name="light_weight" pos="0.21 0 1.2">
+      <freejoint name="light_free"/>
+      <inertial mass="1.0" pos="0 0 0" diaginertia="0.005 0.005 0.005"/>
+      <geom type="box" size="0.06 0.06 0.06" rgba="0.2 0.2 0.8 1"/>
+      <site name="light_site" pos="0 0 0.06" size="0.015" rgba="0 0 1 1"/>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <!-- Pulley tendon: models a single physical pulley using two MJCF pulleys -->
+    <!-- In MJCF, each branch starts with a pulley element -->
+    <!-- Branch 1 (divisor=1): anchor_left to heavy_site -->
+    <!-- Branch 2 (divisor=2): anchor_right to light_site -->
+    <spatial name="four_to_one_pulley" width="0.008" rgba="0.9 0.6 0.1 1" stiffness="5000" damping="50">
+      <pulley divisor="0.5"/>
+      <site site="anchor_left"/>
+      <site site="heavy_site"/>
+      <pulley divisor="2.0"/>
+      <site site="anchor_right"/>
+      <site site="light_site"/>
+    </spatial>
+  </tendon>
+</mujoco>

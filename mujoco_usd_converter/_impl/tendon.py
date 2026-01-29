@@ -76,50 +76,69 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     set_schema_attribute(tendon_prim, "mjc:group", tendon.group)
 
     # path
-    # @TODO: When a target exists more than once in the path the mjc:path will not work correctly because it's a set, not a list
-    current_divisor = 1.0
-    divisors = [current_divisor]
+    divisors = [1.0]
     side_sites = []
     side_sites_indices = []
     segment_counter = 0
+    targets = []
+    target_indices = []
     segments = []
     coefficients = []
     for i in range(len(tendon.path)):
-        point = tendon.path[i]
-        segments.append(segment_counter)
+        wrap = tendon.path[i]
 
-        if point.target:
-            if point.target.name in data.references[Tokens.Physics]:
-                target_path = data.references[Tokens.Physics][point.target.name].GetPath()
-                tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
+        # print all useful information about the wrap in one line, depending on the type of wrap and the wrap properties
+        # wrap_info = f"Wrap {i}: type={wrap.type}"
+        # if wrap.type == mujoco.mjtWrap.mjWRAP_PULLEY:
+        #     wrap_info += f", divisor={wrap.divisor}"
+        # elif wrap.type == mujoco.mjtWrap.mjWRAP_JOINT:
+        #     wrap_info += f", coef={wrap.coef}"
+        # if wrap.target:
+        #     wrap_info += f", target={wrap.target.name}"
+        # if wrap.sidesite:
+        #     wrap_info += f", sidesite={wrap.sidesite.name}"
+        # print(wrap_info)
+
+        if wrap.type == mujoco.mjtWrap.mjWRAP_PULLEY:
+            # If a path starts with a pulley, it's a degenerate case
+            if i == 0:
+                divisors[0] = wrap.divisor
             else:
-                Tf.Warn(f"Target '{point.target.name}' not found for tendon `{get_tendon_name(tendon)}`")
+                segment_counter += 1
+                divisors.append(wrap.divisor)
+        elif wrap.type == mujoco.mjtWrap.mjWRAP_JOINT:
+            coefficients.append(wrap.coef)
+
+        if wrap.target:
+            segments.append(segment_counter)
+            if wrap.target.name in data.references[Tokens.Physics]:
+                target_path = data.references[Tokens.Physics][wrap.target.name].GetPath()
+                if target_path not in targets:
+                    targets.append(target_path)
+                    tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
+                    target_indices.append(len(targets) - 1)
+                else:
+                    target_indices.append(targets.index(target_path))
+            else:
+                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon `{get_tendon_name(tendon)}`")
                 return tendon_prim
 
-        if point.sidesite:
-            # add only if it is not already in the list
-            if point.sidesite.name not in side_sites:
-                side_sites.append(point.sidesite.name)
-            if point.sidesite.name in data.references[Tokens.Physics]:
-                target_path = data.references[Tokens.Physics][point.sidesite.name].GetPath()
-                tendon_prim.CreateRelationship("mjc:sideSites", custom=False).AddTarget(target_path)
-                # Find this side site in the list of side sites
-                for j in range(len(side_sites)):
-                    if side_sites[j] == point.sidesite.name:
-                        side_sites_indices.append(j)
-                        break
+            if wrap.sidesite:
+                if wrap.sidesite.name in data.references[Tokens.Physics]:
+                    target_path = data.references[Tokens.Physics][wrap.sidesite.name].GetPath()
+                    if target_path not in side_sites:
+                        side_sites.append(target_path)
+                        tendon_prim.CreateRelationship("mjc:sideSites", custom=False).AddTarget(target_path)
+                        side_sites_indices.append(len(side_sites) - 1)
+                    else:
+                        side_sites_indices.append(side_sites.index(target_path))
+                else:
+                    Tf.Warn(f"Sidesite '{wrap.sidesite}' not found for tendon '{get_tendon_name(tendon)}'")
+                    return tendon_prim
             else:
-                Tf.Warn(f"Sidesite '{point.sidesite}' not found for tendon '{get_tendon_name(tendon)}'")
-                return tendon_prim
-        else:
-            side_sites_indices.append(-1)
+                side_sites_indices.append(-1)
 
-        if point.type == mujoco.mjtWrap.mjWRAP_PULLEY:
-            segment_counter += 1
-        elif point.type == mujoco.mjtWrap.mjWRAP_JOINT:
-            coefficients.append(point.coef)
-            divisors.append(current_divisor)
-            current_divisor = point.divisor
+    set_schema_attribute(tendon_prim, "mjc:path:indices", Vt.IntArray(target_indices))
 
     if len(coefficients) > 0:
         # Force-write the type
@@ -128,6 +147,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     elif len(segments) > 0:
         # Force-write the type
         tendon_prim.GetAttribute("mjc:type").Set("spatial")
+
         set_schema_attribute(tendon_prim, "mjc:path:segments", Vt.IntArray(segments))
         set_schema_attribute(tendon_prim, "mjc:path:divisors", Vt.DoubleArray(divisors))
         if len(side_sites) > 0 and len(side_sites_indices) > 0:
