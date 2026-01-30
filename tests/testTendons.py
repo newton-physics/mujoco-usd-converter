@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-from pxr import Sdf, Usd
+import usdex.test
+from pxr import Sdf, Tf, Usd
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -387,7 +388,7 @@ class TestTendons(ConverterTestCase):
         expected_no_wrap_divisors = [1.0]
         self.assertEqual(list(no_wrap.GetAttribute("mjc:path:divisors").Get()), expected_no_wrap_divisors)
 
-    def test_tendon_pulley(self):
+    def test_tendon_pulley_degenerate(self):
         # @TODO: The pulley doesn't behave the same in mujoco, need to fix that...
         # Test that the pulley tendon is authored correctly
         model = pathlib.Path("./tests/data/tendon_pulley.xml")
@@ -399,6 +400,8 @@ class TestTendons(ConverterTestCase):
         tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_pulley/Physics/four_to_one_pulley")
         self.assertTrue(tendon.IsValid())
         self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+
+        self.assertEqual(tendon.GetAttribute("mjc:type").Get(), "spatial")
 
         # Check that the path is authored correctly
         targets = [
@@ -427,3 +430,111 @@ class TestTendons(ConverterTestCase):
         # No sidesites - relationship should have no targets
         self.assertEqual(tendon.GetRelationship("mjc:sideSites").GetTargets(), [])
         self.assertFalse(self.__has_authored_value(tendon.GetAttribute("mjc:sideSites:indices")))
+
+    def test_tendon_pulley_from_docs(self):
+        # Test that the pulley tendon is authored correctly
+        model = pathlib.Path("./tests/data/tendon_docs.xml")
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*lights are not supported.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # A tendon is authored to USD if it is set to non-default values
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_docs/Physics/Tendon_0")
+        self.assertTrue(tendon.IsValid())
+        self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+
+        self.assertEqual(tendon.GetAttribute("mjc:type").Get(), "spatial")
+
+        # Check that the path is authored correctly
+        targets = [
+            "/tendon_docs/Geometry/weight/s1",
+            "/tendon_docs/Geometry/s2",
+            "/tendon_docs/Geometry/Body/g1",
+            "/tendon_docs/Geometry/Body/s3",
+            "/tendon_docs/Geometry/Body/Body/g2",
+            "/tendon_docs/Geometry/Body/Body/s4",
+            "/tendon_docs/Geometry/Body/Body/s5",
+            "/tendon_docs/Geometry/Body/Body/Body/g3",
+            "/tendon_docs/Geometry/Body/Body/Body/s6",
+        ]
+        self.assertEqual(tendon.GetRelationship("mjc:path").GetTargets(), targets)
+
+        expected_path_indices = [0, 1, 2, 3, 3, 4, 5, 3, 4, 6, 7, 8]
+        self.assertEqual(tendon.GetAttribute("mjc:path:indices").Get(), expected_path_indices)
+
+        expected_path_divisors = [1, 2, 2]
+        actual_path_divisors = tendon.GetAttribute("mjc:path:divisors").Get()
+        self.assertEqual(len(actual_path_divisors), len(expected_path_divisors))
+        for i in range(len(actual_path_divisors)):
+            self.assertAlmostEqual(actual_path_divisors[i], expected_path_divisors[i])
+
+        expected_path_segments = [0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2]
+        self.assertEqual(tendon.GetAttribute("mjc:path:segments").Get(), expected_path_segments)
+
+        expected_side_sites = [
+            "/tendon_docs/Geometry/Body/Body/side2",
+            "/tendon_docs/Geometry/Body/Body/Body/side3",
+        ]
+        self.assertEqual(list(tendon.GetRelationship("mjc:sideSites").GetTargets()), expected_side_sites)
+        expected_side_sites_indices = [-1, -1, -1, -1, -1, 0, -1, -1, 0, -1, 1, -1]
+        self.assertEqual(list(tendon.GetAttribute("mjc:sideSites:indices").Get()), expected_side_sites_indices)
+
+        self.assertAlmostEqual(tendon.GetAttribute("mjc:range:max").Get(), 0.33)
+        expected_rgba = [0.95, 0.3, 0.3, 1]
+        for i in range(4):
+            self.assertAlmostEqual(tendon.GetAttribute("mjc:rgba").Get()[i], expected_rgba[i])
+        self.assertAlmostEqual(tendon.GetAttribute("mjc:width").Get(), 0.002)
+
+    def test_tendon_spatial_anchor(self):
+        # Test that the pulley tendon is authored correctly
+        model = pathlib.Path("./tests/data/tendon_spatial_anchor.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # A tendon is authored to USD if it is set to non-default values
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_spatial_anchor/Physics/anchor_tendon")
+        self.assertTrue(tendon.IsValid())
+        self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+
+        self.assertEqual(tendon.GetAttribute("mjc:type").Get(), "spatial")
+
+        # Check that the path is authored correctly
+        targets = [
+            "/tendon_spatial_anchor/Geometry/weight/weight_top",
+            "/tendon_spatial_anchor/Geometry/frame/anchor_left",
+            "/tendon_spatial_anchor/Geometry/frame/anchor_right",
+            "/tendon_spatial_anchor/Geometry/arm_base/arm_base_site",
+            "/tendon_spatial_anchor/Geometry/arm_base/arm_segment/arm_end/arm_end_site",
+        ]
+        self.assertEqual(tendon.GetRelationship("mjc:path").GetTargets(), targets)
+
+        expected_path_indices = [0, 1, 2, 3, 4]
+        self.assertEqual(tendon.GetAttribute("mjc:path:indices").Get(), expected_path_indices)
+
+        expected_path_divisors = [1.0]
+        actual_path_divisors = tendon.GetAttribute("mjc:path:divisors").Get()
+        self.assertEqual(len(actual_path_divisors), len(expected_path_divisors))
+        for i in range(len(actual_path_divisors)):
+            self.assertAlmostEqual(actual_path_divisors[i], expected_path_divisors[i])
+
+        expected_path_segments = [0, 0, 0, 0, 0]
+        self.assertEqual(tendon.GetAttribute("mjc:path:segments").Get(), expected_path_segments)
+
+        expected_side_sites = []
+        self.assertEqual(list(tendon.GetRelationship("mjc:sideSites").GetTargets()), expected_side_sites)
+        expected_side_sites_indices = []
+        self.assertEqual(list(tendon.GetAttribute("mjc:sideSites:indices").Get()), expected_side_sites_indices)
+
+        expected_rgba = [0.9, 0.6, 0.1, 1]
+        for i in range(4):
+            self.assertAlmostEqual(tendon.GetAttribute("mjc:rgba").Get()[i], expected_rgba[i])
+        self.assertAlmostEqual(tendon.GetAttribute("mjc:width").Get(), 0.01)
+
+        stiffness = 1000.0
+        self.assertAlmostEqual(tendon.GetAttribute("mjc:stiffness").Get(), stiffness)

@@ -50,7 +50,7 @@
 
   <!-- Spatial tendon: routes from weight, over anchors, to arm end -->
   <tendon>
-    <spatial name="anchor_tendon" width="0.01" rgba="0.9 0.6 0.1 1" stiffness="1000" damping="50">
+    <spatial name="anchor_tendon" width="0.01" rgba="0.9 0.6 0.1 1" stiffness="1000" damping="5">
       <site site="weight_top"/>
       <site site="anchor_left"/>
       <site site="anchor_right"/>
