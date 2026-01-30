@@ -66,11 +66,10 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
     if geom.material:
         bind_material(geom_prim, geom.material, data)
 
-    # set color and opacity primvars when they are not the default
-    if not np.array_equal(geom.rgba, data.spec.default.geom.rgba):
-        color, opacity = convert_color(geom.rgba)
-        usdex.core.Vec3fPrimvarData(UsdGeom.Tokens.constant, Vt.Vec3fArray([color])).setPrimvar(geom_prim.CreateDisplayColorPrimvar())
-        usdex.core.FloatPrimvarData(UsdGeom.Tokens.constant, Vt.FloatArray([opacity])).setPrimvar(geom_prim.CreateDisplayOpacityPrimvar())
+    # Always set color and opacity primvars, `data.spec.default.geom.rgba` will change with default geoms
+    color, opacity = convert_color(geom.rgba)
+    usdex.core.Vec3fPrimvarData(UsdGeom.Tokens.constant, Vt.Vec3fArray([color])).setPrimvar(geom_prim.CreateDisplayColorPrimvar())
+    usdex.core.FloatPrimvarData(UsdGeom.Tokens.constant, Vt.FloatArray([opacity])).setPrimvar(geom_prim.CreateDisplayOpacityPrimvar())
 
     if not isinstance(geom, mujoco.MjsSite):
         apply_physics(geom_prim.GetPrim(), geom, data)
