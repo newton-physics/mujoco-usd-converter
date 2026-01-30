@@ -443,7 +443,7 @@ class TestTendons(ConverterTestCase):
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        # A tendon is authored to USD if it is set to non-default values
+        # This verifies that we auto-generate a name for the tendon if it doesn't have one
         tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_docs/Physics/Tendon_0")
         self.assertTrue(tendon.IsValid())
         self.assertEqual(tendon.GetTypeName(), "MjcTendon")
@@ -497,10 +497,11 @@ class TestTendons(ConverterTestCase):
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        # A tendon is authored to USD if it is set to non-default values
-        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_spatial_anchor/Physics/anchor_tendon")
+        # This tendon has an invalid USD name, test that we auto-generate a name and display name
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_spatial_anchor/Physics/tn__anchortendon_oC")
         self.assertTrue(tendon.IsValid())
         self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+        self.assertEqual(tendon.GetDisplayName(), "anchor tendon")
 
         self.assertEqual(tendon.GetAttribute("mjc:type").Get(), "spatial")
 
@@ -538,3 +539,16 @@ class TestTendons(ConverterTestCase):
 
         stiffness = 1000.0
         self.assertAlmostEqual(tendon.GetAttribute("mjc:stiffness").Get(), stiffness)
+
+    def test_single_springlength_value(self):
+
+        model = pathlib.Path("./tests/data/tendon_single_springlength.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # Verify springlength=[0.5] becomes [0.5, 0.5]
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_single_springlength/Physics/tether")
+        self.assertTrue(tendon.IsValid())
+        self.assertEqual(tendon.GetTypeName(), "MjcTendon")
+        self.assertEqual(tendon.GetAttribute("mjc:springlength").Get(), [0.3, 0.3])

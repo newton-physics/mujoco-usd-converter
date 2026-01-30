@@ -87,18 +87,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     for i in range(len(tendon.path)):
         wrap = tendon.path[i]
 
-        # print all useful information about the wrap in one line, depending on the type of wrap and the wrap properties
-        # wrap_info = f"Wrap {i}: type={wrap.type}"
-        # if wrap.type == mujoco.mjtWrap.mjWRAP_PULLEY:
-        #     wrap_info += f", divisor={wrap.divisor}"
-        # elif wrap.type == mujoco.mjtWrap.mjWRAP_JOINT:
-        #     wrap_info += f", coef={wrap.coef}"
-        # if wrap.target:
-        #     wrap_info += f", target={wrap.target.name}"
-        # if wrap.sidesite:
-        #     wrap_info += f", sidesite={wrap.sidesite.name}"
-        # print(wrap_info)
-
         if wrap.type == mujoco.mjtWrap.mjWRAP_PULLEY:
             # If a path starts with a pulley, it's a degenerate case
             if i == 0:
@@ -120,7 +108,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 else:
                     target_indices.append(targets.index(target_path))
             else:
-                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon `{get_tendon_name(tendon)}`")
+                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{get_tendon_name(tendon)}'")
                 return tendon_prim
 
             if wrap.sidesite:
@@ -133,7 +121,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                     else:
                         side_sites_indices.append(side_sites.index(target_path))
                 else:
-                    Tf.Warn(f"Sidesite '{wrap.sidesite}' not found for tendon '{get_tendon_name(tendon)}'")
+                    Tf.Warn(f"Sidesite '{wrap.sidesite.name}' not found for tendon '{get_tendon_name(tendon)}'")
                     return tendon_prim
             else:
                 side_sites_indices.append(-1)
@@ -154,6 +142,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
 
     # Add this in case an actuator targets it
-    data.references[Tokens.Physics][tendon.name] = tendon_prim
+    data.references[Tokens.Physics][get_tendon_name(tendon)] = tendon_prim
 
     return tendon_prim
