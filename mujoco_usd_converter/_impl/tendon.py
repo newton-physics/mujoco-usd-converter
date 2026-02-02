@@ -39,15 +39,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
 
     # stiffness, damping, friction, armature
     set_schema_attribute(tendon_prim, "mjc:stiffness", tendon.stiffness)
-    # springlength can be a single value or a pair of values
-    if len(tendon.springlength) == 1:
-        springlength = [tendon.springlength[0], tendon.springlength[0]]
-    elif len(tendon.springlength) == 2:
-        springlength = tendon.springlength
-    else:
-        Tf.Warn(f"Springlength for tendon '{get_tendon_name(tendon)}' is not a single value or a pair of values")
-        return tendon_prim
-    set_schema_attribute(tendon_prim, "mjc:springlength", Vt.DoubleArray(springlength))
+    set_schema_attribute(tendon_prim, "mjc:springlength", Vt.DoubleArray(tendon.springlength))
     set_schema_attribute(tendon_prim, "mjc:damping", tendon.damping)
     set_schema_attribute(tendon_prim, "mjc:frictionloss", tendon.frictionloss)
     # this must be an array of 2 elements
