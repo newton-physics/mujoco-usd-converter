@@ -6,7 +6,6 @@ import usdex.core
 from pxr import Gf, Tf, Usd, Vt
 
 from .data import ConversionData, Tokens
-from .numpy import convert_color
 from .utils import mj_limited_to_token, set_schema_attribute
 
 __all__ = ["convert_tendons"]
@@ -37,18 +36,13 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     tendon_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
     tendon_prim.SetTypeName("MjcTendon")
 
-    # stiffness, damping, friction, armature
     set_schema_attribute(tendon_prim, "mjc:stiffness", tendon.stiffness)
     set_schema_attribute(tendon_prim, "mjc:springlength", Vt.DoubleArray(tendon.springlength))
     set_schema_attribute(tendon_prim, "mjc:damping", tendon.damping)
     set_schema_attribute(tendon_prim, "mjc:frictionloss", tendon.frictionloss)
-    # this must be an array of 2 elements
     set_schema_attribute(tendon_prim, "mjc:solreffriction", Vt.DoubleArray(tendon.solref_friction))
-    # this must be an array of 5 elements
     set_schema_attribute(tendon_prim, "mjc:solimpfriction", Vt.DoubleArray(tendon.solimp_friction))
     set_schema_attribute(tendon_prim, "mjc:armature", tendon.armature)
-
-    # length range
     set_schema_attribute(tendon_prim, "mjc:limited", mj_limited_to_token(tendon.limited))
     set_schema_attribute(tendon_prim, "mjc:actuatorfrclimited", mj_limited_to_token(tendon.actfrclimited))
     set_schema_attribute(tendon_prim, "mjc:range:min", tendon.range[0])
@@ -56,14 +50,13 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
     set_schema_attribute(tendon_prim, "mjc:actuatorfrcrange:min", tendon.actfrcrange[0])
     set_schema_attribute(tendon_prim, "mjc:actuatorfrcrange:max", tendon.actfrcrange[1])
     set_schema_attribute(tendon_prim, "mjc:margin", tendon.margin)
-    # this must be an array of 2 elements
     set_schema_attribute(tendon_prim, "mjc:solreflimit", Vt.DoubleArray(tendon.solref_limit))
-    # this must be an array of 5 elements
     set_schema_attribute(tendon_prim, "mjc:solimplimit", Vt.DoubleArray(tendon.solimp_limit))
 
     # visual
-    color, opacity = convert_color(tendon.rgba)
-    set_schema_attribute(tendon_prim, "mjc:rgba", Gf.Vec4f(color[0], color[1], color[2], opacity))
+    set_schema_attribute(
+        tendon_prim, "mjc:rgba", Gf.Vec4f(float(tendon.rgba[0]), float(tendon.rgba[1]), float(tendon.rgba[2]), float(tendon.rgba[3]))
+    )
     set_schema_attribute(tendon_prim, "mjc:width", tendon.width)
     set_schema_attribute(tendon_prim, "mjc:group", tendon.group)
 
