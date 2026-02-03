@@ -32,13 +32,6 @@ def get_tendon_name(tendon: mujoco.MjsTendon) -> str:
         return f"Tendon_{tendon.id}"
 
 
-def get_prim_from_stage(stage: Usd.Stage, name: str) -> Usd.Prim:
-    for prim in Usd.PrimRange(stage.GetDefaultPrim(), Usd.PrimAllPrimsPredicate):
-        if prim.GetName() == name:
-            return prim
-    return None
-
-
 def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: ConversionData) -> Usd.Prim:
     tendon_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
     tendon_prim.SetTypeName("MjcTendon")
@@ -92,17 +85,13 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
         if wrap.target:
             segments.append(segment_counter)
             target_path = None
-            # Try to find the target in the physics references
             if wrap.target.name in data.references[Tokens.Physics]:
                 target_path = data.references[Tokens.Physics][wrap.target.name].GetPath()
-            # If not found (it's a non-collision geom), try to find the target in the geometry layer
-            if not target_path:
-                target_prim = get_prim_from_stage(data.content[Tokens.Geometry], usdex.core.getValidPrimName(wrap.target.name))
-                if target_prim:
-                    target_path = target_prim.GetPath()
-                    geom_over = data.content[Tokens.Geometry].OverridePrim(target_path)
-                    data.references[Tokens.Physics][wrap.target.name] = geom_over
-            if not target_path:
+            elif wrap.target.name in data.geom_targets:
+                target_path = data.geom_targets[wrap.target.name]
+                physics_over = data.content[Tokens.Physics].OverridePrim(target_path)
+                data.references[Tokens.Physics][wrap.target.name] = physics_over
+            else:
                 Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{name}'")
                 return tendon_prim
 

@@ -270,6 +270,10 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     is_collider = True
     collider_enabled = True
 
+    # Tendons target non-collision geoms by name, so keep a mujoco name to USD path mapping
+    if geom.name:
+        data.geom_targets[geom.name] = geom_prim.GetPath()
+
     # some geom are for vizualization only, but still contribute to the mass of the body
     if geom.contype == 0 and geom.conaffinity == 0:
         if geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):

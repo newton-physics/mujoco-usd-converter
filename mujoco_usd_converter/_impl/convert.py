@@ -68,6 +68,7 @@ class Converter:
             content={},
             libraries={},
             references={},
+            geom_targets={},
             name_cache=usdex.core.NameCache(),
             scene=self.params.scene,
             comment=self.params.comment,

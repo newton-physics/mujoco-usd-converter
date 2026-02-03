@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import mujoco
 import usdex.core
-from pxr import Usd
+from pxr import Sdf, Usd
 
 __all__ = ["ConversionData", "Tokens"]
 
@@ -27,6 +27,7 @@ class ConversionData:
     content: dict[Tokens, Usd.Stage]
     libraries: dict[Tokens, Usd.Stage]
     references: dict[Tokens, dict[str, Usd.Prim]]
+    geom_targets: dict[str, Sdf.Path]
     name_cache: usdex.core.NameCache
     scene: bool
     comment: str
