@@ -280,18 +280,14 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
         else:
             is_collider = False
 
-    # Add this so that gprims are in the physics references dictionary in case a tendon targets it
-    geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
-
-    if geom.name is not None and geom.name != "":
-        data.references[Tokens.Physics][geom.name] = geom_over
-
     if not is_collider:
         # this is a purely visual geom, so we skip physics authoring
         # but we still need to set the group attribute
         geom_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsImageableAPI"))
         set_schema_attribute(geom_prim, "mjc:group", geom.group)
         return
+
+    geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
 
     collider: UsdPhysics.CollisionAPI = UsdPhysics.CollisionAPI.Apply(geom_over)
     if not collider_enabled:

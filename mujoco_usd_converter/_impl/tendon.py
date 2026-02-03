@@ -29,7 +29,14 @@ def get_tendon_name(tendon: mujoco.MjsTendon) -> str:
     if tendon.name:
         return tendon.name
     else:
-        return f"Tendon"
+        return f"Tendon_{tendon.id}"
+
+
+def get_prim_from_stage(stage: Usd.Stage, name: str) -> Usd.Prim:
+    for prim in Usd.PrimRange(stage.GetDefaultPrim(), Usd.PrimAllPrimsPredicate):
+        if prim.GetName() == name:
+            return prim
+    return None
 
 
 def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: ConversionData) -> Usd.Prim:
@@ -84,17 +91,27 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
 
         if wrap.target:
             segments.append(segment_counter)
+            target_path = None
+            # Try to find the target in the physics references
             if wrap.target.name in data.references[Tokens.Physics]:
                 target_path = data.references[Tokens.Physics][wrap.target.name].GetPath()
-                if target_path not in targets:
-                    targets.append(target_path)
-                    tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
-                    target_indices.append(len(targets) - 1)
-                else:
-                    target_indices.append(targets.index(target_path))
-            else:
+            # If not found (it's a non-collision geom), try to find the target in the geometry layer
+            if not target_path:
+                target_prim = get_prim_from_stage(data.content[Tokens.Geometry], usdex.core.getValidPrimName(wrap.target.name))
+                if target_prim:
+                    target_path = target_prim.GetPath()
+                    geom_over = data.content[Tokens.Geometry].OverridePrim(target_path)
+                    data.references[Tokens.Physics][wrap.target.name] = geom_over
+            if not target_path:
                 Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{name}'")
                 return tendon_prim
+
+            if target_path not in targets:
+                targets.append(target_path)
+                tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
+                target_indices.append(len(targets) - 1)
+            else:
+                target_indices.append(targets.index(target_path))
 
             if wrap.sidesite:
                 if wrap.sidesite.name in data.references[Tokens.Physics]:
