@@ -441,7 +441,7 @@ class TestTendons(ConverterTestCase):
         self.assertIsValidUsd(stage)
 
         # This verifies that we auto-generate a name for the tendon if it doesn't have one
-        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_docs/Physics/Tendon_0")
+        tendon: Usd.Prim = stage.GetPrimAtPath("/tendon_docs/Physics/Tendon")
         self.assertTrue(tendon.IsValid())
         self.assertEqual(tendon.GetTypeName(), "MjcTendon")
 

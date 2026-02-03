@@ -29,7 +29,7 @@ def get_tendon_name(tendon: mujoco.MjsTendon) -> str:
     if tendon.name:
         return tendon.name
     else:
-        return f"Tendon_{tendon.id}"
+        return f"Tendon"
 
 
 def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: ConversionData) -> Usd.Prim:
@@ -93,7 +93,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 else:
                     target_indices.append(targets.index(target_path))
             else:
-                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{get_tendon_name(tendon)}'")
+                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{name}'")
                 return tendon_prim
 
             if wrap.sidesite:
@@ -106,7 +106,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                     else:
                         side_sites_indices.append(side_sites.index(target_path))
                 else:
-                    Tf.Warn(f"Sidesite '{wrap.sidesite.name}' not found for tendon '{get_tendon_name(tendon)}'")
+                    Tf.Warn(f"Sidesite '{wrap.sidesite.name}' not found for tendon '{name}'")
                     return tendon_prim
             else:
                 side_sites_indices.append(-1)
@@ -127,6 +127,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
 
     # Add this in case an actuator targets it
-    data.references[Tokens.Physics][get_tendon_name(tendon)] = tendon_prim
+    data.references[Tokens.Physics][name] = tendon_prim
 
     return tendon_prim
