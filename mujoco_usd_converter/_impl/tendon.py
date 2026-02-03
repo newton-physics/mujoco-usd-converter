@@ -29,7 +29,7 @@ def get_tendon_name(tendon: mujoco.MjsTendon) -> str:
     if tendon.name:
         return tendon.name
     else:
-        return f"Tendon_{tendon.id}"
+        return f"Tendon"
 
 
 def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: ConversionData) -> Usd.Prim:
