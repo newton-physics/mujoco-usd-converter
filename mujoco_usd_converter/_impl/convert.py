@@ -15,6 +15,7 @@ from .data import ConversionData, Tokens
 from .material import convert_materials
 from .mesh import convert_meshes
 from .scene import convert_scene
+from .tendon import convert_tendons
 from .utils import get_authoring_metadata
 
 __all__ = ["Converter"]
@@ -67,6 +68,7 @@ class Converter:
             content={},
             libraries={},
             references={},
+            geom_targets={},
             name_cache=usdex.core.NameCache(),
             scene=self.params.scene,
             comment=self.params.comment,
@@ -87,10 +89,10 @@ class Converter:
             defaultPrimName=asset_name,
             upAxis=UsdGeom.Tokens.z,
             linearUnits=UsdGeom.LinearUnits.meters,
+            massUnits=UsdPhysics.MassUnits.kilograms,
             authoringMetadata=get_authoring_metadata(),
         )
         data.content[Tokens.Asset] = asset_stage
-        data.content[Tokens.Asset].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         root: Usd.Prim = usdex.core.defineXform(asset_stage, asset_stage.GetDefaultPrim().GetPath()).GetPrim()
         if asset_name != spec.modelname:
             usdex.core.setDisplayName(root, spec.modelname)
@@ -108,7 +110,6 @@ class Converter:
 
         # setup a content layer for physics
         data.content[Tokens.Physics] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
-        data.content[Tokens.Physics].SetMetadata(UsdPhysics.Tokens.kilogramsPerUnit, 1)
         data.references[Tokens.Physics] = {}
 
         # author the physics scene
@@ -117,6 +118,9 @@ class Converter:
 
         # author the kinematic tree
         convert_bodies(data)
+
+        # author the tendons
+        convert_tendons(data)
 
         # author the actuators
         convert_actuators(data)
@@ -142,8 +146,6 @@ class Converter:
             Tf.Warn("lights are not supported")
         if spec.keys:
             Tf.Warn("keys are not supported")
-        if spec.tendons:
-            Tf.Warn("tendons are not supported")
         if spec.flexes:
             Tf.Warn("flexes are not supported")
         if spec.skins:

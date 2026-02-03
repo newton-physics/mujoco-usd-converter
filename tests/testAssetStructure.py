@@ -51,7 +51,7 @@ class TestAssetStructure(ConverterTestCase):
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(stage), 1.0)
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(stage), UsdPhysics.MassUnits.kilograms)
         self.assertEqual(usdex.core.getLayerAuthoringMetadata(stage.GetRootLayer()), f"MuJoCo USD Converter v{mujoco_usd_converter.__version__}")
 
         # Test default prim structure
@@ -124,7 +124,7 @@ class TestAssetStructure(ConverterTestCase):
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(contents_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(contents_stage), 1.0)
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(contents_stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(contents_stage), UsdPhysics.MassUnits.kilograms)
         self.assertEqual(
             usdex.core.getLayerAuthoringMetadata(contents_stage.GetRootLayer()), f"MuJoCo USD Converter v{mujoco_usd_converter.__version__}"
         )
@@ -150,7 +150,7 @@ class TestAssetStructure(ConverterTestCase):
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(geometry_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(geometry_stage), 1.0)
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(geometry_stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(geometry_stage), UsdPhysics.MassUnits.kilograms)
         self.assertEqual(
             usdex.core.getLayerAuthoringMetadata(geometry_stage.GetRootLayer()), f"MuJoCo USD Converter v{mujoco_usd_converter.__version__}"
         )
@@ -191,7 +191,7 @@ class TestAssetStructure(ConverterTestCase):
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(materials_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(materials_stage), 1.0)
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(materials_stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(materials_stage), UsdPhysics.MassUnits.kilograms)
         self.assertEqual(
             usdex.core.getLayerAuthoringMetadata(materials_stage.GetRootLayer()), f"MuJoCo USD Converter v{mujoco_usd_converter.__version__}"
         )
@@ -251,12 +251,12 @@ class TestAssetStructure(ConverterTestCase):
                 omni.asset_validator.IssuePredicates.ContainsMessage("Rigid body API has to be applied to an xformable prim"),
             ],
         )
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), UsdPhysics.MassUnits.kilograms)
 
         # Test stage metrics
         self.assertEqual(UsdGeom.GetStageUpAxis(physics_stage), UsdGeom.Tokens.z)
         self.assertEqual(UsdGeom.GetStageMetersPerUnit(physics_stage), 1.0)
-        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), 1.0)
+        self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), UsdPhysics.MassUnits.kilograms)
         self.assertEqual(
             usdex.core.getLayerAuthoringMetadata(physics_stage.GetRootLayer()), f"MuJoCo USD Converter v{mujoco_usd_converter.__version__}"
         )

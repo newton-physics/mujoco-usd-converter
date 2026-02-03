@@ -1,0 +1,33 @@
+<mujoco model="tendon_actuator">
+  <compiler angle="radian" autolimits="true"/>
+
+  <default>
+    <joint damping="0.1" armature="0.01"/>
+    <geom size="0.05"/>
+  </default>
+
+  <worldbody>
+    <body name="body1" pos="0 0 0.5">
+      <inertial mass="1" pos="0 0 0" diaginertia="0.01 0.01 0.01"/>
+      <joint name="hinge1" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+      <geom type="capsule" fromto="0 0 0 0 0 0.3" rgba="0.8 0.2 0.2 1"/>
+
+      <body name="body2" pos="0 0 0.3">
+        <inertial mass="0.5" pos="0 0 0.15" diaginertia="0.005 0.005 0.005"/>
+        <joint name="hinge2" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+        <geom type="capsule" fromto="0 0 0 0 0 0.3" rgba="0.2 0.2 0.8 1"/>
+      </body>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <fixed name="coupled_tendon">
+      <joint joint="hinge1" coef="1"/>
+      <joint joint="hinge2" coef="1"/>
+    </fixed>
+  </tendon>
+
+  <actuator>
+    <position name="tendon_actuator" tendon="coupled_tendon" kp="10" ctrlrange="0 3.14"/>
+  </actuator>
+</mujoco>

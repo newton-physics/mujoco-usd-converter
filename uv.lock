@@ -346,7 +346,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mujoco", specifier = "==3.4.0" },
+    { name = "mujoco", specifier = ">=3.4.0" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
     { name = "usd-exchange", specifier = ">=2.2.0" },

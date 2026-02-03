@@ -1,0 +1,88 @@
+<mujoco model="tendon_spatial_sidesites">
+  <compiler angle="radian" autolimits="true"/>
+
+  <worldbody>
+    <!-- First body with a non-collision cylinder for tendon wrapping -->
+    <body name="body0" pos="0 0 0.5">
+      <joint name="joint0" type="hinge" axis="0 1 0"/>
+      <geom type="capsule" size="0.03 0.2" fromto="0 0 0 0.4 0 0" rgba="0.5 0.5 0.5 1"/>
+      <!-- Non-collision geom for tendon wrapping -->
+      <geom name="wrap_geom0" type="cylinder" size="0.08" fromto="0.2 -0.05 0 0.2 0.05 0"
+            contype="0" conaffinity="0" rgba="0.8 0.3 0.3 0.5"/>
+      <site name="start_site" pos="0 0 0.05" size="0.02" rgba="1 0 0 1"/>
+      <site name="sidesite0" pos="0.2 0 -0.1" size="0.015" rgba="1 1 0 1"/>
+
+      <!-- Second body with another non-collision geom -->
+      <body name="body1" pos="0.4 0 0">
+        <joint name="joint1" type="hinge" axis="0 1 0"/>
+        <geom type="capsule" size="0.03 0.2" fromto="0 0 0 0.4 0 0" rgba="0.5 0.5 0.5 1"/>
+        <!-- Non-collision geom for tendon wrapping -->
+        <geom name="wrap_geom1" type="sphere" size="0.1"  pos="0.2 0 0"
+              contype="0" conaffinity="0" rgba="0.3 0.8 0.3 0.5"/>
+        <site name="mid_site" pos="0.2 0 0.15" size="0.02" rgba="0 1 0 1"/>
+        <site name="sidesite1" pos="0.2 0 -0.15" size="0.015" rgba="1 1 0 1"/>
+
+        <!-- Third body with a third non-collision geom -->
+        <body name="body2" pos="0.4 0 0">
+          <joint name="joint2" type="hinge" axis="0 1 0"/>
+          <geom type="capsule" size="0.03 0.2" fromto="0 0 0 0.4 0 0" rgba="0.5 0.5 0.5 1"/>
+          <!-- Non-collision geom for tendon wrapping -->
+          <geom name="wrap_geom2" type="cylinder" size="0.06" fromto="0.2 -0.05 0 0.2 0.05 0"
+                contype="0" conaffinity="0" rgba="0.3 0.3 0.8 0.5"/>
+          <site name="between_site" pos="0 0 0.1" size="0.02" rgba="0.5 0.5 1 1"/>
+          <site name="sidesite2" pos="0.2 0 -0.08" size="0.015" rgba="1 1 0 1"/>
+
+          <!-- Fourth body - end of chain -->
+          <body name="body3" pos="0.4 0 0">
+            <joint name="joint3" type="hinge" axis="0 1 0"/>
+            <geom type="capsule" size="0.03 0.15" fromto="0 0 0 0.3 0 0" rgba="0.5 0.5 0.5 1"/>
+            <site name="end_site" pos="0.3 0 0" size="0.02" rgba="0 0 1 1"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <!-- Tendon with multiple geom wraps and sidesites -->
+    <!-- Path: start_site -> wrap_geom0(sidesite0) -> mid_site -> wrap_geom1(sidesite1) -> between_site -> wrap_geom2(sidesite2) -> end_site -->
+    <!-- Sidesite indices in path: index 1, index 3, index 5 have sidesites -->
+    <spatial name="multi_wrap_tendon" width="0.01" rgba="0.9 0.5 0.1 1" stiffness="50" damping="2">
+      <site site="start_site"/>
+      <geom geom="wrap_geom0" sidesite="sidesite0"/>
+      <site site="mid_site"/>
+      <geom geom="wrap_geom1" sidesite="sidesite1"/>
+      <site site="between_site"/>
+      <geom geom="wrap_geom2" sidesite="sidesite2"/>
+      <site site="end_site"/>
+    </spatial>
+
+    <!-- Simpler tendon with just one geom wrap for comparison -->
+    <spatial name="single_wrap_tendon" width="0.008" rgba="0.1 0.5 0.9 1" stiffness="30" damping="1">
+      <site site="start_site"/>
+      <geom geom="wrap_geom1" sidesite="sidesite1"/>
+      <site site="end_site"/>
+    </spatial>
+
+    <!-- Tendon with geom wrap but NO sidesite -->
+    <spatial name="geom_no_sidesite_tendon" width="0.007" rgba="0.9 0.1 0.9 1" stiffness="25" damping="1">
+      <site site="start_site"/>
+      <geom geom="wrap_geom1"/>
+      <site site="end_site"/>
+    </spatial>
+
+    <!-- Tendon with no geom wraps (just sites) for baseline -->
+    <spatial name="no_wrap_tendon" width="0.006" rgba="0.5 0.9 0.1 1" stiffness="20" damping="0.5">
+      <site site="start_site"/>
+      <site site="mid_site"/>
+      <site site="end_site"/>
+    </spatial>
+  </tendon>
+
+  <actuator>
+    <position name="joint0_ctrl" joint="joint0" kp="10" ctrlrange="-1.57 1.57"/>
+    <position name="joint1_ctrl" joint="joint1" kp="10" ctrlrange="-1.57 1.57"/>
+    <position name="joint2_ctrl" joint="joint2" kp="10" ctrlrange="-1.57 1.57"/>
+    <position name="joint3_ctrl" joint="joint3" kp="10" ctrlrange="-1.57 1.57"/>
+  </actuator>
+</mujoco>

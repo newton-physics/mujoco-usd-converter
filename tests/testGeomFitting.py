@@ -49,12 +49,12 @@ class TestGeomFitting(ConverterTestCase):
         # If the body name is not specified.
         default_prim = self.stage.GetDefaultPrim()
 
-        prim_path = f"{default_prim.GetPath()}/Geometry/tn__/complex_cube"
+        prim_path = f"{default_prim.GetPath()}/Geometry/Body/complex_cube"
         prim = self.stage.GetPrimAtPath(prim_path)
         self.assertTrue(prim)
         self.assertTrue(prim.IsA(UsdGeom.Mesh))
 
-        prim_path = f"{default_prim.GetPath()}/Geometry/tn__/Box"
+        prim_path = f"{default_prim.GetPath()}/Geometry/Body/Box"
         prim = self.stage.GetPrimAtPath(prim_path)
         self.assertTrue(prim)
         self.assertTrue(prim.IsA(UsdGeom.Cube))

@@ -73,7 +73,7 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
 
         convert_joints(parent=body_over, body=body, data=data)
 
-    safe_names = data.name_cache.getPrimNames(body_prim, [x.name for x in body.bodies])
+    safe_names = data.name_cache.getPrimNames(body_prim, [get_body_name(x) for x in body.bodies])
     for child_body, safe_name in zip(body.bodies, safe_names):
         child_body_prim = convert_body(parent=body_prim, name=safe_name, body=child_body, data=data)
         if child_body_prim and body == data.spec.worldbody and has_articulated_descendants(child_body):
@@ -128,3 +128,10 @@ def extract_inertia(fullinertia: np.ndarray) -> tuple[Gf.Quatf, Gf.Vec3f]:
     diag_inertia = Gf.Vec3f(*eigval)
 
     return convert_quatf(quat), diag_inertia
+
+
+def get_body_name(body: mujoco.MjsBody) -> str:
+    if body.name:
+        return body.name
+    else:
+        return "Body"

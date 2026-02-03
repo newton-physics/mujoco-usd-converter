@@ -1,0 +1,68 @@
+<mujoco model="tendon_spatial_anchor">
+  <compiler angle="radian" autolimits="true"/>
+
+  <option gravity="0 0 -9.81"/>
+
+  <default>
+    <joint damping="0.5" armature="0.01"/>
+    <geom rgba="0.6 0.6 0.6 1"/>
+  </default>
+
+  <worldbody>
+    <!-- Fixed frame/support structure -->
+    <body name="frame" pos="0 0 1.5">
+      <geom type="box" size="0.8 0.05 0.05" rgba="0.3 0.3 0.3 1"/>
+      <!-- Pulley point on left side -->
+      <site name="anchor_left" pos="-0.6 0 -0.05" size="0.03" rgba="1 1 0 1"/>
+      <!-- Pulley point on right side -->
+      <site name="anchor_right" pos="0.6 0 -0.05" size="0.03" rgba="1 1 0 1"/>
+    </body>
+
+    <!-- LEFT SIDE: Hanging weight -->
+    <body name="weight" pos="-0.6 0 1.0">
+      <inertial mass="2.0" pos="0 0 0" diaginertia="0.01 0.01 0.01"/>
+      <joint name="weight_slide" type="slide" axis="0 0 1" range="-0.8 0.5"/>
+      <geom type="box" size="0.1 0.1 0.1" rgba="0.8 0.2 0.2 1"/>
+      <site name="weight_top" pos="0 0 0.1" size="0.02" rgba="1 0 0 1"/>
+    </body>
+
+    <!-- RIGHT SIDE: Jointed arm that pulls the tendon -->
+    <body name="arm_base" pos="0.6 0 1.2">
+      <inertial mass="0.5" pos="0 0 -0.15" diaginertia="0.005 0.005 0.005"/>
+      <joint name="arm_hinge1" type="hinge" axis="0 1 0" range="-1.57 1.57"/>
+      <geom type="capsule" fromto="0 0 0 0 0 -0.3" size="0.04" rgba="0.2 0.5 0.8 1"/>
+      <site name="arm_base_site" pos="0 0 0" size="0.02" rgba="0 1 0 1"/>
+
+      <body name="arm_segment" pos="0 0 -0.3">
+        <inertial mass="0.3" pos="0 0 -0.15" diaginertia="0.003 0.003 0.003"/>
+        <joint name="arm_hinge2" type="hinge" axis="0 1 0" range="-2.0 2.0"/>
+        <geom type="capsule" fromto="0 0 0 0 0 -0.3" size="0.03" rgba="0.2 0.7 0.3 1"/>
+
+        <body name="arm_end" pos="0 0 -0.3">
+          <inertial mass="0.2" pos="0 0 -0.1" diaginertia="0.001 0.001 0.001"/>
+          <joint name="arm_hinge3" type="hinge" axis="0 1 0" range="-2.0 2.0"/>
+          <geom type="capsule" fromto="0 0 0 0 0 -0.2" size="0.025" rgba="0.7 0.3 0.7 1"/>
+          <site name="arm_end_site" pos="0 0 -0.2" size="0.02" rgba="0 0 1 1"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- Spatial tendon: routes from weight, over anchors, to arm end -->
+  <tendon>
+    <spatial name="anchor tendon" width="0.01" rgba="0.9 0.6 0.1 1" stiffness="1000" damping="5">
+      <site site="weight_top"/>
+      <site site="anchor_left"/>
+      <site site="anchor_right"/>
+      <site site="arm_base_site"/>
+      <site site="arm_end_site"/>
+    </spatial>
+  </tendon>
+
+  <!-- Actuators to control the arm joints -->
+  <actuator>
+    <position name="arm_ctrl1" joint="arm_hinge1" kp="20" ctrlrange="-1.57 1.57"/>
+    <position name="arm_ctrl2" joint="arm_hinge2" kp="15" ctrlrange="-2.0 2.0"/>
+    <position name="arm_ctrl3" joint="arm_hinge3" kp="10" ctrlrange="-2.0 2.0"/>
+  </actuator>
+</mujoco>

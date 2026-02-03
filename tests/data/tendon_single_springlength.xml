@@ -1,0 +1,28 @@
+<mujoco model="tendon_single_springlength">
+  <compiler angle="radian" autolimits="true"/>
+
+  <option gravity="0 0 -9.81"/>
+
+  <worldbody>
+    <!-- Fixed anchor point at top -->
+    <site name="anchor" pos="0 0 1.5" size="0.05" rgba="1 1 0 1"/>
+
+    <!-- Hanging weight with free joint so it can move in space -->
+    <body name="weight" pos="0.5 0.5 0.5">
+      <freejoint name="weight_free"/>
+      <geom type="sphere" size="0.1" mass="1" rgba="0.8 0.2 0.2 1"/>
+      <site name="weight_attach" pos="0 0 0.1" size="0.03" rgba="0 1 0 1"/>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <!-- Spatial tendon with single springlength = rest length of 0.4
+         The weight starts 0.5 units below anchor, but tendon rest is 0.4,
+         so the tendon will pull the weight up and limit how far it can fall -->
+    <spatial name="tether" width="0.015" rgba="0.2 0.6 1 1"
+             springlength="0.3" stiffness="500" damping="10">
+      <site site="anchor"/>
+      <site site="weight_attach"/>
+    </spatial>
+  </tendon>
+</mujoco>

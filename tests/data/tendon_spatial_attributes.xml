@@ -1,0 +1,63 @@
+<mujoco model="tendon_spatial_attributes">
+  <worldbody>
+    <body name="body0">
+      <joint name="joint0" type="hinge" axis="0 1 0"/>
+      <geom type="capsule" size="0.05 0.5" fromto="0 0 0 0.5 0 0"/>
+      <site name="site0" pos="0.25 0 0.1" size="0.025"/>
+      <body name="body1" pos="0.5 0 0">
+        <joint name="joint1" type="hinge" axis="0 1 0"/>
+        <geom name="geom1" type="cylinder" size="0.05 0.5" fromto="0 0 0 0.5 0 0"/>
+        <site name="site1" pos="0.25 0 0.5" size="0.025"/>
+        <site name="side1" pos="0.25 0 -0.2" size="0.025"/>
+        <body name="body2" pos="0.5 0 0">
+          <joint name="joint2" type="hinge" axis="0 1 0"/>
+          <geom type="capsule" size="0.05 0.5" fromto="0 0 0 0.5 0 0"/>
+          <site name="site2" pos="0.25 0 0.1" size="0.025"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <tendon>
+    <spatial name="custom_tendon"
+             actuatorfrclimited="false"
+             actuatorfrcrange="0.1 0.2"
+             damping="0.4"
+             frictionloss="0.5"
+             group="1"
+             limited="false"
+             margin="0.6"
+             range="0.7 0.8"
+             rgba="0.463 0.725 0 1"
+             width="0.02"
+             solimpfriction="0.95 0.96 0.002 0.6 3"
+             solimplimit="0.96 0.97 0.003 0.7 4"
+             solreffriction="0.03 1.1"
+             solreflimit="0.04 1.2"
+             springlength="0.95 0.99"
+             stiffness="1.1">
+        <site site="site0"/>
+        <geom geom="geom1" sidesite="side1"/>
+        <site site="site1"/>
+        <site site="site2"/>
+    </spatial>
+    <spatial name="default_tendon"
+             actuatorfrclimited="auto"
+             actuatorfrcrange="0.0 0.0"
+             armature="0.0"
+             damping="0.0"
+             frictionloss="0.0"
+             group="0"
+             limited="auto"
+             margin="0.0"
+             range="0.0 0.0"
+             solimpfriction="0.9 0.95 0.001 0.5 2"
+             solimplimit="0.9 0.95 0.001 0.5 2"
+             solreffriction="0.02 1"
+             solreflimit="0.02 1"
+             springlength="-1 -1"
+             stiffness="0.0">
+        <site site="site0"/>
+        <site site="site2"/>
+    </spatial>
+  </tendon>
+</mujoco>
