@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -10,9 +10,6 @@ from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestTendons(ConverterTestCase):
-
-    def setUp(self):
-        super().setUp()
 
     def __has_authored_value(self, property: Usd.Property) -> bool:
         if hasattr(property, "HasAuthoredValue"):

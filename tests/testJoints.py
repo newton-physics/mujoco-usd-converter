@@ -10,9 +10,6 @@ from tests.util.ConverterTestCase import ConverterTestCase
 
 class TestJoints(ConverterTestCase):
 
-    def setUp(self):
-        super().setUp()
-
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
