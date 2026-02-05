@@ -18,6 +18,11 @@ class Tokens:
     Textures = usdex.core.getTexturesToken()
     Payload = usdex.core.getPayloadToken()
     Physics = usdex.core.getPhysicsToken()
+    # Mujoco element types exist within namespaces, use separate dictionaries to avoid clashes
+    PhysicsBodies = "PhysicsBodies"
+    PhysicsJoints = "PhysicsJoints"
+    PhysicsSites = "PhysicsSites"
+    PhysicsTendons = "PhysicsTendons"
 
 
 @dataclass

@@ -85,12 +85,19 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
         if wrap.target:
             segments.append(segment_counter)
             target_path = None
-            if wrap.target.name in data.references[Tokens.Physics]:
-                target_path = data.references[Tokens.Physics][wrap.target.name].GetPath()
+
+            if wrap.type == mujoco.mjtWrap.mjWRAP_SITE:
+                references = data.references[Tokens.PhysicsSites]
+            elif wrap.type == mujoco.mjtWrap.mjWRAP_JOINT:
+                references = data.references[Tokens.PhysicsJoints]
+            else:
+                references = {}
+
+            if wrap.target.name in references:
+                target_path = references[wrap.target.name].GetPath()
             elif wrap.target.name in data.geom_targets:
                 target_path = data.geom_targets[wrap.target.name]
-                physics_over = data.content[Tokens.Physics].OverridePrim(target_path)
-                data.references[Tokens.Physics][wrap.target.name] = physics_over
+                data.content[Tokens.Physics].OverridePrim(target_path)
             else:
                 Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{tendon.name}'")
                 return tendon_prim
@@ -103,8 +110,8 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 target_indices.append(targets.index(target_path))
 
             if wrap.sidesite:
-                if wrap.sidesite.name in data.references[Tokens.Physics]:
-                    target_path = data.references[Tokens.Physics][wrap.sidesite.name].GetPath()
+                if wrap.sidesite.name in data.references[Tokens.PhysicsSites]:
+                    target_path = data.references[Tokens.PhysicsSites][wrap.sidesite.name].GetPath()
                     if target_path not in side_sites:
                         side_sites.append(target_path)
                         tendon_prim.CreateRelationship("mjc:sideSites", custom=False).AddTarget(target_path)
@@ -133,6 +140,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
 
     # Add this in case an actuator targets it
-    data.references[Tokens.Physics][tendon.name] = tendon_prim
+    data.references[Tokens.PhysicsTendons][tendon.name] = tendon_prim
 
     return tendon_prim
