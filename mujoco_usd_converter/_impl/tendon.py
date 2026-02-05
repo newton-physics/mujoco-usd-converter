@@ -92,7 +92,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 physics_over = data.content[Tokens.Physics].OverridePrim(target_path)
                 data.references[Tokens.Physics][wrap.target.name] = physics_over
             else:
-                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{name}'")
+                Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{tendon.name}'")
                 return tendon_prim
 
             if target_path not in targets:
@@ -112,7 +112,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                     else:
                         side_sites_indices.append(side_sites.index(target_path))
                 else:
-                    Tf.Warn(f"Sidesite '{wrap.sidesite.name}' not found for tendon '{name}'")
+                    Tf.Warn(f"Sidesite '{wrap.sidesite.name}' not found for tendon '{tendon.name}'")
                     return tendon_prim
             else:
                 side_sites_indices.append(-1)
@@ -133,6 +133,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
             set_schema_attribute(tendon_prim, "mjc:sideSites:indices", Vt.IntArray(side_sites_indices))
 
     # Add this in case an actuator targets it
-    data.references[Tokens.Physics][name] = tendon_prim
+    data.references[Tokens.Physics][tendon.name] = tendon_prim
 
     return tendon_prim
