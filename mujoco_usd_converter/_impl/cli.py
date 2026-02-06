@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 import mujoco
+import newton_usd_schemas
 import usdex.core
 from pxr import Tf, Usd
 
@@ -47,6 +48,7 @@ def run() -> int:
     Tf.Status(f"USD Version: {Usd.GetVersion()}")
     Tf.Status(f"USDEX Version: {usdex.core.version()}")
     Tf.Status(f"MuJoCo Version: {mujoco.__version__}")
+    Tf.Status(f"Newton USD Schemas Version: {newton_usd_schemas.__version__}")
 
     try:
         converter = Converter(layer_structure=not args.no_layer_structure, scene=not args.no_physics_scene, comment=args.comment)

@@ -9,6 +9,7 @@ requires-python = ">=3.10,<3.13"
 dependencies = [
     "mujoco>=3.4.0",
     "usd-exchange>=2.2.0", # locked to USD 25.05
+    "newton-usd-schemas>=0.1.0rc1",
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",
 ]

@@ -285,7 +285,7 @@ class TestAssetStructure(ConverterTestCase):
         physics_material: Usd.Prim = physics_scope.GetChild("PhysicsMaterial")
         self.assertEqual(physics_material.GetSpecifier(), Sdf.SpecifierDef)
         self.assertTrue(physics_material.IsA(UsdShade.Material))
-        self.assertEqual(physics_material.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "MjcMaterialAPI"])
+        self.assertEqual(physics_material.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "NewtonMaterialAPI", "MjcMaterialAPI"])
         # physics materials are not references (visual materials are references)
         prim_specs: list[Sdf.PrimSpec] = physics_material.GetPrimStack()
         self.assertEqual(len(prim_specs), 1)
@@ -341,7 +341,7 @@ class TestAssetStructure(ConverterTestCase):
         self.assertIsValidUsd(stage)
         physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(stage.GetPseudoRoot().GetChild("PhysicsScene"))
         self.assertTrue(physics_scene)
-        self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), [Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSceneAPI")])
+        self.assertEqual(physics_scene.GetPrim().GetAppliedSchemas(), ["NewtonSceneAPI", "MjcSceneAPI"])
         self.assertEqual(physics_scene.GetGravityDirectionAttr().Get(), (0, 0, -1))
         self.assertAlmostEqual(physics_scene.GetGravityMagnitudeAttr().Get(), 9.81, 6)
 

@@ -44,7 +44,7 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
             site_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(site_prim.GetPath())
             data.references[Tokens.PhysicsSites][site.name] = site_over
-            site_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
+            site_over.ApplyAPI("MjcSiteAPI")
             set_schema_attribute(site_over, "mjc:group", site.group)
 
     if body != data.spec.worldbody:
@@ -79,6 +79,7 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
         if child_body_prim and body == data.spec.worldbody and has_articulated_descendants(child_body):
             child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
             UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
+            child_body_over.ApplyAPI("NewtonArticulationRootAPI")
 
     return body_prim
 

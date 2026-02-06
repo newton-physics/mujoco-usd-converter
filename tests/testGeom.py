@@ -99,6 +99,7 @@ class TestGeom(ConverterTestCase):
     def test_default_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI("NewtonCollisionAPI"))
         collider_api = UsdPhysics.CollisionAPI(prim)
         # Enabled by default, so attribute should not be authored
         self.assertFalse(collider_api.GetCollisionEnabledAttr().HasAuthoredValue())
@@ -108,6 +109,7 @@ class TestGeom(ConverterTestCase):
     def test_visual_geom(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/visual")
         self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_mass(self):
@@ -145,6 +147,7 @@ class TestGeom(ConverterTestCase):
     def test_mesh_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI("NewtonCollisionAPI"))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         mesh_collider_api = UsdPhysics.MeshCollisionAPI(prim)
         self.assertEqual(mesh_collider_api.GetApproximationAttr().Get(), UsdPhysics.Tokens.convexHull)
@@ -177,7 +180,7 @@ class TestGeom(ConverterTestCase):
     def test_shell_inertia(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/shell_inertia")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+        self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
         self.assertTrue(prim.GetAttribute("mjc:shellinertia").Get())
 
@@ -185,7 +188,12 @@ class TestGeom(ConverterTestCase):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/all_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
+
+        # Check that newton:maxHullVertices attribute is authored and has the correct value
+        self.assertTrue(prim.GetAttribute("newton:maxHullVertices").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("newton:maxHullVertices").Get(), 100)
 
         # Check that mjc:inertia attribute is authored and has the correct value
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
@@ -203,17 +211,19 @@ class TestGeom(ConverterTestCase):
             else:
                 self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
-        # Check that the mesh collision properties are not applied when at default values
+        # Check that the mjc mesh collision properties are not applied when at default values
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/guide_mesh_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertFalse(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
 
-        # Check partial collision properties do apply the schema
+        # Check partial collision properties do apply the MjcMeshCollisionAPI schema (inertia only, no maxhullvert)
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/partial_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "exact")
         self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
@@ -227,23 +237,32 @@ class TestGeom(ConverterTestCase):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertFalse(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
 
-        # Check shell inertia properties do apply the schema
+        # Check shell inertia properties do apply the MjcMeshCollisionAPI schema (no maxhullvert)
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/shell_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI")))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "shell")
         self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
         self.assertFalse(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
 
+    def test_newton_collision_schema_defaults(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
+        self.assertTrue(prim.HasAPI("NewtonCollisionAPI"))
+
+        # Newton collision attributes should not be authored but have schema defaults
+        self.assertFalse(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
+
     def test_mjc_collision_schema_defaults(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+        self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
 
         # Check that no MJC properties are authored
         for property in prim.GetPropertiesInNamespace("mjc"):
@@ -263,7 +282,7 @@ class TestGeom(ConverterTestCase):
     def test_mjc_collision_schema_authored(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/all_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        self.assertTrue(prim.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI")))
+        self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
 
         # Check that all MJC properties are authored
         for property in prim.GetPropertiesInNamespace("mjc"):

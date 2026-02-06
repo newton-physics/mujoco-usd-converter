@@ -71,7 +71,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
 
 def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
-    prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsJointAPI"))
+    prim.ApplyAPI("MjcJointAPI")
 
     limited_token = mj_limited_to_token(joint.actfrclimited)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)

@@ -287,7 +287,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     if not is_collider:
         # this is a purely visual geom, so we skip physics authoring
         # but we still need to set the group attribute
-        geom_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsImageableAPI"))
+        geom_prim.ApplyAPI("MjcImageableAPI")
         set_schema_attribute(geom_prim, "mjc:group", geom.group)
         return
 
@@ -297,13 +297,14 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     if not collider_enabled:
         collider.CreateCollisionEnabledAttr().Set(False)
 
-    geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsCollisionAPI"))
+    geom_over.ApplyAPI("NewtonCollisionAPI")
+    geom_over.ApplyAPI("MjcCollisionAPI")
 
     # Set all MjcCollisionAPI attributes
     set_schema_attribute(geom_over, "mjc:condim", geom.condim)
     set_schema_attribute(geom_over, "mjc:gap", geom.gap)
     set_schema_attribute(geom_over, "mjc:group", geom.group)
-    set_schema_attribute(geom_over, "mjc:margin", geom.margin)
+    set_schema_attribute(geom_over, "mjc:margin", geom.margin)  # not setting newton:contactMargin as it is not the same concept
     set_schema_attribute(geom_over, "mjc:priority", geom.priority)
     set_schema_attribute(geom_over, "mjc:solimp", list(geom.solimp))
     set_schema_attribute(geom_over, "mjc:solmix", geom.solmix)
@@ -312,11 +313,13 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
+        geom_over.ApplyAPI("NewtonMeshCollisionAPI")
         if inertia := get_inertia_token(geom, data):
-            geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
+            geom_over.ApplyAPI("MjcMeshCollisionAPI")
             set_schema_attribute(geom_over, "mjc:inertia", inertia)
         if maxhullvert := get_maxhullvert(geom, data):
-            geom_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMeshCollisionAPI"))
+            geom_over.ApplyAPI("MjcMeshCollisionAPI")
+            set_schema_attribute(geom_over, "newton:maxHullVertices", maxhullvert)
             set_schema_attribute(geom_over, "mjc:maxhullvert", maxhullvert)
     else:
         set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
@@ -361,8 +364,11 @@ def create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, d
     name = data.name_cache.getPrimName(physics_materials, "PhysicsMaterial")
     material: UsdShade.Material = usdex.core.definePhysicsMaterial(physics_materials, name, dynamicFriction=sliding_friction)
 
-    # Apply MjcMaterialAPI for torsional and rolling friction
-    material.GetPrim().ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsMaterialAPI"))
+    # Apply NewtonMaterialAPI and MjcMaterialAPI for torsional and rolling friction
+    material.GetPrim().ApplyAPI("NewtonMaterialAPI")
+    set_schema_attribute(material.GetPrim(), "newton:torsionalFriction", torsional_friction)
+    set_schema_attribute(material.GetPrim(), "newton:rollingFriction", rolling_friction)
+    material.GetPrim().ApplyAPI("MjcMaterialAPI")
     set_schema_attribute(material.GetPrim(), "mjc:torsionalfriction", torsional_friction)
     set_schema_attribute(material.GetPrim(), "mjc:rollingfriction", rolling_friction)
 
