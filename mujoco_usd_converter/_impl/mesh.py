@@ -95,7 +95,9 @@ def convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
 
 def convert_obj(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:
     reader = tinyobjloader.ObjReader()
-    if not reader.ParseFromFile(str(input_path)):
+    config = tinyobjloader.ObjReaderConfig()
+    config.triangulate = False  # Preserve quads and n-gons
+    if not reader.ParseFromFile(str(input_path), config):
         Tf.RaiseRuntimeError(f'Invalid input_path: "{input_path}" could not be parsed. {reader.Error()}')
 
     shapes = reader.GetShapes()
