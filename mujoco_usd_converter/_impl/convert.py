@@ -15,6 +15,7 @@ from ._flatten import export_flattened
 from .actuator import convert_actuators
 from .body import convert_bodies
 from .data import ConversionData, Tokens
+from .equality import convert_equalities
 from .material import convert_materials
 from .mesh import convert_meshes
 from .scene import convert_scene
@@ -131,6 +132,9 @@ class Converter:
         # author the actuators
         convert_actuators(data)
 
+        # author the equalities
+        convert_equalities(data)
+
         # create the asset interface
         usdex.core.addAssetInterface(asset_stage, source=data.content[Tokens.Contents])
 
@@ -156,8 +160,6 @@ class Converter:
             Tf.Warn("flexes are not supported")
         if spec.skins:
             Tf.Warn("skins are not supported")
-        if spec.equalities:
-            Tf.Warn("equalities are not supported")
         if spec.excludes:
             Tf.Warn("excludes are not supported")
         if spec.pairs:
