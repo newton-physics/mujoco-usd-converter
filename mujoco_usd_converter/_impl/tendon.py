@@ -97,7 +97,6 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                 target_path = references[wrap.target.name].GetPath()
             elif wrap.target.name in data.geom_targets:
                 target_path = data.geom_targets[wrap.target.name]
-                data.content[Tokens.Physics].OverridePrim(target_path)
             else:
                 Tf.Warn(f"Target '{wrap.target.name}' not found for tendon '{tendon.name}'")
                 return tendon_prim
