@@ -110,7 +110,10 @@ class Converter:
 
         # setup a content layer for physics
         data.content[Tokens.Physics] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Physics, format="usda")
-        data.references[Tokens.Physics] = {}
+        data.references[Tokens.PhysicsBodies] = {}
+        data.references[Tokens.PhysicsJoints] = {}
+        data.references[Tokens.PhysicsSites] = {}
+        data.references[Tokens.PhysicsTendons] = {}
 
         # author the physics scene
         if self.params.scene:

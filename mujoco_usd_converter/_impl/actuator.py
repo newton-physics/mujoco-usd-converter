@@ -38,24 +38,36 @@ def convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, 
 
     set_schema_attribute(actuator_prim, "mjc:group", actuator.group)
 
-    if actuator.target and actuator.target in data.references[Tokens.Physics]:
-        target_path = data.references[Tokens.Physics][actuator.target].GetPath()
+    if actuator.trntype == mujoco.mjtTrn.mjTRN_BODY:
+        references = data.references[Tokens.PhysicsBodies]
+    elif actuator.trntype == mujoco.mjtTrn.mjTRN_JOINT:
+        references = data.references[Tokens.PhysicsJoints]
+    elif actuator.trntype == mujoco.mjtTrn.mjTRN_SITE or actuator.trntype == mujoco.mjtTrn.mjTRN_SLIDERCRANK:
+        references = data.references[Tokens.PhysicsSites]
+    elif actuator.trntype == mujoco.mjtTrn.mjTRN_TENDON:
+        references = data.references[Tokens.PhysicsTendons]
+    else:
+        Tf.Warn(f"Unsupported transmission type '{actuator.trntype}' for actuator '{actuator.name}'")
+        return actuator_prim
+
+    if actuator.target and actuator.target in references:
+        target_path = references[actuator.target].GetPath()
         actuator_prim.CreateRelationship("mjc:target", custom=False).SetTargets([target_path])
     else:
         Tf.Warn(f"Target '{actuator.target}' not found for actuator '{actuator.name}'")
         return actuator_prim
 
     if actuator.refsite:
-        if actuator.refsite in data.references[Tokens.Physics]:
-            refsite_path = data.references[Tokens.Physics][actuator.refsite].GetPath()
+        if actuator.refsite in data.references[Tokens.PhysicsSites]:
+            refsite_path = data.references[Tokens.PhysicsSites][actuator.refsite].GetPath()
             actuator_prim.CreateRelationship("mjc:refSite", custom=False).SetTargets([refsite_path])
         else:
             Tf.Warn(f"Refsite '{actuator.refsite}' not found for actuator '{actuator.name}'")
             return actuator_prim
 
     if actuator.slidersite:
-        if actuator.slidersite in data.references[Tokens.Physics]:
-            slidersite_path = data.references[Tokens.Physics][actuator.slidersite].GetPath()
+        if actuator.slidersite in data.references[Tokens.PhysicsSites]:
+            slidersite_path = data.references[Tokens.PhysicsSites][actuator.slidersite].GetPath()
             actuator_prim.CreateRelationship("mjc:sliderSite", custom=False).SetTargets([slidersite_path])
         else:
             Tf.Warn(f"Slidersite '{actuator.slidersite}' not found for actuator '{actuator.name}'")

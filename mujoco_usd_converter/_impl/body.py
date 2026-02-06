@@ -43,13 +43,13 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
         if site_prim := convert_geom(parent=body_prim, name=safe_name, geom=site, data=data):
             site_prim.GetPurposeAttr().Set(UsdGeom.Tokens.guide)
             site_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(site_prim.GetPath())
-            data.references[Tokens.Physics][site.name] = site_over
+            data.references[Tokens.PhysicsSites][site.name] = site_over
             site_over.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI"))
             set_schema_attribute(site_over, "mjc:group", site.group)
 
     if body != data.spec.worldbody:
         body_over = data.content[Tokens.Physics].OverridePrim(body_prim.GetPath())
-        data.references[Tokens.Physics][body.name] = body_over
+        data.references[Tokens.PhysicsBodies][body.name] = body_over
         rbd: UsdPhysics.RigidBodyAPI = UsdPhysics.RigidBodyAPI.Apply(body_over)
         # when the parent body is kinematic, the child body must also be kinematic
         if is_kinematic(body, body_over):

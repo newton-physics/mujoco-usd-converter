@@ -65,7 +65,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
         if source_name and joint_prim.GetPrim().GetName() != source_name:
             usdex.core.setDisplayName(joint_prim.GetPrim(), source_name)
 
-        data.references[Tokens.Physics][joint.name] = joint_prim.GetPrim()
+        data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
         apply_mjc_joint_api(joint_prim.GetPrim(), joint)
 
