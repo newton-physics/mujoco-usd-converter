@@ -16,6 +16,14 @@
         <joint name="slide1" type="slide" axis="0 0 1" range="0 0.5"/>
       </body>
     </body>
+    <body name="body4" pos="2 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="hinge2" type="hinge" axis="1 0 0" range="-45 45"/>
+      <body name="body5" pos="0 0 1">
+        <geom type="box" size="0.05 0.05 0.5"/>
+        <joint name="hinge3" type="hinge" axis="1 0 0" range="-45 45"/>
+      </body>
+    </body>
   </worldbody>
   <equality>
     <!-- Custom joint equality with non-default values -->
@@ -32,5 +40,10 @@
            solimp="0.9 0.95 0.001 0.5 2"
            solref="0.02 1"
            polycoef="0 1 0 0 0"/>
+    <!-- Disabled joint equality: active="false" → physics:jointEnabled authored and false -->
+    <joint name="disabled_joint_eq"
+           joint1="hinge2"
+           joint2="hinge3"
+           active="false"/>
   </equality>
 </mujoco>

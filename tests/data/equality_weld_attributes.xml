@@ -52,5 +52,10 @@
     <!-- Weld with only body1: body2 defaults to world (default prim in USD) -->
     <weld name="weld_to_world"
           body1="body0"/>
+    <!-- Disabled weld: active="false" → physics:jointEnabled should be authored and false -->
+    <weld name="disabled_weld"
+          body1="body2"
+          body2="body3"
+          active="false"/>
   </equality>
 </mujoco>

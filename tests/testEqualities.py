@@ -156,6 +156,66 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(default_prim.IsValid())
         self.assertEqual(body1_targets[0], default_prim.GetPath())
 
+    def test_weld_equality_joint_enabled(self):
+        # XML active="true" (default) → joint enabled, attr should not be authored when default
+        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        model = pathlib.Path("./tests/data/equality_weld_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # Enabled weld (default): resolved value True, attr should not be authored
+        default_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/default_weld")
+        self.assertTrue(default_weld.IsValid())
+        default_joint = UsdPhysics.FixedJoint(default_weld)
+        joint_enabled_attr = default_joint.GetJointEnabledAttr()
+        self.assertTrue(joint_enabled_attr.Get(), "Default weld should be enabled")
+        self.assertFalse(
+            self.__has_authored_value(joint_enabled_attr),
+            "physics:jointEnabled should not be authored when it is the default (true)",
+        )
+
+        # Disabled weld: attr must be authored and false
+        disabled_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/disabled_weld")
+        self.assertTrue(disabled_weld.IsValid())
+        disabled_joint = UsdPhysics.FixedJoint(disabled_weld)
+        disabled_joint_enabled_attr = disabled_joint.GetJointEnabledAttr()
+        self.assertTrue(
+            self.__has_authored_value(disabled_joint_enabled_attr),
+            "physics:jointEnabled should be authored when equality is inactive",
+        )
+        self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled weld should have jointEnabled false")
+
+    def test_joint_equality_joint_enabled(self):
+        # XML active="true" (default) → joint enabled, attr should not be authored when default
+        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        model = pathlib.Path("./tests/data/equality_joint_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # Enabled joint equality (default): resolved value True, attr should not be authored
+        default_joint_prim: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body2/slide0")
+        self.assertTrue(default_joint_prim.IsValid())
+        default_joint = UsdPhysics.PrismaticJoint(default_joint_prim)
+        joint_enabled_attr = default_joint.GetJointEnabledAttr()
+        self.assertTrue(joint_enabled_attr.Get(), "Default joint equality should be enabled")
+        self.assertFalse(
+            self.__has_authored_value(joint_enabled_attr),
+            "physics:jointEnabled should not be authored when it is the default (true)",
+        )
+
+        # Disabled joint equality: attr must be authored and false (hinge2 has disabled_joint_eq)
+        disabled_joint_prim: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body4/hinge2")
+        self.assertTrue(disabled_joint_prim.IsValid())
+        disabled_joint = UsdPhysics.RevoluteJoint(disabled_joint_prim)
+        disabled_joint_enabled_attr = disabled_joint.GetJointEnabledAttr()
+        self.assertTrue(
+            self.__has_authored_value(disabled_joint_enabled_attr),
+            "physics:jointEnabled should be authored when joint equality is inactive",
+        )
+        self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled joint equality should have jointEnabled false")
+
     def test_joint_equality_schema(self):
         # Test that joint equality attributes are authored correctly
         model = pathlib.Path("./tests/data/equality_joint_attributes.xml")

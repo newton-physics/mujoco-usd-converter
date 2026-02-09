@@ -121,7 +121,9 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             joint_prim.GetLocalPos1Attr().Set(anchor)
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
 
+        # @TODO: Do other equality types need this?
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
+
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
 
         # Apply MjcEqualityWeldAPI
@@ -155,6 +157,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         set_schema_attribute(joint_prim, "mjc:coef3", equality.data[3])
         set_schema_attribute(joint_prim, "mjc:coef4", equality.data[4])
         joint_prim.CreateRelationship("mjc:target", custom=False).AddTarget(target_joint_path)
+        set_schema_attribute(joint_prim, "physics:jointEnabled", equality.active)
         return joint_prim, False
 
     elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
