@@ -1,0 +1,53 @@
+<mujoco model="equality_weld_attributes">
+  <worldbody>
+    <body name="body0" pos="0 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <body name="body1" pos="0.5 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <body name="body2" pos="1 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <body name="body3" pos="1.5 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <body name="body4" pos="2 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="site4" pos="0.05 0 0"/>
+      <freejoint/>
+    </body>
+    <body name="body5" pos="2.5 0 0.5">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="site5" pos="-0.05 0 0"/>
+      <freejoint/>
+    </body>
+  </worldbody>
+  <equality>
+    <!-- Custom weld with non-default values -->
+    <weld name="custom_weld"
+          body1="body0"
+          body2="body1"
+          solimp="0.8 0.9 0.002 0.6 3"
+          solref="0.03 0.8"
+          torquescale="2.5"/>
+    <!-- Default weld with default values -->
+    <weld name="default_weld"
+          body1="body2"
+          body2="body3"
+          solimp="0.9 0.95 0.001 0.5 2"
+          solref="0.02 1"
+          torquescale="1"/>
+    <!-- Site-based weld with non-default values -->
+    <weld name="site_weld"
+          site1="site4"
+          site2="site5"
+          solimp="0.75 0.85 0.004 0.55 2.5"
+          solref="0.025 0.9"
+          torquescale="1.5"/>
+  </equality>
+</mujoco>
