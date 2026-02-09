@@ -132,6 +132,30 @@ class TestEqualities(ConverterTestCase):
         self.assertIn("body4", str(body0_targets[0]))
         self.assertIn("body5", str(body1_targets[0]))
 
+    def test_weld_missing_body2(self):
+        # When a weld equality has no body2 (name2), MuJoCo uses worldbody; in USD, body1 is the default prim
+        model = pathlib.Path("./tests/data/equality_weld_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        weld_to_world: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/weld_to_world")
+        self.assertTrue(weld_to_world.IsValid())
+        self.assertTrue(weld_to_world.IsA(UsdPhysics.FixedJoint))
+        self.assertTrue(weld_to_world.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI")))
+
+        weld_joint = UsdPhysics.FixedJoint(weld_to_world)
+        body0_targets = weld_joint.GetBody0Rel().GetTargets()
+        body1_targets = weld_joint.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        # First body is the specified body (body0)
+        self.assertIn("body0", str(body0_targets[0]))
+        # Second body is world → in USD the default prim
+        default_prim = stage.GetDefaultPrim()
+        self.assertTrue(default_prim.IsValid())
+        self.assertEqual(body1_targets[0], default_prim.GetPath())
+
     def test_joint_equality_schema(self):
         # Test that joint equality attributes are authored correctly
         model = pathlib.Path("./tests/data/equality_joint_attributes.xml")

@@ -49,5 +49,8 @@
           solimp="0.75 0.85 0.004 0.55 2.5"
           solref="0.025 0.9"
           torquescale="1.5"/>
+    <!-- Weld with only body1: body2 defaults to world (default prim in USD) -->
+    <weld name="weld_to_world"
+          body1="body0"/>
   </equality>
 </mujoco>
