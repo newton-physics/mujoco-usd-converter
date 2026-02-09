@@ -7,7 +7,7 @@ from pxr import Gf, Tf, Usd, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
 from .numpy import convert_quatd, convert_vec3d
-from .utils import mj_limited_to_token, set_schema_attribute
+from .utils import set_schema_attribute
 
 __all__ = ["convert_equalities"]
 
@@ -22,9 +22,8 @@ def convert_equalities(data: ConversionData):
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
     for equality, source_name, safe_name in zip(data.spec.equalities, source_names, safe_names):
         equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data)
-        if prim_created:
-            if source_name != safe_name:
-                usdex.core.setDisplayName(equality_prim, source_name)
+        if prim_created and source_name != safe_name:
+            usdex.core.setDisplayName(equality_prim, source_name)
 
 
 def get_equality_name(equality: mujoco.MjsEquality) -> str:
@@ -58,7 +57,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
                 use_qpos0 = True
 
             print(f"  anchor: {anchor}")
-            print(f"  relpose: pos={relpose_pos}, quat={relpose_quat}")
+            print(f"  relpose: pos={relpose_pos}, quat={relpose_quat_data}")
 
             # anchor: Coordinates of the weld point relative to body2.
             # If relpose is not specified, the meaning of this parameter is the same as for connect constraints,
