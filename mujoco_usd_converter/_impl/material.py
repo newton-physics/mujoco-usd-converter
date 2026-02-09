@@ -5,7 +5,7 @@ import shutil
 
 import mujoco
 import usdex.core
-from pxr import Gf, Sdf, Tf, Usd, UsdShade
+from pxr import Sdf, Tf, Usd, UsdShade
 
 from .data import ConversionData, Tokens
 from .numpy import convert_color
@@ -55,15 +55,6 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     # FUTURE: use UsdMtlx
     material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
-
-    specular_color = material.specular
-    # We ignore spec.default.material.specular because materials default specular enabled in MuJoCo
-    # but UniversalPreviewSurface defaults to the metalness workflow in USD. We need to know to enable
-    # the specular workflow, even at the default specular value.
-    if specular_color != 0:
-        surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
-        surface_shader.CreateInput("useSpecularWorkflow", Sdf.ValueTypeNames.Int).Set(1)
-        surface_shader.CreateInput("specularColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(specular_color))
 
     emission_scalar = material.emission
     if emission_scalar != data.spec.default.material.emission:

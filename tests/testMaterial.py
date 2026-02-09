@@ -48,9 +48,9 @@ class TestMaterial(ConverterTestCase):
         self.assertFalse(shader.GetInput("useSpecularWorkflow"))
 
     def test_specular_material(self):
+        # Specular is currently disabled.
         shader = self._get_shader("GreenSpecular")
-        self.assertEqual(self._get_input_value(shader, "useSpecularWorkflow"), 1)
-        self.assertAlmostEqual(self._get_input_value(shader, "specularColor"), Gf.Vec3f(0.8))
+        self.assertFalse(shader.GetInput("useSpecularWorkflow"))
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
