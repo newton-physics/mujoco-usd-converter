@@ -157,3 +157,24 @@ jobs:
           # Test conversion
           New-Item -ItemType Directory -Force -Path test_outputs
           mujoco_usd_converter tests/data/geoms.xml test_outputs\geoms_output
+
+  deploy:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build
+      - test
+      - test-package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mujoco-usd-converter
+    permissions:
+      id-token: write
+    steps:
+      - name: Download wheel and source tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: mujoco-usd-converter-dist-${{ github.ref_name }}
+          path: dist/
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc
