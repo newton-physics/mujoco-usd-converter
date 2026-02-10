@@ -38,6 +38,7 @@ def convert_materials(data: ConversionData):
 
 def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
     color, opacity = convert_color(material.rgba)
+    color = usdex.core.sRgbToLinear(color)
 
     # Build kwargs for material properties
     material_kwargs = {

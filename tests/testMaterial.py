@@ -104,3 +104,24 @@ class TestMaterial(ConverterTestCase):
         connected_source = texture_input.GetConnectedSource()
         texture_shader = UsdShade.Shader(connected_source[0].GetPrim())
         self.assertEqual(self._get_input_value(texture_shader, "file").path, "./Textures/grid.png")
+
+    def test_material_color_space(self):
+        shader = self._get_shader("Gray")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertAlmostEqual(diffuse_color, Gf.Vec3f(0.7, 0.7, 0.7))
+        self.assertFalse(shader.GetInput("emissiveColor"))
+
+        shader = self._get_shader("DarkGreen")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertAlmostEqual(diffuse_color, Gf.Vec3f(0.1, 0.7, 0.0))
+        emissive_color = self._get_input_value(shader, "emissiveColor")
+        self.assertAlmostEqual(usdex.core.linearToSrgb(emissive_color / 0.1), diffuse_color)
+
+        shader = self._get_shader("SkyBlue")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertAlmostEqual(diffuse_color, Gf.Vec3f(0.3, 0.8, 0.9))
+        emissive_color = self._get_input_value(shader, "emissiveColor")
+        self.assertAlmostEqual(usdex.core.linearToSrgb(emissive_color / 0.2), diffuse_color)
