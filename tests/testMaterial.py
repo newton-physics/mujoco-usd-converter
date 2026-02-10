@@ -48,9 +48,9 @@ class TestMaterial(ConverterTestCase):
         self.assertFalse(shader.GetInput("useSpecularWorkflow"))
 
     def test_specular_material(self):
+        # Specular is currently disabled.
         shader = self._get_shader("GreenSpecular")
-        self.assertEqual(self._get_input_value(shader, "useSpecularWorkflow"), 1)
-        self.assertAlmostEqual(self._get_input_value(shader, "specularColor"), Gf.Vec3f(0.8))
+        self.assertFalse(shader.GetInput("useSpecularWorkflow"))
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
@@ -104,3 +104,24 @@ class TestMaterial(ConverterTestCase):
         connected_source = texture_input.GetConnectedSource()
         texture_shader = UsdShade.Shader(connected_source[0].GetPrim())
         self.assertEqual(self._get_input_value(texture_shader, "file").path, "./Textures/grid.png")
+
+    def test_material_color_space(self):
+        shader = self._get_shader("Gray")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.7, 0.7, 0.7), 1e-6))
+        self.assertFalse(shader.GetInput("emissiveColor"))
+
+        shader = self._get_shader("DarkGreen")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.1, 0.7, 0.0), 1e-6))
+        emissive_color = self._get_input_value(shader, "emissiveColor")
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.1), diffuse_color, 1e-6))
+
+        shader = self._get_shader("SkyBlue")
+        diffuse_color = self._get_input_value(shader, "diffuseColor")
+        diffuse_color = usdex.core.linearToSrgb(diffuse_color)
+        self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.3, 0.8, 0.9), 1e-6))
+        emissive_color = self._get_input_value(shader, "emissiveColor")
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.2), diffuse_color, 1e-6))
