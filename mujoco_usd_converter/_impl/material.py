@@ -46,7 +46,9 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
         "opacity": opacity,
     }
 
-    # Only add roughness if shininess is not the default -1.0
+    # Only add roughness if shininess is not a sentinal value
+    # mujoco also includes a roughness attribute, but it is
+    # not used in practice
     if material.shininess != -1.0:
         material_kwargs["roughness"] = 1.0 - material.shininess
 
