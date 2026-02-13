@@ -348,7 +348,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "mujoco", specifier = ">=3.4.0" },
-    { name = "newton-usd-schemas", specifier = ">=0.1.0rc1" },
+    { name = "newton-usd-schemas", specifier = ">=0.1.0rc2" },
     { name = "numpy-stl", specifier = ">=3.2" },
     { name = "tinyobjloader", specifier = ">=2.0.0rc13" },
     { name = "usd-exchange", specifier = ">=2.2.0" },
@@ -377,11 +377,11 @@ wheels = [
 
 [[package]]
 name = "newton-usd-schemas"
-version = "0.1.0rc1"
+version = "0.1.0rc2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/50/0c/11e48f3c8cebbb26cb368f3a8d9084f3bb6c8699d7538b259a48d173c9c4/newton_usd_schemas-0.1.0rc1.tar.gz", hash = "sha256:0e02bb13299650ae19521a27627401c8fab74067acb5be46a1559a0ab57498d7", size = 59031, upload-time = "2026-02-06T23:45:26.273Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/18/3ac84dab96569f8e28ec868ffe492286401990804d94902fea2b91dec9cb/newton_usd_schemas-0.1.0rc2.tar.gz", hash = "sha256:c97ce5e8d87fab4c20e7815a469da870a6fb102663a185fa85868fcb163ecf29", size = 61019, upload-time = "2026-02-13T20:28:26.08Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/1a/535a46d3c4ff41331ec3c942ada815a1301ac9b083a3059d4344be6e2c51/newton_usd_schemas-0.1.0rc1-py3-none-any.whl", hash = "sha256:8b9648539f3368aebe3506b9ac72d8cf7410d16e26e65b886e810adb483493ec", size = 11192, upload-time = "2026-02-06T23:45:24.819Z" },
+    { url = "https://files.pythonhosted.org/packages/60/43/e4e4623135a447445000fa93dd5d24024c113ce13512f8f10cf8f9597b2f/newton_usd_schemas-0.1.0rc2-py3-none-any.whl", hash = "sha256:55246b1c1164b3d7a6dffa7a2597dc0dde1e38894445a48a543bc039032d18ae", size = 12595, upload-time = "2026-02-13T20:28:24.715Z" },
 ]
 
 [[package]]

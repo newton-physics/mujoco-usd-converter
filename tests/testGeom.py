@@ -256,8 +256,24 @@ class TestGeom(ConverterTestCase):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")
         self.assertTrue(prim.HasAPI("NewtonCollisionAPI"))
 
-        # Newton collision attributes should not be authored but have schema defaults
+        # newton:contactMargin should not be authored (MuJoCo default 0 matches schema default 0)
         self.assertFalse(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
+
+        # newton:contactGap should be authored (MuJoCo default 0 differs from schema default -inf)
+        self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.0)
+
+    def test_newton_collision_schema_authored(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/all_collision_properties")
+        self.assertTrue(prim.HasAPI("NewtonCollisionAPI"))
+
+        # Check that newton:contactMargin is authored with the correct value
+        self.assertTrue(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.01)
+
+        # Check that newton:contactGap is authored with the correct value
+        self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.02)
 
     def test_mjc_collision_schema_defaults(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/default_collider")

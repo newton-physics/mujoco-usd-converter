@@ -300,11 +300,15 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     geom_over.ApplyAPI("NewtonCollisionAPI")
     geom_over.ApplyAPI("MjcCollisionAPI")
 
+    # Set NewtonCollisionAPI attributes
+    set_schema_attribute(geom_over, "newton:contactMargin", geom.margin)
+    set_schema_attribute(geom_over, "newton:contactGap", geom.gap)
+
     # Set all MjcCollisionAPI attributes
     set_schema_attribute(geom_over, "mjc:condim", geom.condim)
     set_schema_attribute(geom_over, "mjc:gap", geom.gap)
     set_schema_attribute(geom_over, "mjc:group", geom.group)
-    set_schema_attribute(geom_over, "mjc:margin", geom.margin)  # not setting newton:contactMargin as it is not the same concept
+    set_schema_attribute(geom_over, "mjc:margin", geom.margin)
     set_schema_attribute(geom_over, "mjc:priority", geom.priority)
     set_schema_attribute(geom_over, "mjc:solimp", list(geom.solimp))
     set_schema_attribute(geom_over, "mjc:solmix", geom.solmix)
