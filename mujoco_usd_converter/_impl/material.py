@@ -58,7 +58,7 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
     material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
 
     emission_scalar = material.emission
-    if emission_scalar != data.spec.default.material.emission:
+    if emission_scalar > 0.0:
         surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
         surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(emission_scalar * color)
 

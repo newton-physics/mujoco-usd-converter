@@ -66,7 +66,7 @@ def convert_geom(parent: Usd.Prim, name: str, geom: mujoco.MjsGeom, data: Conver
     if geom.material:
         bind_material(geom_prim, geom.material, data)
 
-    # Always set color and opacity primvars, `data.spec.default.geom.rgba` will change with default geoms
+    # Always set color and opacity primvars
     color, opacity = convert_color(geom.rgba)
     usdex.core.Vec3fPrimvarData(UsdGeom.Tokens.constant, Vt.Vec3fArray([color])).setPrimvar(geom_prim.CreateDisplayColorPrimvar())
     usdex.core.FloatPrimvarData(UsdGeom.Tokens.constant, Vt.FloatArray([opacity])).setPrimvar(geom_prim.CreateDisplayOpacityPrimvar())
@@ -277,7 +277,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     # some geom are for vizualization only, but still contribute to the mass of the body
     if geom.contype == 0 and geom.conaffinity == 0:
         if geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):
-            if not np.isnan(geom.mass) or geom.density != data.spec.default.geom.density:
+            if not np.isnan(geom.mass) or not np.isclose(geom.density, 1000.0, atol=1e-6):
                 collider_enabled = False
             else:
                 is_collider = False
@@ -325,7 +325,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateMassAttr().Set(geom.mass)
 
-    if geom.density != data.spec.default.geom.density:
+    if geom.density > 0.0:
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateDensityAttr().Set(geom.density)
 

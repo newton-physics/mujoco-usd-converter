@@ -102,7 +102,11 @@ class TestGeom(ConverterTestCase):
         collider_api = UsdPhysics.CollisionAPI(prim)
         # Enabled by default, so attribute should not be authored
         self.assertFalse(collider_api.GetCollisionEnabledAttr().HasAuthoredValue())
-        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+        mass_api = UsdPhysics.MassAPI(prim)
+        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
+        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_geom(self):
@@ -118,7 +122,8 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
-        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_density(self):
@@ -156,7 +161,8 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 10.0)
-        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
 
     def test_explicit_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/explicit_density")
