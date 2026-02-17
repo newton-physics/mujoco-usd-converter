@@ -26,7 +26,7 @@ class TestEqualities(ConverterTestCase):
         # Custom weld equality should have non-default values authored
         custom_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/custom_weld")
         self.assertTrue(custom_weld.IsValid())
-        self.assertTrue(custom_weld.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI")))
+        self.assertTrue(custom_weld.HasAPI("MjcEqualityWeldAPI"))
 
         # Check that all possible MJC properties are authored, weld equalities don't use mjc:target
         not_authored_properties = [
@@ -72,7 +72,7 @@ class TestEqualities(ConverterTestCase):
         default_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/default_weld")
         self.assertTrue(default_weld.IsValid())
         self.assertTrue(default_weld.IsA(UsdPhysics.FixedJoint))
-        self.assertTrue(default_weld.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI")))
+        self.assertTrue(default_weld.HasAPI("MjcEqualityWeldAPI"))
 
         # Check that default MJC properties are NOT authored
         for property in default_weld.GetPropertiesInNamespace("mjc"):
@@ -97,7 +97,7 @@ class TestEqualities(ConverterTestCase):
         site_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/site_weld")
         self.assertTrue(site_weld.IsValid())
         self.assertTrue(site_weld.IsA(UsdPhysics.FixedJoint))
-        self.assertTrue(site_weld.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI")))
+        self.assertTrue(site_weld.HasAPI("MjcEqualityWeldAPI"))
 
         # Check that MJC properties are authored for site weld
         for property in site_weld.GetPropertiesInNamespace("mjc"):
@@ -142,7 +142,7 @@ class TestEqualities(ConverterTestCase):
         weld_to_world: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/weld_to_world")
         self.assertTrue(weld_to_world.IsValid())
         self.assertTrue(weld_to_world.IsA(UsdPhysics.FixedJoint))
-        self.assertTrue(weld_to_world.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI")))
+        self.assertTrue(weld_to_world.HasAPI("MjcEqualityWeldAPI"))
 
         weld_joint = UsdPhysics.FixedJoint(weld_to_world)
         body0_targets = weld_joint.GetBody0Rel().GetTargets()
@@ -227,7 +227,7 @@ class TestEqualities(ConverterTestCase):
         custom_joint: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body0/hinge0")
         self.assertTrue(custom_joint.IsValid())
         self.assertTrue(custom_joint.IsA(UsdPhysics.RevoluteJoint))
-        self.assertTrue(custom_joint.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityJointAPI")))
+        self.assertTrue(custom_joint.HasAPI("MjcEqualityJointAPI"))
 
         # Check that all MJC equality properties are authored for custom joint
         equality_properties = ["mjc:solimp", "mjc:solref", "mjc:coef0", "mjc:coef1", "mjc:coef2", "mjc:coef3", "mjc:coef4", "mjc:target"]
@@ -266,7 +266,7 @@ class TestEqualities(ConverterTestCase):
         default_joint: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body2/slide0")
         self.assertTrue(default_joint.IsValid())
         self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
-        self.assertTrue(default_joint.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityJointAPI")))
+        self.assertTrue(default_joint.HasAPI("MjcEqualityJointAPI"))
 
         # Check that only the target relationship is authored (required), default values are NOT authored
         authored_properties = ["mjc:target"]

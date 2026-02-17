@@ -102,8 +102,6 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             prim1 = data.content[Tokens.Physics].GetDefaultPrim()
         else:
             prim1 = references[equality.name1]
-            if prim1.HasAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsSiteAPI")):
-                print("  prim1 is a site")
         print(f"  prim1: {prim1}")
 
         if equality.name2:
@@ -154,7 +152,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
 
         # Apply MjcEqualityWeldAPI
-        equality_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityWeldAPI"))
+        equality_prim.ApplyAPI("MjcEqualityWeldAPI")
         set_base_equality_schema_attrs(equality, equality_prim)
         torque_scale = equality.data[10]
         set_schema_attribute(equality_prim, "mjc:torqueScale", torque_scale)
@@ -176,7 +174,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             Tf.Warn(f"Joint '{equality.name2}' not found for equality '{equality.name}'")
             return None, False
 
-        joint_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityJointAPI"))
+        joint_prim.ApplyAPI("MjcEqualityJointAPI")
         set_base_equality_schema_attrs(equality, joint_prim)
         set_schema_attribute(joint_prim, "mjc:coef0", equality.data[0])
         set_schema_attribute(joint_prim, "mjc:coef1", equality.data[1])
@@ -189,7 +187,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
 
     elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
         equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
-        equality_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityConnectAPI"))
+        equality_prim.ApplyAPI("MjcEqualityConnectAPI")
         set_base_equality_schema_attrs(equality, equality_prim)
 
         body0, body1, anchor = get_equality_geometry(equality, data)
