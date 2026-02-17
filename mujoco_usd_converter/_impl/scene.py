@@ -38,7 +38,7 @@ def convert_scene(data: ConversionData):
     # set newton scene attributes
     set_schema_attribute(scene_prim, "newton:maxSolverIterations", data.spec.option.iterations)
     timestep = data.spec.option.timestep
-    set_schema_attribute(scene_prim, "newton:timeStepsPerSecond", int(1.0 / timestep) if timestep and timestep > 0 else None)
+    set_schema_attribute(scene_prim, "newton:timeStepsPerSecond", round(1.0 / timestep) if timestep and timestep > 0 else None)
     gravity_enabled = not is_disabled(1 << 7, data)
     set_schema_attribute(scene_prim, "newton:gravityEnabled", gravity_enabled)
 
