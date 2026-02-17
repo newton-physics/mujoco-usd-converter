@@ -46,7 +46,9 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
         "opacity": opacity,
     }
 
-    # Only add roughness if shininess is not the default -1.0
+    # Only add roughness if shininess is not a sentinal value
+    # mujoco also includes a roughness attribute, but it is
+    # not used in practice
     if material.shininess != -1.0:
         material_kwargs["roughness"] = 1.0 - material.shininess
 
@@ -58,7 +60,7 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
     material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
 
     emission_scalar = material.emission
-    if emission_scalar != data.spec.default.material.emission:
+    if emission_scalar > 0.0:
         surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
         surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(emission_scalar * color)
 
