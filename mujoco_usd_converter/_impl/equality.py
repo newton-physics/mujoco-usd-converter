@@ -38,6 +38,32 @@ def set_base_equality_schema_attrs(equality: mujoco.MjsEquality, equality_prim: 
     set_schema_attribute(equality_prim, "mjc:solref", Vt.DoubleArray(equality.solref))
 
 
+def get_equality_geometry(equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, Usd.Prim, Gf.Vec3d]:
+    references = {}
+    anchor = Gf.Vec3d(0, 0, 0)
+    if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
+        references = data.references[Tokens.PhysicsBodies]
+        anchor = convert_vec3d(equality.data[0:3]) # anchor: Coordinates of the weld point relative to body2.
+    else:  # mjOBJ_SITE
+        references = data.references[Tokens.PhysicsSites]
+
+    # @TODO: handle worldbody case, I'm seeing this in examples... should this be a special case or should we just not support it?
+    if equality.name1 not in references and equality.name1 == "world":
+        prim1 = data.content[Tokens.Physics].GetDefaultPrim()
+    else:
+        prim1 = references[equality.name1]
+
+    if equality.name2:
+        prim2 = references[equality.name2]
+    else:
+        # If body2 is omitted, the second body is the world body
+        prim2 = data.content[Tokens.Physics].GetDefaultPrim()
+
+    body0 = data.content[Tokens.Geometry].GetPrimAtPath(prim1.GetPath())
+    body1 = data.content[Tokens.Geometry].GetPrimAtPath(prim2.GetPath())
+    return body0, body1, anchor
+
+
 def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> Usd.Prim:
     print(f"Converting equality '{equality.name}'")
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
@@ -45,6 +71,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         # The name and data fields are used in MuJoCo's xml_native_writer.cc:
         print(f"Weld: {equality.name1} -> {equality.name2}")
         references = {}
+        use_qpos0 = False
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
             references = data.references[Tokens.PhysicsBodies]
             anchor = convert_vec3d(equality.data[0:3]) # anchor: Coordinates of the weld point relative to body2.
@@ -161,8 +188,28 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         return joint_prim, False
 
     elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
-        return None, False
-        Tf.Warn("Connect equalities are not supported")
+        equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
+        equality_prim.ApplyAPI(Usd.SchemaRegistry.GetSchemaTypeName("MjcPhysicsEqualityConnectAPI"))
+        set_base_equality_schema_attrs(equality, equality_prim)
+
+        body0, body1, anchor = get_equality_geometry(equality, data)
+
+        # Create a spherical joint between the two bodies or sites
+        # we need to use the geometry prims for the bodies, otherwise the joint frame alignment will be authored in the wrong space
+        # both bodies are only ever queried in this function, so we don't need to worry about setting edit targets
+        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
+        joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
+        # @TODO: The mapping doc specs a spherical joint, but Mujoco's USD decode expects a fixed joint.
+        # My local changes to Mujoco's USD decode use a spherical joint now, maybe they'll take the PR
+        # joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
+        joint_prim.GetLocalPos0Attr().Set(Gf.Vec3d(0, 0, 0))
+        joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
+        joint_prim.GetLocalPos1Attr().Set(anchor)
+        joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
+
+        joint_prim.GetExcludeFromArticulationAttr().Set(True)
+        set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
+
     elif equality.type == mujoco.mjtEq.mjEQ_TENDON:
         Tf.Warn("Tendon equalities are not supported")
     elif equality.type == mujoco.mjtEq.mjEQ_FLEX:
