@@ -78,14 +78,11 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         """Download the MJC schema files from GitHub"""
 
         # Get the mujoco version from the uv.lock file
-        # mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco")
+        mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco")
 
         # Get the schema url from the mujoco version
-        # schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
+        schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"
 
-        schema_url = (
-            "https://raw.githubusercontent.com/google-deepmind/mujoco/2582a83ac3d86bbff4109007e443c84e67178a6a/src/experimental/usd/mjcPhysics"
-        )
         for file in ("generatedSchema.usda", "plugInfo.json"):
             self.download_schema_file(f"{schema_url}/{file}", self.target_dir / file)
 

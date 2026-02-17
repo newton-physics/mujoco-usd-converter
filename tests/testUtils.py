@@ -11,7 +11,7 @@ class TestSetSchemaAttribute(ConverterTestCase):
     def test_set_unique_value(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
         prim: Usd.Prim = stage.DefinePrim("/TestPrim")
-        prim.ApplyAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI"))
+        prim.ApplyAPI("MjcJointAPI")
 
         # Setting a valid attribute with a non-default value should author the value
         set_schema_attribute(prim, "mjc:armature", 0.5)
@@ -21,7 +21,7 @@ class TestSetSchemaAttribute(ConverterTestCase):
     def test_set_default_value(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
         prim: Usd.Prim = stage.DefinePrim("/TestPrim")
-        prim.ApplyAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI"))
+        prim.ApplyAPI("MjcJointAPI")
 
         set_schema_attribute(prim, "mjc:armature", 0)  # Default value is 0
         self.assertFalse(prim.GetAttribute("mjc:armature").HasAuthoredValue())  # Should not be authored
@@ -30,7 +30,7 @@ class TestSetSchemaAttribute(ConverterTestCase):
     def test_invalid_schema(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
         prim: Usd.Prim = stage.DefinePrim("/TestPrim")
-        self.assertFalse(prim.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI")))
+        self.assertFalse(prim.HasAPI("MjcJointAPI"))
 
         with self.assertRaises(Tf.ErrorException, msg="Attribute mjc:armature is not valid for prim /TestPrim with schemas []"):
             set_schema_attribute(prim, "mjc:armature", 0.5)
@@ -38,7 +38,7 @@ class TestSetSchemaAttribute(ConverterTestCase):
     def test_invalid_attribute(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
         prim: Usd.Prim = stage.DefinePrim("/TestPrim")
-        prim.ApplyAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI"))
+        prim.ApplyAPI("MjcJointAPI")
 
         # Setting an invalid attribute should raise a coding error
         with self.assertRaises(Tf.ErrorException):
@@ -47,7 +47,7 @@ class TestSetSchemaAttribute(ConverterTestCase):
     def test_invalid_value(self):
         stage: Usd.Stage = Usd.Stage.CreateInMemory()
         prim: Usd.Prim = stage.DefinePrim("/TestPrim")
-        prim.ApplyAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsJointAPI"))
+        prim.ApplyAPI("MjcJointAPI")
 
         with self.assertRaises(Tf.ErrorException):
             set_schema_attribute(prim, "mjc:armature", "wrong type")

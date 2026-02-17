@@ -32,7 +32,16 @@ class TestScene(ConverterTestCase):
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
-        self.assertTrue(scene.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsSceneAPI")))
+        self.assertTrue(scene.HasAPI("NewtonSceneAPI"))
+        self.assertTrue(scene.HasAPI("MjcSceneAPI"))
+
+        # Check that Newton scene attributes are authored as expected
+        self.assertTrue(scene.GetAttribute("newton:maxSolverIterations").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:maxSolverIterations").Get(), 200)
+        self.assertTrue(scene.GetAttribute("newton:timeStepsPerSecond").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:timeStepsPerSecond").Get(), 100)
+        self.assertTrue(scene.GetAttribute("newton:gravityEnabled").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:gravityEnabled").Get(), False)
 
         # Check that all MJC properties are authored
         for property in scene.GetPropertiesInNamespace("mjc"):
@@ -130,7 +139,16 @@ class TestScene(ConverterTestCase):
 
         scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
         self.assertTrue(scene.IsA(UsdPhysics.Scene))
-        self.assertTrue(scene.HasAPI(Usd.SchemaRegistry.GetAPISchemaTypeName("MjcPhysicsSceneAPI")))
+        self.assertTrue(scene.HasAPI("NewtonSceneAPI"))
+        self.assertTrue(scene.HasAPI("MjcSceneAPI"))
+
+        # Newton scene attributes are authored as expected
+        self.assertTrue(scene.GetAttribute("newton:maxSolverIterations").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:maxSolverIterations").Get(), 100)
+        self.assertTrue(scene.GetAttribute("newton:timeStepsPerSecond").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:timeStepsPerSecond").Get(), 500)
+        self.assertFalse(scene.GetAttribute("newton:gravityEnabled").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("newton:gravityEnabled").Get(), True)
 
         physics_scene: UsdPhysics.Scene = UsdPhysics.Scene(scene)
         # authored because this is a Z-up scene & the USD default is Y-up
