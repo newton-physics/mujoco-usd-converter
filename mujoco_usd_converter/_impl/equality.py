@@ -38,7 +38,7 @@ def set_base_equality_schema_attrs(equality: mujoco.MjsEquality, equality_prim: 
     set_schema_attribute(equality_prim, "mjc:solref", Vt.DoubleArray(equality.solref))
 
 
-def get_equality_geometry(equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, Usd.Prim, Gf.Vec3d]:
+def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, Usd.Prim, Gf.Vec3d]:
     references = {}
     anchor = Gf.Vec3d(0, 0, 0)
     if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
@@ -47,9 +47,9 @@ def get_equality_geometry(equality: mujoco.MjsEquality, data: ConversionData) ->
     else:  # mjOBJ_SITE
         references = data.references[Tokens.PhysicsSites]
 
-    # @TODO: handle worldbody case, I'm seeing this in examples... should this be a special case or should we just not support it?
-    if equality.name1 not in references and equality.name1 == "world":
-        prim1 = data.content[Tokens.Physics].GetDefaultPrim()
+    if equality.name1 not in references:
+        Tf.Warn(f"Body '{equality.name1}' not found for equality '{equality.name}'")
+        return Usd.Prim(), Usd.Prim(), Gf.Vec3d(0, 0, 0)
     else:
         prim1 = references[equality.name1]
 
@@ -70,9 +70,9 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         # The name and data fields are used in MuJoCo's xml_native_writer.cc:
         references = {}
         use_qpos0 = False
+        body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
+
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
-            references = data.references[Tokens.PhysicsBodies]
-            anchor = convert_vec3d(equality.data[0:3]) # anchor: Coordinates of the weld point relative to body2.
             relpose_pos = convert_vec3d(equality.data[3:6])
             relpose_quat_data = equality.data[6:10]
             # If relpose_quat is all zeros, as in the default setting, this attribute is ignored
@@ -87,32 +87,14 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             #  Coordinates of the 3D anchor point where the two bodies are connected, in the local coordinate frame of body2
             # If relpose is specified, body1 will use the pose to compute its anchor point.
 
-        else:  # mjOBJ_SITE
-            references = data.references[Tokens.PhysicsSites]
-            # Site-based welds don't use data array
-
-        # @TODO: handle worldbody case, I'm seeing this in examples... should this be a special case or should we just not support it?
-        if equality.name1 not in references and equality.name1 == "world":
-            prim1 = data.content[Tokens.Physics].GetDefaultPrim()
-        else:
-            prim1 = references[equality.name1]
-
-        if equality.name2:
-            prim2 = references[equality.name2]
-        else:
-            # If body2 is omitted, the second body is the world body
-            prim2 = data.content[Tokens.Physics].GetDefaultPrim()
-
-        # Create a fixed joint between the two bodies
-        # we need to use the geometry prims for the bodies, otherwise the joint frame alignment will be authored in the wrong space
-        # both bodies are only ever queried in this function, so we don't need to worry about setting edit targets
-        body0 = data.content[Tokens.Geometry].GetPrimAtPath(prim1.GetPath())
-        body1 = data.content[Tokens.Geometry].GetPrimAtPath(prim2.GetPath())
-
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body1, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
 
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
+            body0_scale = usdex.core.getLocalTransform(body0).GetScale()
+            body1_scale = usdex.core.getLocalTransform(body1).GetScale()
+            print(f"\nbody0 scale: {body0_scale}")
+            print(f"\nbody1 scale: {body1_scale}")
             # localPos0 = anchor
             # localPos1 = anchor / body1_scale
             # localRot0 = relpose_quat` (with `localRot1 = identity`)
@@ -138,9 +120,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             joint_prim.GetLocalPos1Attr().Set(anchor)
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
 
-        # @TODO: Do other equality types need this?
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
-
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
 
         # Apply MjcEqualityWeldAPI
@@ -148,7 +128,26 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         set_base_equality_schema_attrs(equality, equality_prim)
         torque_scale = equality.data[10]
         set_schema_attribute(equality_prim, "mjc:torqueScale", torque_scale)
-        # set_schema_attribute(equality_prim, "mjc:target", equality.target)
+
+    elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
+        equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
+        equality_prim.ApplyAPI("MjcEqualityConnectAPI")
+        set_base_equality_schema_attrs(equality, equality_prim)
+
+        body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
+
+        # Create a spherical joint between the two bodies or sites
+        # we need to use the geometry prims for the bodies, otherwise the joint frame alignment will be authored in the wrong space
+        # both bodies are only ever queried in this function, so we don't need to worry about setting edit targets
+        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
+        joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
+        joint_prim.GetLocalPos0Attr().Set(Gf.Vec3d(0, 0, 0))
+        joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
+        joint_prim.GetLocalPos1Attr().Set(anchor)
+        joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
+
+        joint_prim.GetExcludeFromArticulationAttr().Set(True)
+        set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
 
     elif equality.type == mujoco.mjtEq.mjEQ_JOINT:
         # Find the joint for equality.name1
@@ -176,29 +175,6 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         joint_prim.CreateRelationship("mjc:target", custom=False).AddTarget(target_joint_path)
         set_schema_attribute(joint_prim, "physics:jointEnabled", equality.active)
         return joint_prim, False
-
-    elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
-        equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
-        equality_prim.ApplyAPI("MjcEqualityConnectAPI")
-        set_base_equality_schema_attrs(equality, equality_prim)
-
-        body0, body1, anchor = get_equality_geometry(equality, data)
-
-        # Create a spherical joint between the two bodies or sites
-        # we need to use the geometry prims for the bodies, otherwise the joint frame alignment will be authored in the wrong space
-        # both bodies are only ever queried in this function, so we don't need to worry about setting edit targets
-        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
-        joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
-        # @TODO: The mapping doc specs a spherical joint, but Mujoco's USD decode expects a fixed joint.
-        # My local changes to Mujoco's USD decode use a spherical joint now, maybe they'll take the PR
-        # joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
-        joint_prim.GetLocalPos0Attr().Set(Gf.Vec3d(0, 0, 0))
-        joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
-        joint_prim.GetLocalPos1Attr().Set(anchor)
-        joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
-
-        joint_prim.GetExcludeFromArticulationAttr().Set(True)
-        set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
 
     elif equality.type == mujoco.mjtEq.mjEQ_TENDON:
         Tf.Warn("Tendon equalities are not supported")
