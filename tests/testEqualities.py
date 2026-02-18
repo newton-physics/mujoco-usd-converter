@@ -152,14 +152,14 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(body1_targets), 1)
         # First body is the specified body (body0)
         self.assertEqual("/equality_weld_attributes/Geometry/body0", str(body0_targets[0]))
-        # Second body is world → in USD the default prim
+        # Second body is world - in USD the default prim
         default_prim = stage.GetDefaultPrim()
         self.assertTrue(default_prim.IsValid())
         self.assertEqual(body1_targets[0], default_prim.GetPath())
 
     def test_weld_equality_joint_enabled(self):
-        # XML active="true" (default) → joint enabled, attr should not be authored when default
-        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        # XML active="true" (default) - joint enabled, attr should not be authored when default
+        # XML active="false" - joint disabled, physics:jointEnabled must be authored and false
         model = pathlib.Path("./tests/data/equality_weld_attributes.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
@@ -188,8 +188,8 @@ class TestEqualities(ConverterTestCase):
         self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled weld should have jointEnabled false")
 
     def test_joint_equality_joint_enabled(self):
-        # XML active="true" (default) → joint enabled, attr should not be authored when default
-        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        # XML active="true" (default) - joint enabled, attr should not be authored when default
+        # XML active="false" - joint disabled, physics:jointEnabled must be authored and false
         model = pathlib.Path("./tests/data/equality_joint_attributes.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
@@ -206,6 +206,9 @@ class TestEqualities(ConverterTestCase):
             "physics:jointEnabled should not be authored when it is the default (true)",
         )
 
+        self.assertTrue(default_joint_prim.HasAPI("NewtonMimicAPI"))
+        self.assertTrue(default_joint_prim.GetAttribute("newton:mimicEnabled").Get())
+
         # Disabled joint equality: attr must be authored and false (hinge2 has disabled_joint_eq)
         disabled_joint_prim: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body4/hinge2")
         self.assertTrue(disabled_joint_prim.IsValid())
@@ -216,6 +219,9 @@ class TestEqualities(ConverterTestCase):
             "physics:jointEnabled should be authored when joint equality is inactive",
         )
         self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled joint equality should have jointEnabled false")
+
+        self.assertTrue(disabled_joint_prim.HasAPI("NewtonMimicAPI"))
+        self.assertFalse(disabled_joint_prim.GetAttribute("newton:mimicEnabled").Get())
 
     def test_joint_equality_schema(self):
         # Test that joint equality attributes are authored correctly
@@ -258,10 +264,18 @@ class TestEqualities(ConverterTestCase):
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef4").Get(), 0.02)
 
         # Check that the target relationship points to hinge1
-        target_rel = custom_joint.GetRelationship("mjc:target")
-        targets = target_rel.GetTargets()
+        targets = custom_joint.GetRelationship("mjc:target").GetTargets()
         self.assertEqual(len(targets), 1)
         self.assertEqual("/equality_joint_attributes/Geometry/body0/body1/hinge1", str(targets[0]))
+
+        # Check NewtonMimicAPI attributes
+        self.assertTrue(custom_joint.HasAPI("NewtonMimicAPI"))
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:mimicCoef0").Get(), 0.5)
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:mimicCoef1").Get(), 1.5)
+        targets = custom_joint.GetRelationship("newton:mimicJoint").GetTargets()
+        self.assertEqual(len(targets), 1)
+        self.assertEqual("/equality_joint_attributes/Geometry/body0/body1/hinge1", str(targets[0]))
+        self.assertTrue(custom_joint.GetAttribute("newton:mimicEnabled").Get())
 
         # Default joint equality - API applied to the constrained joint (slide0)
         default_joint: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body2/slide0")
@@ -298,10 +312,26 @@ class TestEqualities(ConverterTestCase):
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:coef4").Get(), 0.0)
 
         # Check that the target relationship points to slide1
-        target_rel = default_joint.GetRelationship("mjc:target")
-        targets = target_rel.GetTargets()
+        targets = default_joint.GetRelationship("mjc:target").GetTargets()
         self.assertEqual(len(targets), 1)
         self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
+
+        # Check NewtonMimicAPI attributes
+        self.assertTrue(default_joint.HasAPI("NewtonMimicAPI"))
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef0").Get(), 0.0)
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef1").Get(), 1.0)
+        targets = default_joint.GetRelationship("newton:mimicJoint").GetTargets()
+        self.assertEqual(len(targets), 1)
+        self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
+        self.assertTrue(default_joint.GetAttribute("newton:mimicEnabled").Get())
+
+        # Check that only the target relationship is authored (required), default values are NOT authored
+        authored_properties = ["newton:mimicJoint"]
+        for property in default_joint.GetPropertiesInNamespace("newton"):
+            if property.GetName() in authored_properties:
+                self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
+            else:
+                self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
 
     def test_connect_equality_schema(self):
         # Test that connect equality attributes are authored correctly
@@ -380,7 +410,7 @@ class TestEqualities(ConverterTestCase):
         for i in range(2):
             self.assertAlmostEqual(actual_default_solref[i], expected_default_solref[i])
 
-        # default_connect has anchor="0 0 0" → localPos1 = (0,0,0), localPos0 = (0, 0, 0)
+        # default_connect has anchor="0 0 0" - localPos1 = (0,0,0), localPos0 = (0, 0, 0)
         default_joint = UsdPhysics.SphericalJoint(default_connect)
         self.assertTrue(Gf.IsClose(default_joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(default_joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
@@ -414,7 +444,7 @@ class TestEqualities(ConverterTestCase):
 
         identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
 
-        # connect_anchor_a: anchor="0.1 0 0" → localPos1 = (0.1, 0, 0)
+        # connect_anchor_a: anchor="0.1 0 0" - localPos1 = (0.1, 0, 0)
         connect_a: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_a")
         self.assertTrue(connect_a.IsValid())
         joint_a = UsdPhysics.SphericalJoint(connect_a)
@@ -423,7 +453,7 @@ class TestEqualities(ConverterTestCase):
         self.assertRotationsAlmostEqual(joint_a.GetLocalRot0Attr().Get(), identity_quat)
         self.assertRotationsAlmostEqual(joint_a.GetLocalRot1Attr().Get(), identity_quat)
 
-        # connect_anchor_b: anchor="0 0.15 0.02" → localPos1 = (0, 0.15, 0.02)
+        # connect_anchor_b: anchor="0 0.15 0.02" - localPos1 = (0, 0.15, 0.02)
         connect_b: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_b")
         self.assertTrue(connect_b.IsValid())
         joint_b = UsdPhysics.SphericalJoint(connect_b)
@@ -432,7 +462,7 @@ class TestEqualities(ConverterTestCase):
         self.assertRotationsAlmostEqual(joint_b.GetLocalRot0Attr().Get(), identity_quat)
         self.assertRotationsAlmostEqual(joint_b.GetLocalRot1Attr().Get(), identity_quat)
 
-        # connect_to_world: body1="body6" anchor="0 0 0" → localPos1 = (0,0,0), localPos0 = (0, 0, 0)
+        # connect_to_world: body1="body6" anchor="0 0 0" - localPos1 = (0,0,0), localPos0 = (0, 0, 0)
         connect_world: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_to_world")
         self.assertTrue(connect_world.IsValid())
         joint_world = UsdPhysics.SphericalJoint(connect_world)
@@ -442,8 +472,8 @@ class TestEqualities(ConverterTestCase):
         self.assertRotationsAlmostEqual(joint_world.GetLocalRot1Attr().Get(), identity_quat)
 
     def test_connect_equality_enabled(self):
-        # XML active="true" (default) → joint enabled, attr should not be authored when default
-        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        # XML active="true" (default) - joint enabled, attr should not be authored when default
+        # XML active="false" - joint disabled, physics:jointEnabled must be authored and false
         model = pathlib.Path("./tests/data/equality_connect_attributes.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
@@ -490,7 +520,7 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(body1_targets), 1)
         # First body is the specified body (body6)
         self.assertEqual("/equality_connect_attributes/Geometry/body6", str(body0_targets[0]))
-        # Second body is world → in USD the default prim
+        # Second body is world - in USD the default prim
         default_prim = stage.GetDefaultPrim()
         self.assertTrue(default_prim.IsValid())
         self.assertEqual(body1_targets[0], default_prim.GetPath())
