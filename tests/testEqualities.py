@@ -131,6 +131,7 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(body1_targets), 1)
         self.assertEqual("/equality_weld_attributes/Geometry/body4/site4", str(body0_targets[0]))
         self.assertEqual("/equality_weld_attributes/Geometry/body5/site5", str(body1_targets[0]))
+        self.assertTrue(site_weld_joint.GetExcludeFromArticulationAttr().Get())
 
     def test_weld_missing_body2(self):
         # When a weld equality has no body2 (name2), MuJoCo uses worldbody; in USD, body1 is the default prim
@@ -402,6 +403,7 @@ class TestEqualities(ConverterTestCase):
         # Site-based: joint frame positions/rotations from compiled constraint
         self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertTrue(site_connect_joint.GetExcludeFromArticulationAttr().Get())
 
     def test_connect_equality_joint_positions_and_rotations(self):
         # Verify spherical joint localPos0, localPos1, localRot0, localRot1 match anchor-based semantics
