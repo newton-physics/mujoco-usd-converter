@@ -1,5 +1,5 @@
-<mujoco model="geoms_fitting">
-  <compiler fitaabb="false"/>
+<mujoco model="geoms_fitting_aabb">
+  <compiler fitaabb="true"/>
   <default>
     <default class="base">
       <default class="visual">
