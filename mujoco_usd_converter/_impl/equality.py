@@ -65,8 +65,6 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
     equality_prim = Usd.Prim()
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
         equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
-        # The name and data fields are used in MuJoCo's xml_native_writer.cc:
-        references = {}
         use_qpos0 = False
         body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
         if not body0 or not body1:
@@ -160,6 +158,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             Tf.Warn(f"Joint '{equality.name2}' not found for equality '{equality.name}'")
             return None, False
 
+        # Apply the MjcEqualityJointAPI schema
         joint_prim.ApplyAPI("MjcEqualityJointAPI")
         set_base_equality_schema_attrs(equality, joint_prim)
         set_schema_attribute(joint_prim, "mjc:coef0", equality.data[0])
@@ -169,6 +168,14 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         set_schema_attribute(joint_prim, "mjc:coef4", equality.data[4])
         joint_prim.CreateRelationship("mjc:target", custom=False).AddTarget(target_joint_path)
         set_schema_attribute(joint_prim, "physics:jointEnabled", equality.active)
+
+        # Apply the NewtonMimicAPI schema
+        joint_prim.ApplyAPI("NewtonMimicAPI")
+        set_schema_attribute(joint_prim, "newton:mimicEnabled", equality.active)
+        set_schema_attribute(joint_prim, "newton:mimicCoef0", equality.data[0])
+        set_schema_attribute(joint_prim, "newton:mimicCoef1", equality.data[1])
+        joint_prim.CreateRelationship("newton:mimicJoint", custom=False).AddTarget(target_joint_path)
+
         return joint_prim, False
 
     elif equality.type == mujoco.mjtEq.mjEQ_TENDON:
