@@ -1,3 +1,25 @@
+# 0.1.0a6
+
+## Features
+
+- Added `NewtonPhysics` schema authoring alongside `UsdPhysics` & `MjcPhysics` equivalents
+- Added fixed & spatial tendon conversion
+- Improved OBJ & STL conversion performance
+
+## Fixes
+
+- Fixed unnamed bodies using a generic name "Body"
+- Fixed geom density is now authored even when it matches the default MJCF value
+- Fixed color/opacity/emission to respect mujoco defaults overrides
+- Fixed sRGB to linear colorspace conversion for diffuse color
+- Fixed specular color is not ignored as it does not map to `UsdPreviewSurface` appropriately
+- Fixed OBJs with n-gons are now supported
+
+## Dependencies
+
+- Added `newton-usd-schemas>=0.1.0rc2`
+- Updated to `mujoco>=3.5.0`
+
 # 0.1.0a5
 
 ## Features
@@ -180,7 +202,6 @@
   - Light conversion to `UsdLux` Prims is not implemented
   - Equality constraint conversion is not implemented
   - Sensor state conversion is not implemented
-  - Tendon conversion is not implemented
   - Deformable flex & skin conversion is not implemented
   - The Visual, Statistic, and Size properties which control MuJoCo Simulate's default visualization and interactivity options are not preserved
   - Custom MuJoCo plugins & extensions are not mapped to USD
