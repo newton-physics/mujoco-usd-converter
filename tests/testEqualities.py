@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-from pxr import Sdf, Usd, UsdPhysics
+from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -65,8 +65,8 @@ class TestEqualities(ConverterTestCase):
         body1_targets = weld_joint.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertIn("body0", str(body0_targets[0]))
-        self.assertIn("body1", str(body1_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body0", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body1", str(body1_targets[0]))
 
         # Default weld equality should have default values that are NOT authored
         default_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/default_weld")
@@ -129,8 +129,8 @@ class TestEqualities(ConverterTestCase):
         body1_targets = site_weld_joint.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertIn("body4", str(body0_targets[0]))
-        self.assertIn("body5", str(body1_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body4/site4", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body5/site5", str(body1_targets[0]))
 
     def test_weld_missing_body2(self):
         # When a weld equality has no body2 (name2), MuJoCo uses worldbody; in USD, body1 is the default prim
@@ -150,7 +150,7 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
         # First body is the specified body (body0)
-        self.assertIn("body0", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body0", str(body0_targets[0]))
         # Second body is world → in USD the default prim
         default_prim = stage.GetDefaultPrim()
         self.assertTrue(default_prim.IsValid())
@@ -260,7 +260,7 @@ class TestEqualities(ConverterTestCase):
         target_rel = custom_joint.GetRelationship("mjc:target")
         targets = target_rel.GetTargets()
         self.assertEqual(len(targets), 1)
-        self.assertIn("hinge1", str(targets[0]))
+        self.assertEqual("/equality_joint_attributes/Geometry/body0/body1/hinge1", str(targets[0]))
 
         # Default joint equality - API applied to the constrained joint (slide0)
         default_joint: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body2/slide0")
@@ -300,4 +300,298 @@ class TestEqualities(ConverterTestCase):
         target_rel = default_joint.GetRelationship("mjc:target")
         targets = target_rel.GetTargets()
         self.assertEqual(len(targets), 1)
-        self.assertIn("slide1", str(targets[0]))
+        self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
+
+    def test_connect_equality_schema(self):
+        # Test that connect equality attributes are authored correctly
+        model = pathlib.Path("./tests/data/equality_connect_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # Custom connect equality should have non-default values authored
+        custom_connect: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/custom_connect")
+        self.assertTrue(custom_connect.IsValid())
+        self.assertTrue(custom_connect.HasAPI("MjcEqualityConnectAPI"))
+
+        # Connect equalities only have solimp and solref (no mjc:target, no torqueScale)
+        not_authored_properties = ["mjc:target", "mjc:torqueScale"]
+        for property in custom_connect.GetPropertiesInNamespace("mjc"):
+            if property.GetName() in not_authored_properties:
+                self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
+            else:
+                self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
+
+        # Check solimp values (custom_connect has solimp="0.8 0.9 0.002 0.6 3")
+        expected_solimp = [0.8, 0.9, 0.002, 0.6, 3]
+        actual_solimp = custom_connect.GetAttribute("mjc:solimp").Get()
+        self.assertEqual(len(actual_solimp), len(expected_solimp))
+        for i in range(5):
+            self.assertAlmostEqual(actual_solimp[i], expected_solimp[i])
+
+        # Check solref values (custom_connect has solref="0.03 0.8")
+        expected_solref = [0.03, 0.8]
+        actual_solref = custom_connect.GetAttribute("mjc:solref").Get()
+        self.assertEqual(len(actual_solref), len(expected_solref))
+        for i in range(2):
+            self.assertAlmostEqual(actual_solref[i], expected_solref[i])
+
+        # Connect equality is a spherical joint
+        self.assertTrue(custom_connect.IsA(UsdPhysics.SphericalJoint))
+        connect_joint = UsdPhysics.SphericalJoint(custom_connect)
+        self.assertTrue(connect_joint)
+
+        # Verify the joint connects the correct bodies (body0, body1)
+        body0_targets = connect_joint.GetBody0Rel().GetTargets()
+        body1_targets = connect_joint.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_attributes/Geometry/body0", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_attributes/Geometry/body1", str(body1_targets[0]))
+
+        # Connect anchor is in body1 (first body) frame: localPos1 = anchor, localPos0 = (0, 0, 0))
+        # custom_connect has anchor="0.05 0 0"
+        self.assertTrue(Gf.IsClose(connect_joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(connect_joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0.05, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(connect_joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertRotationsAlmostEqual(connect_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+
+        # Default connect equality should have default values that are NOT authored
+        default_connect: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/default_connect")
+        self.assertTrue(default_connect.IsValid())
+        self.assertTrue(default_connect.IsA(UsdPhysics.SphericalJoint))
+        self.assertTrue(default_connect.HasAPI("MjcEqualityConnectAPI"))
+
+        # Check that default MJC properties are NOT authored
+        for property in default_connect.GetPropertiesInNamespace("mjc"):
+            self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
+
+        # Verify the resolved values still match expected defaults
+        expected_default_solimp = [0.9, 0.95, 0.001, 0.5, 2]
+        actual_default_solimp = default_connect.GetAttribute("mjc:solimp").Get()
+        self.assertEqual(len(actual_default_solimp), len(expected_default_solimp))
+        for i in range(5):
+            self.assertAlmostEqual(actual_default_solimp[i], expected_default_solimp[i])
+
+        expected_default_solref = [0.02, 1]
+        actual_default_solref = default_connect.GetAttribute("mjc:solref").Get()
+        self.assertEqual(len(actual_default_solref), len(expected_default_solref))
+        for i in range(2):
+            self.assertAlmostEqual(actual_default_solref[i], expected_default_solref[i])
+
+        # default_connect has anchor="0 0 0" → localPos1 = (0,0,0), localPos0 = (0, 0, 0)
+        default_joint = UsdPhysics.SphericalJoint(default_connect)
+        self.assertTrue(Gf.IsClose(default_joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(default_joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(default_joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertRotationsAlmostEqual(default_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+
+        # Site-based connect equality should connect the parent bodies of the sites (body4, body5)
+        site_connect: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/site_connect")
+        self.assertTrue(site_connect.IsValid())
+        self.assertTrue(site_connect.IsA(UsdPhysics.SphericalJoint))
+        self.assertTrue(site_connect.HasAPI("MjcEqualityConnectAPI"))
+
+        site_connect_joint = UsdPhysics.SphericalJoint(site_connect)
+        body0_targets = site_connect_joint.GetBody0Rel().GetTargets()
+        body1_targets = site_connect_joint.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_attributes/Geometry/body4/site4", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_attributes/Geometry/body5/site5", str(body1_targets[0]))
+        # Site-based: joint frame positions/rotations from compiled constraint
+        self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+        self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
+
+    def test_connect_equality_joint_positions_and_rotations(self):
+        # Verify spherical joint localPos0, localPos1, localRot0, localRot1 match anchor-based semantics
+        model = pathlib.Path("./tests/data/equality_connect_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
+
+        # connect_anchor_a: anchor="0.1 0 0" → localPos1 = (0.1, 0, 0)
+        connect_a: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_a")
+        self.assertTrue(connect_a.IsValid())
+        joint_a = UsdPhysics.SphericalJoint(connect_a)
+        self.assertTrue(Gf.IsClose(joint_a.GetLocalPos1Attr().Get(), Gf.Vec3f(0.1, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_a.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_a.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_a.GetLocalRot1Attr().Get(), identity_quat)
+
+        # connect_anchor_b: anchor="0 0.15 0.02" → localPos1 = (0, 0.15, 0.02)
+        connect_b: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_b")
+        self.assertTrue(connect_b.IsValid())
+        joint_b = UsdPhysics.SphericalJoint(connect_b)
+        self.assertTrue(Gf.IsClose(joint_b.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.15, 0.02), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_b.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_b.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_b.GetLocalRot1Attr().Get(), identity_quat)
+
+        # connect_to_world: body1="body6" anchor="0 0 0" → localPos1 = (0,0,0), localPos0 = (0, 0, 0)
+        connect_world: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_to_world")
+        self.assertTrue(connect_world.IsValid())
+        joint_world = UsdPhysics.SphericalJoint(connect_world)
+        self.assertTrue(Gf.IsClose(joint_world.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_world.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_world.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_world.GetLocalRot1Attr().Get(), identity_quat)
+
+    def test_connect_equality_enabled(self):
+        # XML active="true" (default) → joint enabled, attr should not be authored when default
+        # XML active="false" → joint disabled, physics:jointEnabled must be authored and false
+        model = pathlib.Path("./tests/data/equality_connect_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # Enabled connect (default): resolved value True, attr should not be authored
+        default_connect: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/default_connect")
+        self.assertTrue(default_connect.IsValid())
+        default_joint = UsdPhysics.SphericalJoint(default_connect)
+        joint_enabled_attr = default_joint.GetJointEnabledAttr()
+        self.assertTrue(joint_enabled_attr.Get(), "Default connect should be enabled")
+        self.assertFalse(
+            self.__has_authored_value(joint_enabled_attr),
+            "physics:jointEnabled should not be authored when it is the default (true)",
+        )
+
+        # Disabled connect: attr must be authored and false
+        disabled_connect: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/disabled_connect")
+        self.assertTrue(disabled_connect.IsValid())
+        disabled_joint = UsdPhysics.SphericalJoint(disabled_connect)
+        disabled_joint_enabled_attr = disabled_joint.GetJointEnabledAttr()
+        self.assertTrue(
+            self.__has_authored_value(disabled_joint_enabled_attr),
+            "physics:jointEnabled should be authored when equality is inactive",
+        )
+        self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled connect should have jointEnabled false")
+
+    def test_connect_missing_body2(self):
+        # When a connect equality has no body2, MuJoCo uses worldbody; in USD, body1 is the default prim
+        model = pathlib.Path("./tests/data/equality_connect_attributes.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        connect_to_world: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_to_world")
+        self.assertTrue(connect_to_world.IsValid())
+        self.assertTrue(connect_to_world.IsA(UsdPhysics.SphericalJoint))
+        self.assertTrue(connect_to_world.HasAPI("MjcEqualityConnectAPI"))
+
+        connect_joint = UsdPhysics.SphericalJoint(connect_to_world)
+        body0_targets = connect_joint.GetBody0Rel().GetTargets()
+        body1_targets = connect_joint.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        # First body is the specified body (body6)
+        self.assertEqual("/equality_connect_attributes/Geometry/body6", str(body0_targets[0]))
+        # Second body is world → in USD the default prim
+        default_prim = stage.GetDefaultPrim()
+        self.assertTrue(default_prim.IsValid())
+        self.assertEqual(body1_targets[0], default_prim.GetPath())
+
+    def test_connect_equality_anchor_positions(self):
+        # Verify anchor positions are correctly converted from XML anchor values
+        model = pathlib.Path("./tests/data/equality_connect.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
+
+        world_to_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/world_to_body")
+        self.assertTrue(world_to_body.IsValid())
+        joint_world_to_body = UsdPhysics.SphericalJoint(world_to_body)
+        self.assertTrue(Gf.IsClose(joint_world_to_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_world_to_body.GetLocalPos1Attr().Get(), Gf.Vec3f(0.5, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot1Attr().Get(), identity_quat)
+
+        bodies: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/bodies")
+        self.assertTrue(bodies.IsValid())
+        joint_bodies = UsdPhysics.SphericalJoint(bodies)
+        self.assertTrue(Gf.IsClose(joint_bodies.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_bodies.GetLocalPos1Attr().Get(), Gf.Vec3f(0.5, 0.1, 0.5), 1e-5))
+        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot1Attr().Get(), identity_quat)
+
+        sites: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/sites")
+        self.assertTrue(sites.IsValid())
+        joint_sites = UsdPhysics.SphericalJoint(sites)
+        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot1Attr().Get(), identity_quat)
+
+    def test_connects_vs_welds(self):
+        # Verify that connect and weld constraints are equivalent when defined with sites and bodies
+        model = pathlib.Path("./tests/data/equality_connect_vs_weld.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
+
+        # Connect constraints should be equivalent to weld constraints with the same anchor positions
+        connect_site: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/connect_site")
+        self.assertTrue(connect_site.IsValid())
+        joint_connect_site = UsdPhysics.SphericalJoint(connect_site)
+        body0_targets = joint_connect_site.GetBody0Rel().GetTargets()
+        body1_targets = joint_connect_site.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_vs_weld/Geometry/a1", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld/Geometry/a/a2", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertTrue(joint_connect_site.GetJointEnabledAttr().Get())
+
+        weld_site: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/weld_site")
+        self.assertTrue(weld_site.IsValid())
+        joint_weld_site = UsdPhysics.FixedJoint(weld_site)
+        body0_targets = joint_weld_site.GetBody0Rel().GetTargets()
+        body1_targets = joint_weld_site.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_vs_weld/Geometry/b1", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld/Geometry/b/b2", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
+        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertTrue(joint_weld_site.GetJointEnabledAttr().Get())
+
+        connect_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/connect_body")
+        self.assertTrue(connect_body.IsValid())
+        joint_connect_body = UsdPhysics.SphericalJoint(connect_body)
+        body0_targets = joint_connect_body.GetBody0Rel().GetTargets()
+        body1_targets = joint_connect_body.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_vs_weld/Geometry/a", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_connect_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_connect_body.GetLocalPos1Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot0Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertFalse(joint_connect_body.GetJointEnabledAttr().Get())
+
+        weld_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/weld_body")
+        self.assertTrue(weld_body.IsValid())
+        joint_weld_body = UsdPhysics.FixedJoint(weld_body)
+        body0_targets = joint_weld_body.GetBody0Rel().GetTargets()
+        body1_targets = joint_weld_body.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_connect_vs_weld/Geometry/b", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_body.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
+        self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertFalse(joint_weld_body.GetJointEnabledAttr().Get(), "Weld body should be disabled")

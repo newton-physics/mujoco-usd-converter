@@ -1,0 +1,108 @@
+<mujoco model="equality_connect_attributes">
+  <worldbody>
+    <!-- Ground plane so bodies don't fall forever -->
+    <geom name="ground" type="plane" size="10 10 0.1" pos="0 0 0"/>
+    <!-- Pinned bodies (connect to world) stay at z=0.9; connected bodies hang below them -->
+    <!-- Body-based connect: body0 pinned, body1 hangs from body0's anchor -->
+    <body name="body0" pos="0 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="anchor_custom_connect" pos="0.05 0 0" size="0.025" rgba="1 0 0 1"/>
+      <freejoint/>
+    </body>
+    <body name="body1" pos="0.05 0 0.7">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <!-- Default connect: body2 pinned, body3 hangs from body2 center -->
+    <body name="body2" pos="1 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="anchor_default_connect" pos="0 0 0" size="0.025" rgba="1 0 0 1"/>
+      <freejoint/>
+    </body>
+    <body name="body3" pos="1 0 0.7">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+    <!-- Site-based connect: body4 pinned, body5 hangs from site4-site5 link -->
+    <body name="body4" pos="2 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="site4" pos="0.05 0 0" size="0.025" rgba="0 0.8 0 1"/>
+      <freejoint/>
+    </body>
+    <!-- body5 initial pos so site5 coincides with site4 at t=0 (2.05 0 0.9); then hangs -->
+    <body name="body5" pos="2.1 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="site5" pos="-0.05 0 0" size="0.025" rgba="0 0.8 0 1"/>
+      <freejoint/>
+    </body>
+    <!-- Single body pinned to world (connect_to_world only) -->
+    <body name="body6" pos="3 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="anchor_connect_to_world" pos="0 0 0" size="0.025" rgba="1 0 0 1"/>
+      <freejoint/>
+    </body>
+    <!-- Two connects between body7 and body8: body7 pinned, body8 held rigidly relative to it -->
+    <body name="body7" pos="3.5 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <site name="anchor_connect_a" pos="0.1 0 0" size="0.025" rgba="1 0 0 1"/>
+      <site name="anchor_connect_b" pos="0 0.15 0.02" size="0.025" rgba="1 0.5 0 1"/>
+      <freejoint/>
+    </body>
+    <body name="body8" pos="4 0 0.9">
+      <geom type="box" size="0.1 0.1 0.1"/>
+      <freejoint/>
+    </body>
+  </worldbody>
+  <equality>
+    <!-- Pin body0 to world so it stays in the air; body1 hangs via custom_connect -->
+    <connect name="pin_body0" body1="body0" anchor="0 0 0"/>
+    <!-- Custom connect: body1 hangs from body0's anchor (0.05 0 0) -->
+    <connect name="custom_connect"
+             body1="body0"
+             body2="body1"
+             anchor="0.05 0 0"
+             solimp="0.8 0.9 0.002 0.6 3"
+             solref="0.03 0.8"/>
+    <!-- Pin body2 to world; body3 hangs via default_connect -->
+    <connect name="pin_body2" body1="body2" anchor="0 0 0"/>
+    <!-- Default connect: body3 hangs from body2 center -->
+    <connect name="default_connect"
+             body1="body2"
+             body2="body3"
+             anchor="0 0 0"
+             solimp="0.9 0.95 0.001 0.5 2"
+             solref="0.02 1"/>
+    <!-- Pin body4 to world; body5 hangs via site_connect -->
+    <connect name="pin_body4" body1="body4" anchor="0 0 0"/>
+    <!-- Site-based connect: body5 hangs from site4-site5 -->
+    <connect name="site_connect"
+             site1="site4"
+             site2="site5"
+             solimp="0.75 0.85 0.004 0.55 2.5"
+             solref="0.025 0.9"/>
+    <!-- Body6 pinned to world only -->
+    <connect name="connect_to_world"
+             body1="body6"
+             anchor="0 0 0"/>
+    <!-- Pin body7 to world; body8 held by two connects -->
+    <connect name="pin_body7" body1="body7" anchor="0 0 0"/>
+    <connect name="connect_anchor_a"
+             body1="body7"
+             body2="body8"
+             anchor="0.1 0 0"
+             solref="0.02 1"
+             solimp="0.9 0.95 0.001 0.5 2"/>
+    <connect name="connect_anchor_b"
+             body1="body7"
+             body2="body8"
+             anchor="0 0.15 0.02"
+             solref="0.02 1"
+             solimp="0.9 0.95 0.001 0.5 2"/>
+    <!-- Disabled connect: does not constrain -->
+    <connect name="disabled_connect"
+             body1="body2"
+             body2="body3"
+             anchor="0 0 0"
+             active="false"/>
+  </equality>
+</mujoco>
