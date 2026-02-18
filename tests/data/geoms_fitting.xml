@@ -9,7 +9,9 @@
   </default>
 
   <asset>
-      <mesh name="complex_cube" file="assets/complex_cube.obj"/>
+      <!-- When fitting a mesh, an error occurs if the capsule's XYZ bounding box coordinates are uniform. -->
+      <!-- To avoid this, we apply scaling to deliberately transform it into an uneven bounding box. -->
+      <mesh name="complex_cube" file="assets/complex_cube.obj" scale="1.3 1.0 1.0"/>
       <mesh name="rectangle_x" file="assets/box.obj" scale="1.2 0.3 0.2"/>
       <mesh name="rectangle_y" file="assets/box.obj" scale="0.3 1.2 0.2"/>
       <mesh name="rectangle_z" file="assets/box.obj" scale="0.3 0.2 1.2"/>

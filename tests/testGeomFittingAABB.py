@@ -86,9 +86,9 @@ class TestGeomFittingAABB(ConverterTestCase):
         self.assertEqual(cube.GetSizeAttr().Get(), 2)
 
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
-        self.assertTrue(Gf.IsClose(scale, (0.8559072, 0.7781741, 0.70797443), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.005380221417930632, 0.4999997998975669, -0.004139026615141719), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertTrue(Gf.IsClose(scale, (0.7532054, 0.75478935, 0.76835316), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.04823722128442205, 0.4989525530226528, -0.006278505815367666), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.31025994, 0.6706377, 0.3387701, 0.58242476))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_with_transform/box_with_transform"
@@ -99,9 +99,9 @@ class TestGeomFittingAABB(ConverterTestCase):
         cube = UsdGeom.Cube(prim)
         self.assertEqual(cube.GetSizeAttr().Get(), 2)
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
-        self.assertTrue(Gf.IsClose(scale, (0.8559072, 0.7781741, 0.70797443), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.10647141846274108, 0.0020491624891415972, -2.0010243301227248e-7), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(scale, (0.7532054, 0.75478935, 0.76835316), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.14747536245281256, -0.010599014694299781, -0.0010474469773470996), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_with_fitscale/box_with_fitscale"
@@ -112,9 +112,9 @@ class TestGeomFittingAABB(ConverterTestCase):
         cube = UsdGeom.Cube(prim)
         self.assertEqual(cube.GetSizeAttr().Get(), 2)
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
-        self.assertTrue(Gf.IsClose(scale, (1.0270886, 0.93380886, 0.8495693), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.006471418462741075, 0.0020491624891415972, 0.499999799897567), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(scale, (0.9038465, 0.9057472, 0.9220238), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.04747536245281256, -0.010599014694299781, 0.4989525530226529), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_box_scaled_x/box_scaled_x"
@@ -165,11 +165,11 @@ class TestGeomFittingAABB(ConverterTestCase):
         self.assertTrue(prim.IsA(UsdGeom.Sphere))
 
         sphere = UsdGeom.Sphere(prim)
-        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 0.8559072194762076, 1e-6))
+        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 0.7683531441266045, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.005380221417930632, 0.4999997998975669, -0.004139026615141719), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertTrue(Gf.IsClose(translation, (0.04823722128442205, 0.4989525530226528, -0.006278505815367666), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.31025994, 0.6706377, 0.3387701, 0.58242476))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_with_transform/sphere_with_transform"
@@ -178,11 +178,11 @@ class TestGeomFittingAABB(ConverterTestCase):
         self.assertTrue(prim.IsA(UsdGeom.Sphere))
 
         sphere = UsdGeom.Sphere(prim)
-        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 0.8559072194762076, 1e-6))
+        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 0.7683531441266045, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.10647141846274108, 0.0020491624891415972, -2.0010243301227248e-7), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(translation, (0.14747536245281256, -0.010599014694299781, -0.0010474469773470996), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_with_fitscale/sphere_with_fitscale"
@@ -191,11 +191,11 @@ class TestGeomFittingAABB(ConverterTestCase):
         self.assertTrue(prim.IsA(UsdGeom.Sphere))
 
         sphere = UsdGeom.Sphere(prim)
-        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 1.027088663371449, 1e-6))
+        self.assertTrue(Gf.IsClose(sphere.GetRadiusAttr().Get(), 0.9220237729519254, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.006471418462741075, 0.0020491624891415972, 0.499999799897567), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(translation, (0.04747536245281256, -0.010599014694299781, 0.4989525530226529), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_sphere_scaled_x/sphere_scaled_x"
@@ -247,12 +247,12 @@ class TestGeomFittingAABB(ConverterTestCase):
 
         cylinder = UsdGeom.Cylinder(prim)
         self.assertEqual(cylinder.GetAxisAttr().Get(), UsdGeom.Tokens.z)
-        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 0.8559072194762076, 1e-6))
-        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.4159488607901767, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 0.7547893248064179, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.536706288253209, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.005380221417930632, 0.4999997998975669, -0.004139026615141719), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.11115205, 0.86828923, 0.22571543, 0.42751792))
+        self.assertTrue(Gf.IsClose(translation, (0.04823722128442205, 0.4989525530226528, -0.006278505815367666), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.31025994, 0.6706377, 0.3387701, 0.58242476))
 
         # When using transform(pos, quat) in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_with_transform/cylinder_with_transform"
@@ -262,12 +262,12 @@ class TestGeomFittingAABB(ConverterTestCase):
 
         cylinder = UsdGeom.Cylinder(prim)
         self.assertEqual(cylinder.GetAxisAttr().Get(), UsdGeom.Tokens.z)
-        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 0.8559072194762076, 1e-6))
-        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.4159488607901767, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 0.7547893248064179, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.536706288253209, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.10647141846274108, 0.0020491624891415972, -2.0010243301227248e-7), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(translation, (0.14747536245281256, -0.010599014694299781, -0.0010474469773470996), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # When using transform(quat) and fitscale in geom.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_with_fitscale/cylinder_with_fitscale"
@@ -277,12 +277,12 @@ class TestGeomFittingAABB(ConverterTestCase):
 
         cylinder = UsdGeom.Cylinder(prim)
         self.assertEqual(cylinder.GetAxisAttr().Get(), UsdGeom.Tokens.z)
-        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 1.027088663371449, 1e-6))
-        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.6991386329482119, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetRadiusAttr().Get(), 0.9057471897677014, 1e-6))
+        self.assertTrue(Gf.IsClose(cylinder.GetHeightAttr().Get(), 1.8440475459038508, 1e-6))
         translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
         self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
-        self.assertTrue(Gf.IsClose(translation, (0.006471418462741075, 0.0020491624891415972, 0.499999799897567), 1e-6))
-        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.44702968, 0.65726686, -0.26079687, 0.54785925))
+        self.assertTrue(Gf.IsClose(translation, (0.04747536245281256, -0.010599014694299781, 0.4989525530226529), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
 
         # A box scaled non-uniformly in XYZ. Long in the X direction.
         prim_path = f"{default_prim.GetPath()}/Geometry/fitting_cylinder_scaled_x/cylinder_scaled_x"
@@ -329,5 +329,95 @@ class TestGeomFittingAABB(ConverterTestCase):
         self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
         self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))
 
-    # TODO: When fitaabb="true", the capsule causes a compile-time error (MuJoCo 3.5.0).
-    # We have not yet included tests for the capsule case here.
+    def test_geom_fitting_capsule(self):
+        default_prim = self.stage.GetDefaultPrim()
+
+        # When not using transform(pos, quat) in geom.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_no_transform/capsule"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.7547893248064179, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.027127638640373153, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.04823722128442205, 0.4989525530226528, -0.006278505815367666), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.31025994, 0.6706377, 0.3387701, 0.58242476))
+
+        # When using transform(pos, quat) in geom.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_with_transform/capsule_with_transform"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.7547893248064179, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.027127638640373153, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.14747536245281256, -0.010599014694299781, -0.0010474469773470996), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
+
+        # When using transform(quat) and fitscale in geom.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_with_fitscale/capsule_with_fitscale"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.9057471897677014, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.03255316636844778, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0.04747536245281256, -0.010599014694299781, 0.4989525530226529), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(-0.1378371, 0.65314186, -0.29012004, 0.68573827))
+
+        # A box scaled non-uniformly in XYZ. Long in the X direction.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_x/capsule_scaled_x"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.1500000000000006, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.9000000000000037, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0, 0.70710677, 0, 0.70710677))
+
+        # A box scaled non-uniformly in XYZ. Long in the Y direction.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_y/capsule_scaled_y"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.15000000000000038, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.9000000000000024, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.5, 0.5, -0.5, 0.5))
+
+        # A box scaled non-uniformly in XYZ. Long in the Z direction.
+        prim_path = f"{default_prim.GetPath()}/Geometry/fitting_capsule_scaled_z/capsule_scaled_z"
+        prim = self.stage.GetPrimAtPath(prim_path)
+        self.assertTrue(prim)
+        self.assertTrue(prim.IsA(UsdGeom.Capsule))
+
+        capsule = UsdGeom.Capsule(prim)
+        self.assertEqual(capsule.GetAxisAttr().Get(), UsdGeom.Tokens.z)
+        self.assertTrue(Gf.IsClose(capsule.GetRadiusAttr().Get(), 0.1500000000000002, 1e-6))
+        self.assertTrue(Gf.IsClose(capsule.GetHeightAttr().Get(), 0.9000000000000011, 1e-6))
+        translation, pivot, quat, scale = usdex.core.getLocalTransformComponentsQuat(prim)
+        self.assertTrue(Gf.IsClose(scale, (1, 1, 1), 1e-6))
+        self.assertTrue(Gf.IsClose(translation, (0, 0, 0), 1e-6))
+        self.assertRotationsAlmostEqual(quat, Gf.Quatf(0.70710677, 0, 0, 0.70710677))

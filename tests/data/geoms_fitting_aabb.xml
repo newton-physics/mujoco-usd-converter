@@ -9,7 +9,9 @@
   </default>
 
   <asset>
-      <mesh name="complex_cube" file="assets/complex_cube.obj"/>
+      <!-- When fitting a mesh, an error occurs if the capsule's XYZ bounding box coordinates are uniform. -->
+      <!-- To avoid this, we apply scaling to deliberately transform it into an uneven bounding box. -->
+      <mesh name="complex_cube" file="assets/complex_cube.obj" scale="1.3 1.0 1.0"/>
       <mesh name="rectangle_x" file="assets/box.obj" scale="1.2 0.3 0.2"/>
       <mesh name="rectangle_y" file="assets/box.obj" scale="0.3 1.2 0.2"/>
       <mesh name="rectangle_z" file="assets/box.obj" scale="0.3 0.2 1.2"/>
@@ -41,13 +43,10 @@
       <geom name="cylinder_visual" class="visual" type="mesh" mesh="complex_cube"/>
       <geom name="cylinder" type="cylinder" mesh="complex_cube" rgba="1 0 1 0.3"/>
     </body>
-    <!-- TODO: Capsule fitting will result in an error in MuJoCo 3.5.0. -->
-    <!--
     <body name="fitting_capsule_no_transform" childclass="base" pos="6 0 0">
       <geom name="capsule_visual" class="visual" type="mesh" mesh="complex_cube"/>
       <geom name="capsule" type="capsule" mesh="complex_cube" rgba="1 0 1 0.3"/>
     </body>
-    -->
 
     <!-- Unsupported geometric primitive. -->
     <body name="fitting_ellipsoid_no_transform" childclass="base" pos="8 0 0">
@@ -68,13 +67,10 @@
       <geom name="cylinder_visual_with_transform" class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
       <geom name="cylinder_with_transform" type="cylinder" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228" rgba="1 0 1 0.3"/>
     </body>
-    <!-- TODO: Capsule fitting will result in an error in MuJoCo 3.5.0. -->
-    <!--
     <body name="fitting_capsule_with_transform" childclass="base" pos="6 0 2">
       <geom name="capsule_visual_with_transform" class="visual" type="mesh" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228"/>
       <geom name="capsule_with_transform" type="capsule" mesh="complex_cube" pos="0.1 0.0 -0.5" quat="0.6964 0.6964 -0.1228 -0.1228" rgba="1 0 1 0.3"/>
     </body>
-    -->
 
     <!-- Fitting with geometric primitives. Specify the fitscale. -->
     <body name="fitting_box_with_fitscale" childclass="base" pos="0 0 4">
@@ -89,13 +85,10 @@
       <geom name="cylinder_visual_with_fitscale" class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
       <geom name="cylinder_with_fitscale" type="cylinder" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2" rgba="1 0 1 0.3"/>
     </body>
-    <!-- TODO: Capsule fitting will result in an error in MuJoCo 3.5.0. -->
-    <!--
     <body name="fitting_capsule_with_fitscale" childclass="base" pos="6 0 4">
       <geom name="capsule_visual_with_fitscale" class="visual" type="mesh" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228"/>
       <geom name="capsule_with_fitscale" type="capsule" mesh="complex_cube" quat="0.6964 0.6964 -0.1228 -0.1228" fitscale="1.2" rgba="1 0 1 0.3"/>
     </body>
-    -->
 
     <!-- A box scaled non-uniformly in XYZ. -->
     <body name="fitting_box_scaled_x" childclass="base" pos="0 0 6">
@@ -137,8 +130,6 @@
       <geom name="cylinder_scaled_z" type="cylinder" mesh="rectangle_z" rgba="1 0 1 0.3"/>
     </body>
 
-    <!-- TODO: Capsule fitting will result in an error in MuJoCo 3.5.0. -->
-    <!--
     <body name="fitting_capsule_scaled_x" childclass="base" pos="6 0 6">
       <geom name="capsule_visual_scaled_x" class="visual" type="mesh" mesh="rectangle_x"/>
       <geom name="capsule_scaled_x" type="capsule" mesh="rectangle_x" rgba="1 0 1 0.3"/>
@@ -151,6 +142,5 @@
       <geom name="capsule_visual_scaled_z" class="visual" type="mesh" mesh="rectangle_z"/>
       <geom name="capsule_scaled_z" type="capsule" mesh="rectangle_z" rgba="1 0 1 0.3"/>
     </body>
-    -->
   </worldbody>
 </mujoco>
