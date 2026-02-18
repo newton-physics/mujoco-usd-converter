@@ -65,11 +65,9 @@ def get_equality_geometry(equality: mujoco.MjsEquality, data: ConversionData) ->
 
 
 def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> Usd.Prim:
-    print(f"Converting equality '{equality.name}'")
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
         equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         # The name and data fields are used in MuJoCo's xml_native_writer.cc:
-        print(f"Weld: {equality.name1} -> {equality.name2}")
         references = {}
         use_qpos0 = False
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
@@ -83,9 +81,6 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             else:
                 use_qpos0 = True
 
-            print(f"  anchor: {anchor}")
-            print(f"  relpose: pos={relpose_pos}, quat={relpose_quat_data}")
-
             # anchor: Coordinates of the weld point relative to body2.
             # If relpose is not specified, the meaning of this parameter is the same as for connect constraints,
             # except that is relative to body2.
@@ -95,21 +90,18 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         else:  # mjOBJ_SITE
             references = data.references[Tokens.PhysicsSites]
             # Site-based welds don't use data array
-            print(f"  site1: {equality.name1}, site2: {equality.name2}")
 
         # @TODO: handle worldbody case, I'm seeing this in examples... should this be a special case or should we just not support it?
         if equality.name1 not in references and equality.name1 == "world":
             prim1 = data.content[Tokens.Physics].GetDefaultPrim()
         else:
             prim1 = references[equality.name1]
-        print(f"  prim1: {prim1}")
 
         if equality.name2:
             prim2 = references[equality.name2]
         else:
             # If body2 is omitted, the second body is the world body
             prim2 = data.content[Tokens.Physics].GetDefaultPrim()
-        print(f"  prim2: {prim2}")
 
         # Create a fixed joint between the two bodies
         # we need to use the geometry prims for the bodies, otherwise the joint frame alignment will be authored in the wrong space
