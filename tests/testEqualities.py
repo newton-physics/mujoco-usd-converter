@@ -646,8 +646,6 @@ class TestEqualities(ConverterTestCase):
 
         # Check that the equalities are invalid prims
         connect_body: Usd.Prim = stage.GetPrimAtPath("/equality_invalid_names/Physics/connect_body")
-        self.assertTrue(connect_body.IsValid())
-        self.assertFalse(connect_body.IsA(UsdPhysics.SphericalJoint))
+        self.assertFalse(connect_body.IsValid())
         weld_body: Usd.Prim = stage.GetPrimAtPath("/equality_invalid_names/Physics/weld_body")
-        self.assertTrue(weld_body.IsValid())
-        self.assertFalse(weld_body.IsA(UsdPhysics.FixedJoint))
+        self.assertFalse(weld_body.IsValid())
