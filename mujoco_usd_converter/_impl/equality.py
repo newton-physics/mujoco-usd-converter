@@ -22,7 +22,7 @@ def convert_equalities(data: ConversionData):
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
     for equality, source_name, safe_name in zip(data.spec.equalities, source_names, safe_names):
         equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data)
-        if prim_created and source_name != safe_name:
+        if prim_created and equality_prim.IsValid() and source_name != safe_name:
             usdex.core.setDisplayName(equality_prim, source_name)
 
 
@@ -68,14 +68,13 @@ def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionDat
     return body0, body1, anchor
 
 
-def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> Usd.Prim:
+def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, bool]:
     equality_prim = Usd.Prim()
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
-        equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         use_qpos0 = False
         body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
         if not body0 or not body1:
-            return equality_prim, True
+            return equality_prim, False
 
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
             relpose_pos = convert_vec3d(equality.data[3:6])
@@ -92,6 +91,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             #  Coordinates of the 3D anchor point where the two bodies are connected, in the local coordinate frame of body2
             # If relpose is specified, body1 will use the pose to compute its anchor point.
 
+        equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
 
@@ -130,11 +130,11 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         set_schema_attribute(equality_prim, "mjc:torqueScale", torque_scale)
 
     elif equality.type == mujoco.mjtEq.mjEQ_CONNECT:
-        equality_prim: Usd.Prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
         if not body0 or not body1:
-            return equality_prim, True
+            return equality_prim, False
 
+        equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         # Create a spherical joint between the two bodies or sites
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
@@ -156,14 +156,14 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             joint_prim = references[equality.name1]
         else:
             Tf.Warn(f"Joint '{equality.name1}' not found for equality '{equality.name}'")
-            return None, False
+            return equality_prim, False
 
         if equality.name2 and equality.name2 in references:
             target_joint_prim = references[equality.name2]
             target_joint_path = target_joint_prim.GetPath()
         else:
             Tf.Warn(f"Joint '{equality.name2}' not found for equality '{equality.name}'")
-            return None, False
+            return equality_prim, False
 
         # Apply the MjcEqualityJointAPI schema
         joint_prim.ApplyAPI("MjcEqualityJointAPI")
