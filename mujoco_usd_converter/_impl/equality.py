@@ -136,12 +136,9 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
 
         equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         # Create a spherical joint between the two bodies or sites
-        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
+        # anchor is in body0's frame for connect equalities
+        frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body0, anchor, Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
-        joint_prim.GetLocalPos0Attr().Set(Gf.Vec3d(0, 0, 0))
-        joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
-        joint_prim.GetLocalPos1Attr().Set(anchor)
-        joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
 
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
