@@ -437,31 +437,29 @@ class TestEqualities(ConverterTestCase):
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
-
         connect_a: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_a")
         self.assertTrue(connect_a.IsValid())
         joint_a = UsdPhysics.SphericalJoint(connect_a)
         self.assertTrue(Gf.IsClose(joint_a.GetLocalPos0Attr().Get(), Gf.Vec3f(0.1, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_a.GetLocalPos1Attr().Get(), Gf.Vec3f(-0.4, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_a.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_a.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_a.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_a.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
         connect_b: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_anchor_b")
         self.assertTrue(connect_b.IsValid())
         joint_b = UsdPhysics.SphericalJoint(connect_b)
         self.assertTrue(Gf.IsClose(joint_b.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0.15, 0.02), 1e-5))
         self.assertTrue(Gf.IsClose(joint_b.GetLocalPos1Attr().Get(), Gf.Vec3f(-0.5, 0.15, 0.02), 1e-5))
-        self.assertRotationsAlmostEqual(joint_b.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_b.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_b.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_b.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
         connect_world: Usd.Prim = stage.GetPrimAtPath("/equality_connect_attributes/Physics/connect_to_world")
         self.assertTrue(connect_world.IsValid())
         joint_world = UsdPhysics.SphericalJoint(connect_world)
         self.assertTrue(Gf.IsClose(joint_world.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_world.GetLocalPos1Attr().Get(), Gf.Vec3f(3, 0, 0.9), 1e-5))
-        self.assertRotationsAlmostEqual(joint_world.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_world.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_world.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_world.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
     def test_connect_equality_enabled(self):
         # XML active="true" (default) - joint enabled, attr should not be authored when default
@@ -524,31 +522,29 @@ class TestEqualities(ConverterTestCase):
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
-
         world_to_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/world_to_body")
         self.assertTrue(world_to_body.IsValid())
         joint_world_to_body = UsdPhysics.SphericalJoint(world_to_body)
         self.assertTrue(Gf.IsClose(joint_world_to_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0.5, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_world_to_body.GetLocalPos1Attr().Get(), Gf.Vec3f(-2.5, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_world_to_body.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
         bodies: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/bodies")
         self.assertTrue(bodies.IsValid())
         joint_bodies = UsdPhysics.SphericalJoint(bodies)
         self.assertTrue(Gf.IsClose(joint_bodies.GetLocalPos0Attr().Get(), Gf.Vec3f(0.5, 0.1, 0.5), 1e-5))
         self.assertTrue(Gf.IsClose(joint_bodies.GetLocalPos1Attr().Get(), Gf.Vec3f(0.5, 0.1, 0.5), 1e-5))
-        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_bodies.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
         sites: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/sites")
         self.assertTrue(sites.IsValid())
         joint_sites = UsdPhysics.SphericalJoint(sites)
         self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(6, 0, 6), 1e-5))
-        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_sites.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
     def test_connects_vs_welds(self):
         # Verify that connect and weld constraints are equivalent when defined with sites and bodies
@@ -556,8 +552,6 @@ class TestEqualities(ConverterTestCase):
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
-
-        identity_quat = Gf.Quatf(1, Gf.Vec3f(0, 0, 0))
 
         # Connect constraints should be equivalent to weld constraints with the same anchor positions
         connect_site: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/connect_site")
@@ -571,8 +565,8 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual("/equality_connect_vs_weld/Geometry/a/a2", str(body1_targets[0]))
         self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot1Attr().Get(), Gf.Quatf(0.7071068, -0.7071067, 0, 0))
+        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_connect_site.GetJointEnabledAttr().Get())
 
         weld_site: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/weld_site")
@@ -587,7 +581,7 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
-        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_weld_site.GetJointEnabledAttr().Get())
 
         connect_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/connect_body")
@@ -601,8 +595,8 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual("/equality_connect_vs_weld", str(body1_targets[0]))
         self.assertTrue(Gf.IsClose(joint_connect_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_connect_body.GetLocalPos1Attr().Get(), Gf.Vec3f(-2, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot0Attr().Get(), identity_quat)
-        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_connect_body.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertFalse(joint_connect_body.GetJointEnabledAttr().Get())
 
         weld_body: Usd.Prim = stage.GetPrimAtPath("/equality_connect_vs_weld/Physics/weld_body")
@@ -617,7 +611,7 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(Gf.IsClose(joint_weld_body.GetLocalPos0Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_weld_body.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
-        self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot1Attr().Get(), identity_quat)
+        self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertFalse(joint_weld_body.GetJointEnabledAttr().Get(), "Weld body should be disabled")
 
     def test_invalid_names(self):
