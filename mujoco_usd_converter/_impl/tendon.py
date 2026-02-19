@@ -103,7 +103,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
 
             if target_path not in targets:
                 targets.append(target_path)
-                tendon_prim.CreateRelationship("mjc:path", custom=False).AddTarget(target_path)
+                tendon_prim.GetRelationship("mjc:path").AddTarget(target_path)
                 target_indices.append(len(targets) - 1)
             else:
                 target_indices.append(targets.index(target_path))
@@ -113,7 +113,7 @@ def convert_tendon(parent: Usd.Prim, name: str, tendon: mujoco.MjsTendon, data: 
                     target_path = data.references[Tokens.PhysicsSites][wrap.sidesite.name].GetPath()
                     if target_path not in side_sites:
                         side_sites.append(target_path)
-                        tendon_prim.CreateRelationship("mjc:sideSites", custom=False).AddTarget(target_path)
+                        tendon_prim.GetRelationship("mjc:sideSites").AddTarget(target_path)
                         side_sites_indices.append(len(side_sites) - 1)
                     else:
                         side_sites_indices.append(side_sites.index(target_path))
