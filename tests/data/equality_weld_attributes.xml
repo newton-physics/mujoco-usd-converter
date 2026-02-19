@@ -29,7 +29,7 @@
   </worldbody>
   <equality>
     <!-- Custom weld with non-default values -->
-    <weld name="custom_weld"
+    <weld name="custom-weld"
           body1="body0"
           body2="body1"
           solimp="0.8 0.9 0.002 0.6 3"
@@ -53,8 +53,7 @@
     <weld name="weld_to_world"
           body1="body0"/>
     <!-- Disabled weld: active="false" → physics:jointEnabled should be authored and false -->
-    <weld name="disabled_weld"
-          body1="body2"
+    <weld body1="body2"
           body2="body3"
           active="false"/>
   </equality>

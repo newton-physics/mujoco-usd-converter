@@ -54,7 +54,14 @@ def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionDat
         prim1 = references[equality.name1]
 
     # If body2 is omitted, the second body is the world body
-    prim2 = references[equality.name2] if equality.name2 else data.content[Tokens.Physics].GetDefaultPrim()
+    if equality.name2:
+        if equality.name2 not in references:
+            Tf.Warn(f"Body '{equality.name2}' not found for equality '{equality.name}'")
+            return Usd.Prim(), Usd.Prim(), Gf.Vec3d(0, 0, 0)
+        else:
+            prim2 = references[equality.name2]
+    else:
+        prim2 = data.content[Tokens.Physics].GetDefaultPrim()
 
     body0 = data.content[Tokens.Geometry].GetPrimAtPath(prim1.GetPath())
     body1 = data.content[Tokens.Geometry].GetPrimAtPath(prim2.GetPath())

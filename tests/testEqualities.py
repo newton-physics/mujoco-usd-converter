@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-from pxr import Gf, Sdf, Usd, UsdPhysics
+import usdex.test
+from pxr import Gf, Sdf, Tf, Usd, UsdPhysics
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -24,7 +25,7 @@ class TestEqualities(ConverterTestCase):
         self.assertIsValidUsd(stage)
 
         # Custom weld equality should have non-default values authored
-        custom_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/custom_weld")
+        custom_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/tn__customweld_aF")
         self.assertTrue(custom_weld.IsValid())
         self.assertTrue(custom_weld.HasAPI("MjcEqualityWeldAPI"))
 
@@ -176,8 +177,8 @@ class TestEqualities(ConverterTestCase):
             "physics:jointEnabled should not be authored when it is the default (true)",
         )
 
-        # Disabled weld: attr must be authored and false
-        disabled_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/disabled_weld")
+        # Disabled weld: attr must be authored and false (also autonamed to Equality)
+        disabled_weld: Usd.Prim = stage.GetPrimAtPath("/equality_weld_attributes/Physics/Equality")
         self.assertTrue(disabled_weld.IsValid())
         disabled_joint = UsdPhysics.FixedJoint(disabled_weld)
         disabled_joint_enabled_attr = disabled_joint.GetJointEnabledAttr()
@@ -627,3 +628,26 @@ class TestEqualities(ConverterTestCase):
         self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
         self.assertRotationsAlmostEqual(joint_weld_body.GetLocalRot1Attr().Get(), identity_quat)
         self.assertFalse(joint_weld_body.GetJointEnabledAttr().Get(), "Weld body should be disabled")
+
+    def test_invalid_names(self):
+        model = pathlib.Path("./tests/data/equality_invalid_names.xml")
+
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*Body 'world' not found for equality 'connect_body'"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*Body 'world' not found for equality 'weld_body'"),
+            ],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+
+        # Check that the equalities are invalid prims
+        connect_body: Usd.Prim = stage.GetPrimAtPath("/equality_invalid_names/Physics/connect_body")
+        self.assertTrue(connect_body.IsValid())
+        self.assertFalse(connect_body.IsA(UsdPhysics.SphericalJoint))
+        weld_body: Usd.Prim = stage.GetPrimAtPath("/equality_invalid_names/Physics/weld_body")
+        self.assertTrue(weld_body.IsValid())
+        self.assertFalse(weld_body.IsA(UsdPhysics.FixedJoint))
