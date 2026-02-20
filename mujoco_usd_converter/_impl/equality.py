@@ -120,6 +120,12 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             joint_prim.GetLocalRot0Attr().Set(Gf.Quatf(relpose_quat))
             joint_prim.GetLocalPos1Attr().Set(anchor)
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
+        else:
+            # Since sites are meant to snap together with no offset, there should be no localPos0 or localPos1
+            joint_prim.GetLocalPos0Attr().Set(anchor)
+            joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
+            joint_prim.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
+            joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
 
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)

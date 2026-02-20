@@ -188,6 +188,43 @@ class TestEqualities(ConverterTestCase):
         )
         self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled weld should have jointEnabled false")
 
+    def test_weld_with_sites(self):
+        # Verify that weld equalities with sites are converted correctly
+        model = pathlib.Path("./tests/data/equality_weld_with_sites.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        weld_sites: Usd.Prim = stage.GetPrimAtPath("/equality_weld_with_sites/Physics/sites")
+        self.assertTrue(weld_sites.IsValid())
+        joint_weld_sites = UsdPhysics.FixedJoint(weld_sites)
+        body0_targets = joint_weld_sites.GetBody0Rel().GetTargets()
+        body1_targets = joint_weld_sites.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_weld_with_sites/Geometry/box1/box1_site", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_with_sites/Geometry/box2/box2_site", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_sites.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_weld_sites.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertTrue(joint_weld_sites.GetJointEnabledAttr().Get())
+
+        weld_sites_separated: Usd.Prim = stage.GetPrimAtPath("/equality_weld_with_sites/Physics/sites_separated")
+        self.assertTrue(weld_sites_separated.IsValid())
+        joint_weld_sites_separated = UsdPhysics.FixedJoint(weld_sites_separated)
+        body0_targets = joint_weld_sites_separated.GetBody0Rel().GetTargets()
+        body1_targets = joint_weld_sites_separated.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_weld_with_sites/Geometry/box3/box3_site", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_with_sites/Geometry/box4/box4_site", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_sites_separated.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_weld_sites_separated.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertTrue(joint_weld_sites_separated.GetJointEnabledAttr().Get())
+
     def test_joint_equality_joint_enabled(self):
         # XML active="true" (default) - joint enabled, attr should not be authored when default
         # XML active="false" - joint disabled, physics:jointEnabled must be authored and false
@@ -580,7 +617,7 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual("/equality_connect_vs_weld/Geometry/b/b2", str(body1_targets[0]))
         self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, 0.70710678, 0, 0))
+        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_weld_site.GetJointEnabledAttr().Get())
 
