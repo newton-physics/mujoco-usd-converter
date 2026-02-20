@@ -1,0 +1,32 @@
+<mujoco model="equality_weld_with_sites">
+  <worldbody>
+    <geom pos="0 0 -2.0" type="plane" size="4 4 0.01"/>
+
+    <!-- static box -->
+    <body name="box1" pos="0 0 0">
+      <geom type="box" size="0.3 0.3 0.3" rgba="1 0 0 0.5" />
+      <site name="box1_site" type="sphere" size="0.1" pos="0.5 0 0"/>
+    </body>
+    <body name="box2" pos="0.5 0 0">
+      <freejoint/>
+      <geom type="box" pos="1.03 0 0" size="1.0 0.3 0.3" rgba="0 1 0 0.5" />
+      <site name="box2_site" type="sphere" size="0.1" pos="0 0 0"/>
+    </body>
+
+    <!-- second pair, offset in -Y, sites initially separated -->
+    <body name="box3" pos="0 -2 0">
+      <geom type="box" size="0.3 0.3 0.3" rgba="1 0.5 0 0.5" />
+      <site name="box3_site" type="sphere" size="0.1" pos="0.4 0 0.3"/>
+    </body>
+    <body name="box4" pos="1.5 -2 0">
+      <freejoint/>
+      <geom type="box" pos="1.03 0 0" size="1.0 0.3 0.3" rgba="0 0.5 1 0.5" />
+      <site name="box4_site" type="sphere" size="0.1" pos="-0.1 0 -0.3"/>
+    </body>
+  </worldbody>
+
+  <equality>
+    <weld name="sites" site1="box1_site" site2="box2_site"/>
+    <weld name="sites_separated" site1="box3_site" site2="box4_site"/>
+  </equality>
+</mujoco>
