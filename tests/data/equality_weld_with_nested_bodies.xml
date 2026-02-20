@@ -1,0 +1,24 @@
+<mujoco model="equality_weld_with_nested_bodies">
+  <worldbody>
+    <geom pos="0 0 -2.0" type="plane" size="4 4 0.01"/>
+
+    <!-- static box -->
+    <body name="box1" pos="0 1 0">
+      <geom type="box" size="0.3 0.3 0.3" rgba="1 0 0 0.5" />
+      <body name="nested_box1" pos=".6 0 0">
+        <geom type="box" size="0.3 0.3 0.3" rgba="0 1 0 0.5" />
+      </body>
+    </body>
+    <body name="box2" pos="1.5 1 0">
+      <freejoint/>
+      <geom type="box" size="0.3 0.3 0.3" rgba="1 1 0 0.5" />
+      <body name="nested_box2" pos="0.6 0 0">
+        <geom type="box" size="0.3 0.3 0.3" rgba="1 0 1 0.5" />
+      </body>
+    </body>
+  </worldbody>
+
+  <equality>
+    <weld name="nested_bodies" body1="nested_box1" body2="nested_box2" anchor="-1.0 0 0"/>
+  </equality>
+</mujoco>

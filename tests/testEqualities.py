@@ -225,6 +225,28 @@ class TestEqualities(ConverterTestCase):
         self.assertRotationsAlmostEqual(joint_weld_sites_separated.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_weld_sites_separated.GetJointEnabledAttr().Get())
 
+    def test_weld_with_nested_bodies(self):
+        # Verify that weld equalities with nested bodies are converted correctly
+        model = pathlib.Path("./tests/data/equality_weld_with_nested_bodies.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        weld_nested_bodies: Usd.Prim = stage.GetPrimAtPath("/equality_weld_with_nested_bodies/Physics/nested_bodies")
+        self.assertTrue(weld_nested_bodies.IsValid())
+        joint_weld_nested_bodies = UsdPhysics.FixedJoint(weld_nested_bodies)
+        body0_targets = joint_weld_nested_bodies.GetBody0Rel().GetTargets()
+        body1_targets = joint_weld_nested_bodies.GetBody1Rel().GetTargets()
+        self.assertEqual(len(body0_targets), 1)
+        self.assertEqual(len(body1_targets), 1)
+        self.assertEqual("/equality_weld_with_nested_bodies/Geometry/box1/nested_box1", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_with_nested_bodies/Geometry/box2/nested_box2", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_nested_bodies.GetLocalPos0Attr().Get(), Gf.Vec3f(0.5, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_nested_bodies.GetLocalPos1Attr().Get(), Gf.Vec3f(-1, 0, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_nested_bodies.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertRotationsAlmostEqual(joint_weld_nested_bodies.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertTrue(joint_weld_nested_bodies.GetJointEnabledAttr().Get())
+
     def test_joint_equality_joint_enabled(self):
         # XML active="true" (default) - joint enabled, attr should not be authored when default
         # XML active="false" - joint disabled, physics:jointEnabled must be authored and false

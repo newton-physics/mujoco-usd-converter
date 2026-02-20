@@ -3,7 +3,7 @@
 
 import mujoco
 import usdex.core
-from pxr import Gf, Tf, Usd, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, Vt
 
 from .data import ConversionData, Tokens
 from .numpy import convert_quatd, convert_vec3d
@@ -20,8 +20,9 @@ def convert_equalities(data: ConversionData):
     physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
     source_names = [get_equality_name(equality) for equality in data.spec.equalities]
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
+    xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
     for equality, source_name, safe_name in zip(data.spec.equalities, source_names, safe_names):
-        equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data)
+        equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data, xform_cache)
         if prim_created and equality_prim.IsValid() and source_name != safe_name:
             usdex.core.setDisplayName(equality_prim, source_name)
 
@@ -68,7 +69,13 @@ def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionDat
     return body0, body1, anchor
 
 
-def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, bool]:
+def convert_equality(
+    parent: Usd.Prim,
+    name: str,
+    equality: mujoco.MjsEquality,
+    data: ConversionData,
+    xform_cache: UsdGeom.XformCache,
+) -> tuple[Usd.Prim, bool]:
     equality_prim = Usd.Prim()
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
         ignore_relpose = False
@@ -94,8 +101,9 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
             if ignore_relpose:
                 # Compute the relative transform from the body positions
-                body0_xform = usdex.core.getLocalTransform(body0).GetMatrix()
-                body1_xform = usdex.core.getLocalTransform(body1).GetMatrix()
+                body0_xform = xform_cache.GetLocalToWorldTransform(body0)
+                body1_xform = xform_cache.GetLocalToWorldTransform(body1)
+
                 # relative_xform = body1 pose relative to body0
                 relative_xform = body0_xform.GetInverse() * body1_xform
                 relpose_pos = Gf.Vec3d(relative_xform.ExtractTranslation())
