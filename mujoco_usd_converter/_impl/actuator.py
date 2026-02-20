@@ -52,7 +52,7 @@ def convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, 
 
     if actuator.target and actuator.target in references:
         target_path = references[actuator.target].GetPath()
-        actuator_prim.CreateRelationship("mjc:target", custom=False).SetTargets([target_path])
+        actuator_prim.GetRelationship("mjc:target").SetTargets([target_path])
     else:
         Tf.Warn(f"Target '{actuator.target}' not found for actuator '{actuator.name}'")
         return actuator_prim
@@ -60,7 +60,7 @@ def convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, 
     if actuator.refsite:
         if actuator.refsite in data.references[Tokens.PhysicsSites]:
             refsite_path = data.references[Tokens.PhysicsSites][actuator.refsite].GetPath()
-            actuator_prim.CreateRelationship("mjc:refSite", custom=False).SetTargets([refsite_path])
+            actuator_prim.GetRelationship("mjc:refSite").SetTargets([refsite_path])
         else:
             Tf.Warn(f"Refsite '{actuator.refsite}' not found for actuator '{actuator.name}'")
             return actuator_prim
@@ -68,7 +68,7 @@ def convert_actuator(parent: Usd.Prim, name: str, actuator: mujoco.MjsActuator, 
     if actuator.slidersite:
         if actuator.slidersite in data.references[Tokens.PhysicsSites]:
             slidersite_path = data.references[Tokens.PhysicsSites][actuator.slidersite].GetPath()
-            actuator_prim.CreateRelationship("mjc:sliderSite", custom=False).SetTargets([slidersite_path])
+            actuator_prim.GetRelationship("mjc:sliderSite").SetTargets([slidersite_path])
         else:
             Tf.Warn(f"Slidersite '{actuator.slidersite}' not found for actuator '{actuator.name}'")
             return actuator_prim

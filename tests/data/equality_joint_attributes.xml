@@ -1,0 +1,49 @@
+<mujoco model="equality_joint_attributes">
+  <worldbody>
+    <body name="body0" pos="0 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="hinge0" type="hinge" axis="1 0 0" range="-90 90"/>
+      <body name="body1" pos="0 0 1">
+        <geom type="box" size="0.05 0.05 0.5"/>
+        <joint name="hinge1" type="hinge" axis="1 0 0" range="-90 90"/>
+      </body>
+    </body>
+    <body name="body2" pos="1 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="slide0" type="slide" axis="0 0 1" range="0 0.5"/>
+      <body name="body3" pos="0 0 1">
+        <geom type="box" size="0.05 0.05 0.5"/>
+        <joint name="slide1" type="slide" axis="0 0 1" range="0 0.5"/>
+      </body>
+    </body>
+    <body name="body4" pos="2 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="hinge2" type="hinge" axis="1 0 0" range="-45 45"/>
+      <body name="body5" pos="0 0 1">
+        <geom type="box" size="0.05 0.05 0.5"/>
+        <joint name="hinge3" type="hinge" axis="1 0 0" range="-45 45"/>
+      </body>
+    </body>
+  </worldbody>
+  <equality>
+    <!-- Custom joint equality with non-default values -->
+    <joint name="custom_joint_eq"
+           joint1="hinge0"
+           joint2="hinge1"
+           solimp="0.85 0.92 0.003 0.7 4"
+           solref="0.01 0.6"
+           polycoef="0.5 1.5 0.1 0.05 0.02"/>
+    <!-- Default joint equality with default values -->
+    <joint name="default_joint_eq"
+           joint1="slide0"
+           joint2="slide1"
+           solimp="0.9 0.95 0.001 0.5 2"
+           solref="0.02 1"
+           polycoef="0 1 0 0 0"/>
+    <!-- Disabled joint equality: active="false" → physics:jointEnabled authored and false -->
+    <joint name="disabled_joint_eq"
+           joint1="hinge2"
+           joint2="hinge3"
+           active="false"/>
+  </equality>
+</mujoco>
