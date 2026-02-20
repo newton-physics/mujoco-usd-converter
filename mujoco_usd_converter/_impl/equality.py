@@ -71,38 +71,29 @@ def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionDat
 def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, data: ConversionData) -> tuple[Usd.Prim, bool]:
     equality_prim = Usd.Prim()
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
-        use_qpos0 = False
+        ignore_relpose = False
         body0, body1, anchor = get_joint_prims_and_anchor(equality, data)
         if not body0 or not body1:
             return equality_prim, False
 
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
+            # relpose specifies the relative pose of body2 relative to body1
             relpose_pos = convert_vec3d(equality.data[3:6])
             relpose_quat_data = equality.data[6:10]
-            # If relpose_quat is all zeros, as in the default setting, this attribute is ignored
+            # If relpose_quat is all zeros, ignore relpose completely
             if relpose_quat_data.any():
                 relpose_quat = convert_quatd(relpose_quat_data)
             else:
-                use_qpos0 = True
+                ignore_relpose = True
 
-            # anchor: Coordinates of the weld point relative to body2.
-            # If relpose is not specified, the meaning of this parameter is the same as for connect constraints,
-            # except that is relative to body2.
-            #  Coordinates of the 3D anchor point where the two bodies are connected, in the local coordinate frame of body2
-            # If relpose is specified, body1 will use the pose to compute its anchor point.
-
+        # Create a fixed joint between the two bodies or sites
         equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
 
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
-            # localPos0 = anchor
-            # localPos1 = anchor / body1_scale
-            # localRot0 = relpose_quat` (with `localRot1 = identity`)
-            # localPos0 = (relpose_pos + relpose_quat.Transform(anchor)) / body0_scale
-            if use_qpos0:
-                # When relpose quat is all zeros, MuJoCo uses the reference pose (qpos0)
-                # We compute the actual relative transform from the body positions
+            if ignore_relpose:
+                # Compute the relative transform from the body positions
                 body0_xform = usdex.core.getLocalTransform(body0).GetMatrix()
                 body1_xform = usdex.core.getLocalTransform(body1).GetMatrix()
                 # relative_xform = body1 pose relative to body0
@@ -110,11 +101,6 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
                 relpose_pos = Gf.Vec3d(relative_xform.ExtractTranslation())
                 relpose_quat = Gf.Quatd(relative_xform.ExtractRotationQuat())
 
-            # Apply the standard formula:
-            # localPos1 = anchor (weld point in body1's frame)
-            # localRot1 = identity
-            # localPos0 = relpose_pos + relpose_quat.Transform(anchor)
-            # localRot0 = relpose_quat
             local_pos0 = relpose_pos + relpose_quat.Transform(anchor)
             joint_prim.GetLocalPos0Attr().Set(local_pos0)
             joint_prim.GetLocalRot0Attr().Set(Gf.Quatf(relpose_quat))
@@ -122,7 +108,7 @@ def convert_equality(parent: Usd.Prim, name: str, equality: mujoco.MjsEquality, 
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
         else:
             # Since sites are meant to snap together with no offset, there should be no localPos0 or localPos1
-            joint_prim.GetLocalPos0Attr().Set(anchor)
+            joint_prim.GetLocalPos0Attr().Set(Gf.Vec3f(0, 0, 0))
             joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
             joint_prim.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
