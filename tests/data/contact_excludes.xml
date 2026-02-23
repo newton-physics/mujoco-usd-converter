@@ -1,0 +1,36 @@
+<mujoco model="contact_excludes">
+  <worldbody>
+    <!-- ground plane: collides with everything -->
+    <geom name="ground" type="plane" size="5 5 0.01" rgba="0.5 0.5 0.5 1"/>
+
+    <!-- always-collider box sitting on the ground -->
+    <body name="collider" pos="0 0 0.15">
+      <freejoint/>
+      <geom type="box" size="0.15 0.15 0.15" rgba="1 0 0 1"/>
+    </body>
+
+    <!-- three boxes that will NOT collide with each other, stacked in the air so they overlap -->
+    <body name="no_collide_A" pos="-0.1 0 1.0">
+      <freejoint/>
+      <geom type="box" size="0.15 0.15 0.15" rgba="0 0.6 1 0.5"/>
+    </body>
+
+    <body name="no_collide_B" pos="0 0 1.0">
+      <freejoint/>
+      <geom type="box" size="0.15 0.15 0.15" rgba="0 1 0.4 0.5"/>
+    </body>
+
+    <body name="no_collide_C" pos="0.1 0 1.0">
+      <freejoint/>
+      <geom type="box" size="0.15 0.15 0.15" rgba="1 1 0 0.5"/>
+    </body>
+  </worldbody>
+
+  <contact>
+    <!-- test an invalid name for body1, but one that still mjcf parses -->
+    <exclude body1="world" body2="world"/>
+    <exclude body1="no_collide_A" body2="no_collide_B"/>
+    <exclude body1="no_collide_A" body2="no_collide_C"/>
+    <exclude body1="no_collide_B" body2="no_collide_C"/>
+  </contact>
+</mujoco>
