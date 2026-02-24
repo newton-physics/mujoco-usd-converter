@@ -1,3 +1,14 @@
+# 0.1.0a7
+
+## Features
+
+- Added support for Connect, Joint, and Weld Equalities
+- Added support for contact excludes via `UsdPhysics.FilteredPairsAPI`
+
+## Dependencies
+
+- Updated to `newton-usd-schemas>=0.1.0rc3`
+
 # 0.1.0a6
 
 ## Features
@@ -183,7 +194,6 @@
   - Height Field conversion is not implemented
   - Signed Distance Field conversion is not implemented
   - Collision filtering via the `contype` & `conaffinity` algorithm is not implemented
-  - Collision filtering via contact/exclude is not implemented
   - Collision property overrides via contact/pair is not implemented
 - **Visual Material and Texture Conversion**
   - Secondary texture layers are not supported beyond the main diffuse texture
@@ -200,7 +210,6 @@
   - Keyframe authoring via `MjcKeyframe` is not implemented
   - Camera conversion to `UsdGeom.Camera` is not implemented
   - Light conversion to `UsdLux` Prims is not implemented
-  - Equality constraint conversion is not implemented
   - Sensor state conversion is not implemented
   - Deformable flex & skin conversion is not implemented
   - The Visual, Statistic, and Size properties which control MuJoCo Simulate's default visualization and interactivity options are not preserved
