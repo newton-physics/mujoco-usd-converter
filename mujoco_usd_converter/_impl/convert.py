@@ -15,6 +15,7 @@ from ._flatten import export_flattened
 from .actuator import convert_actuators
 from .body import convert_bodies
 from .data import ConversionData, Tokens
+from .equality import convert_equalities
 from .exclude import convert_excludes
 from .material import convert_materials
 from .mesh import convert_meshes
@@ -132,6 +133,10 @@ class Converter:
         # author the actuators
         convert_actuators(data)
 
+        # author the equalities
+        convert_equalities(data)
+
+        # author the contact excludes
         convert_excludes(data)
 
         # create the asset interface
@@ -159,8 +164,6 @@ class Converter:
             Tf.Warn("flexes are not supported")
         if spec.skins:
             Tf.Warn("skins are not supported")
-        if spec.equalities:
-            Tf.Warn("equalities are not supported")
         if spec.pairs:
             Tf.Warn("pairs are not supported")
         if spec.sensors:
