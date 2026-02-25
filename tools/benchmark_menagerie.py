@@ -89,6 +89,7 @@ class BenchmarkResult:
     conversion_time_seconds: float
     total_file_size_mb: float
     verified: str = "No"  # Manual annotation template
+    verified_in_newton: str = "No"  # Manual annotation template
     notes: str = ""  # Manual annotation template
 
     def to_dict(self) -> dict:
@@ -225,10 +226,10 @@ class MenagerieBenchmark:
             logger.error("Failed to load annotations from %s: %s", self.annotation_file, e)
             logger.info("Using default annotation values.")
 
-    def _get_annotation(self, asset_name: str, model_name: str) -> tuple[str, str]:
+    def _get_annotation(self, asset_name: str, model_name: str) -> tuple[str, str, str]:
         """Get Verified and notes for a specific model variant."""
         if asset_name not in self.annotations:
-            return "Unknown", ""
+            return "Unknown", "", ""
 
         annotation = self.annotations[asset_name]
         xml_files = annotation.get("xml_files", [])
@@ -237,12 +238,13 @@ class MenagerieBenchmark:
         for xml_info in xml_files:
             if xml_info.get("model_name") == model_name:
                 verified = xml_info.get("verified", "Unknown")
+                verified_in_newton = xml_info.get("verified_in_newton", "Unknown")
                 notes = xml_info.get("notes", "")
-                return verified, notes
+                return verified, verified_in_newton, notes
 
         # If variant not found, return defaults (should not happen with properly updated annotations)
         logger.warning("Variant %s not found in annotations for asset %s", model_name, asset_name)
-        return "Unknown", ""
+        return "Unknown", "", ""
 
     def _setup_diagnostics(self):
         """Setup USD diagnostics to capture warnings and errors."""
@@ -332,6 +334,7 @@ class MenagerieBenchmark:
             conversion_time_seconds=0.0,
             total_file_size_mb=0.0,
             verified="No",  # Initialize with default
+            verified_in_newton="No",  # Initialize with default
             notes="",  # Initialize with default
         )
 
@@ -380,7 +383,7 @@ class MenagerieBenchmark:
         result.warnings = "\n".join([x.rpartition("] ")[2].strip() for x in self.diagnostics.warnings])
 
         # Get manual annotations
-        result.verified, result.notes = self._get_annotation(asset_name, model_name)
+        result.verified, result.verified_in_newton, result.notes = self._get_annotation(asset_name, model_name)
 
         return result
 
@@ -480,6 +483,7 @@ class MenagerieBenchmark:
             "Conversion Time (s)",
             "Total Size (MB)",
             "Verified (Manual)",
+            "Verified In Newton (Manual)",
             "Notes (Manual)",
             "Errors",
         ]
@@ -509,6 +513,7 @@ class MenagerieBenchmark:
                         "Conversion Time (s)": f"{result.conversion_time_seconds:.3f}" if result.success else "N/A",
                         "Total Size (MB)": f"{result.total_file_size_mb:.2f}",
                         "Verified (Manual)": result.verified,
+                        "Verified In Newton (Manual)": result.verified_in_newton,
                         "Notes (Manual)": result.notes,
                         "Errors": result.error_message,
                     }
@@ -608,6 +613,7 @@ class MenagerieBenchmark:
                 <th>Variant</th>
                 <th>Success</th>
                 <th><a href="#manual-annotation-instructions" style="color: inherit; text-decoration: none;">Verified (Manual)</a></th>
+                <th><a href="#manual-annotation-instructions" style="color: inherit; text-decoration: none;">Verified In Newton (Manual)</a></th>
                 <th>Errors</th>
                 <th>Warnings</th>
                 <th>Time (s)</th>
@@ -627,6 +633,9 @@ class MenagerieBenchmark:
         for result in sorted_results:
             success_class = "success-cell" if result.success else "failure-cell"
             verified_class = "success-cell" if result.verified == "Yes" else "" if result.verified == "Unknown" else "failure-cell"
+            verified_in_newton_class = (
+                "success-cell" if result.verified_in_newton == "Yes" else "" if result.verified_in_newton == "Unknown" else "failure-cell"
+            )
 
             # Determine if this is the first variant of a new asset
             is_new_asset = result.asset_name != previous_asset
@@ -652,6 +661,7 @@ class MenagerieBenchmark:
                 <td>{result.variant_name}</td>
                 <td class="{success_class}">{'Yes' if result.success else 'No'}</td>
                 <td class="{verified_class}">{result.verified}</td>
+                <td class="{verified_in_newton_class}">{result.verified_in_newton}</td>
                 <td class="numeric">{result.error_count}</td>
                 <td class="numeric">{result.warning_count}</td>
                 <td class="numeric">{result.conversion_time_seconds:.2f}</td>
@@ -669,8 +679,9 @@ class MenagerieBenchmark:
     <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
         <h3 id="manual-annotation-instructions">Manual Annotation Instructions</h3>
         <p><strong>Verified:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
-        based on manual inspection of the converted USD files. Update the annotations in the
-        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.
+        based on manual inspection of the converted USD files.<br/>
+        Update the annotations in the
+        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.<br/>
         Consider factors like:</p>
         <ul>
             <li>Visual correctness when loaded in USD viewer</li>
@@ -679,6 +690,24 @@ class MenagerieBenchmark:
             <li>Physics properties preservation</li>
             <li>Simulation correctness in MuJoCo Simulate compared to the original MJCF file</li>
         </ul>
+        <p><strong>Verified In Newton:</strong> The results of verifying the converted USD file in the Newton runtime
+        will be annotated as "Yes", "No", or "Unknown".<br/>
+        Update the annotations in the
+        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified_in_newton</code> field.<br/>
+        Please follow the steps below to verify:</p>
+        <ul>
+            <li>Convert MJCF to USD</li>
+            <li>Load each into an instance of mujoco Simulate app</li>
+            <li>Pause & manually move the joints</li>
+            <li>Run & manually activate the actuators</li>
+            <li>Inspect results visually & determine if they appear identical</li>
+            <li>Annoate the column in the report<br/>
+            If not yet checked, specify "Unknown"<br/>
+            If the result is correct, specify "Yes"<br/>
+            If the result is incorrect, specify "No"
+            </li>
+        </ul>
+
         <p><strong>Notes:</strong> Document any known issues, limitations, or special considerations for each
         model variant in the <code>notes</code> field under each variant in the annotations file.</p>
 
@@ -745,11 +774,12 @@ class MenagerieBenchmark:
 
         # Add table header (split to avoid long line)
         table_header = (
-            "| Asset | Variant | Success | [Verified (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
+            "| Asset | Variant | Success | [Verified (Manual)](#manual-annotation-instructions) | "
+            "[Verified In Newton (Manual)](#manual-annotation-instructions) | Errors | Warnings | "
             "Time (s) | Size (MB) | Notes | Error Messages | Warning Messages |\n"
         )
         table_separator = (
-            "|-------|---------|---------|----------|-------:|--------:|"
+            "|-------|---------|---------|----------|----------|-------:|--------:|"
             "---------:|---------:|----------------------|----------------|------------------|\n"
         )
         md_content += table_header + table_separator
@@ -777,6 +807,14 @@ class MenagerieBenchmark:
             else:
                 verified_display = "❌"
 
+            # Verified in Newton status with emoji
+            if result.verified_in_newton == "Yes":
+                verified_in_newton_display = "✅"
+            elif result.verified_in_newton == "Unknown":
+                verified_in_newton_display = "❓"
+            else:
+                verified_in_newton_display = "❌"
+
             # Escape pipe characters and clean up text for markdown table
             def clean_for_table(text: str) -> str:
                 if not text:
@@ -795,6 +833,7 @@ class MenagerieBenchmark:
                 result.variant_name,
                 success_display,
                 verified_display,
+                verified_in_newton_display,
                 str(result.error_count),
                 str(result.warning_count),
                 f"{result.conversion_time_seconds:.2f}",
@@ -821,6 +860,21 @@ file under each variant's `verified` field.
 - Material and texture fidelity
 - Physics properties preservation
 - Simulation correctness in MuJoCo Simulate compared to the original MJCF file
+
+### Verified In Newton Status
+The results of verifying the converted USD file in the Newton runtime will be annotated as "Yes", "No", or "Unknown".
+Update the annotations in the `tools/menagerie_annotations.yaml` file under each variant's `verified_in_newton` field.
+
+**Please follow the steps below to verify:**
+- Convert MJCF to USD
+- Load each into an instance of mujoco Simulate app
+- Pause & manually move the joints
+- Run & manually activate the actuators
+- Inspect results visually & determine if they appear identical
+- Annoate the column in the report
+  - If not yet checked, specify "Unknown"
+  - If the result is correct, specify "Yes"
+  - If the result is incorrect, specify "No"
 
 ### Notes
 Document any known issues, limitations, or special considerations for each model variant in the

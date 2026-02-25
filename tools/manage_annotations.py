@@ -107,7 +107,7 @@ class AnnotationManager:
 
     def generate_template_for_asset(self, asset_name: str) -> dict:
         """Generate a template annotation for a new asset."""
-        return {"practical_success": "No", "evaluation_date": "", "evaluator": "", "notes": ""}
+        return {"practical_success": "No", "verified_in_newton": "No", "evaluation_date": "", "evaluator": "", "notes": ""}
 
     def update_annotation_file(self, new_assets: set[str], dry_run: bool = False):
         """Update the annotation file with new assets."""
