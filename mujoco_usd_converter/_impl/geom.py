@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import mujoco
-import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
@@ -276,12 +275,10 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
 
     # some geom are for vizualization only, but still contribute to the mass of the body
     if geom.contype == 0 and geom.conaffinity == 0:
-        if geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):
-            if (
-                not np.isnan(geom.mass)  # mass is defined
-                or not np.isclose(geom.density, 1000.0, atol=1e-6)  # density is defined
-                or data.spec.compiler.inertiafromgeom != mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE  # inertiafromgeom is auto or true
-            ):
+        if data.spec.compiler.inertiafromgeom != mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE and (
+            geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1)
+        ):
+            if geom.mass > 0.0 or geom.density > 0.0:
                 collider_enabled = False
             else:
                 is_collider = False
@@ -332,7 +329,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     else:
         set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
 
-    if not np.isnan(geom.mass):
+    if geom.mass > 0.0:
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateMassAttr().Set(geom.mass)
 

@@ -335,7 +335,7 @@ class TestGeom(ConverterTestCase):
 class TestGeomInertiaFromGeom(ConverterTestCase):
     def setUp(self):
         super().setUp()
-        model = pathlib.Path("./tests/data/geoms_inertia_from_geom.xml")
+        model = pathlib.Path("./tests/data/geoms_ignore_geom_inertia.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(self.stage)
@@ -359,25 +359,14 @@ class TestGeomInertiaFromGeom(ConverterTestCase):
 
     def test_visual_with_mass(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_mass")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_density")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 2000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
+        self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_in_range(self):
