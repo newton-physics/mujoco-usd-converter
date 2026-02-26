@@ -374,3 +374,34 @@ class TestGeomInertiaFromGeom(ConverterTestCase):
         self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+
+
+class TestGeomVisualDefaultDensity(ConverterTestCase):
+    def setUp(self):
+        super().setUp()
+        model = pathlib.Path("./tests/data/geom_default_density.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(self.stage)
+
+    def test_visual_default_density(self):
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/test/vis")
+
+        total_mass = 0.0
+        bbox_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+        for prim in self.stage.Traverse():
+            if prim.HasAPI(UsdPhysics.MassAPI):
+                mass_api = UsdPhysics.MassAPI(prim)
+                density = mass_api.GetDensityAttr().Get()
+                if mass_api.GetMassAttr().HasAuthoredValue():
+                    total_mass += mass_api.GetMassAttr().Get()
+                else:
+                    print(f"prim: {prim.GetName()}")
+                    self.assertTrue(prim.IsA(UsdGeom.Cube))
+                    world_bounds = bbox_cache.ComputeWorldBound(prim)
+                    world_range = world_bounds.ComputeAlignedRange()
+                    world_min = world_range.GetMin()  # Gf.Vec3d
+                    world_max = world_range.GetMax()  # Gf.Vec3d
+                    dims = world_max - world_min
+                    total_mass += density * dims[0] * dims[1] * dims[2]
+        self.assertAlmostEqual(total_mass, 8.0, places=6)
