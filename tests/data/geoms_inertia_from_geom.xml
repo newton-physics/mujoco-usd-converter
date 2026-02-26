@@ -1,0 +1,16 @@
+<mujoco model="geoms">
+    <compiler inertiagrouprange="2 3" inertiafromgeom="false"/>
+    <default>
+        <geom density="1000"/>
+    </default>
+    <worldbody>
+        <body name="geom_body">
+            <!-- Physics -->
+            <geom name="visual_with_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="2" mass="5.0"/>
+            <geom name="visual_with_density" type="sphere" size="0.1" contype="0" conaffinity="0" group="2" density="2000"/>
+            <geom name="visual_in_range_no_mass" type="sphere" size="0.1" contype="0" conaffinity="0" group="2"/>
+            <geom name="explicit_mass" type="box" size="0.1 0.1 0.1" mass="10.0"/>
+            <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
+        </body>
+    </worldbody>
+</mujoco>
