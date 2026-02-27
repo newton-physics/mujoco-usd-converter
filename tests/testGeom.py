@@ -385,8 +385,6 @@ class TestGeomVisualDefaultDensity(ConverterTestCase):
         self.assertIsValidUsd(self.stage)
 
     def test_visual_default_density(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/test/vis")
-
         total_mass = 0.0
         bbox_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
         for prim in self.stage.Traverse():
@@ -396,12 +394,11 @@ class TestGeomVisualDefaultDensity(ConverterTestCase):
                 if mass_api.GetMassAttr().HasAuthoredValue():
                     total_mass += mass_api.GetMassAttr().Get()
                 else:
-                    print(f"prim: {prim.GetName()}")
                     self.assertTrue(prim.IsA(UsdGeom.Cube))
                     world_bounds = bbox_cache.ComputeWorldBound(prim)
                     world_range = world_bounds.ComputeAlignedRange()
-                    world_min = world_range.GetMin()  # Gf.Vec3d
-                    world_max = world_range.GetMax()  # Gf.Vec3d
+                    world_min = world_range.GetMin()
+                    world_max = world_range.GetMax()
                     dims = world_max - world_min
                     total_mass += density * dims[0] * dims[1] * dims[2]
         self.assertAlmostEqual(total_mass, 8.0, places=6)
