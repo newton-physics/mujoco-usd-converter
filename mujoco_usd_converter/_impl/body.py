@@ -64,11 +64,11 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             mass_api.CreateMassAttr().Set(body.mass)
             mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(body.ipos))
             if np.isnan(body.fullinertia[0]):
-                mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(body.iquat))
+                mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(body.iquat).GetNormalized())
                 mass_api.CreateDiagonalInertiaAttr().Set(convert_vec3d(body.inertia))
             else:
                 quat, inertia = extract_inertia(body.fullinertia)
-                mass_api.CreatePrincipalAxesAttr().Set(quat)
+                mass_api.CreatePrincipalAxesAttr().Set(quat.GetNormalized())
                 mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
         convert_joints(parent=body_over, body=body, data=data)

@@ -31,6 +31,11 @@
             <geom type="box" size="0.1 0.1 0.1"/>
         </body>
 
+        <body name="explicit_non_unit_inertia_principal" pos="3 0 0">
+            <inertial pos="0.1 0.2 0.3" quat="1 0.1664 0 0" mass="2" diaginertia="0.2 0.1 0.3"/>
+            <geom type="box" size="0.1 0.1 0.1"/>
+        </body>
+
         <body name="explicit_inertia_full" pos="4 0 0">
             <inertial pos="0.1 0.2 0.3" mass="3" fullinertia="0.4 0.3 0.2 0.05 0.02 0.01"/>
             <geom type="box" size="0.1 0.1 0.1"/>
