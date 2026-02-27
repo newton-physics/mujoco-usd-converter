@@ -97,6 +97,7 @@ class MenagerieAnalyzer:
                         "model_name": model_name,
                         "description": f"Model variant: {model_name}",
                         "practical_success": "Unknown",
+                        "verified_in_newton": "Unknown",
                         "evaluation_date": "",
                         "evaluator": "",
                         "notes": "",
@@ -170,6 +171,8 @@ class MenagerieAnalyzer:
                     # Add missing per-variant annotation fields with defaults
                     if "practical_success" not in existing_variant:
                         existing_variant["practical_success"] = "Unknown"
+                    if "verified_in_newton" not in existing_variant:
+                        existing_variant["verified_in_newton"] = "Unknown"
                     if "evaluation_date" not in existing_variant:
                         existing_variant["evaluation_date"] = ""
                     if "evaluator" not in existing_variant:
@@ -219,6 +222,7 @@ class MenagerieAnalyzer:
 #         model_name: "asset_model"
 #         description: "Description of this model variant"
 #         practical_success: "Yes" | "Unknown" | "No"
+#         verified_in_newton: "Yes" | "Unknown" | "No"
 #         evaluation_date: "YYYY-MM-DD"
 #         evaluator: "Name or identifier of person who evaluated this variant"
 #         notes: "Additional notes about this variant"

@@ -11,6 +11,7 @@
 #         model_name: "asset_model"
 #         description: "Description of this model variant"
 #         verified: "Yes" | "Unknown" | "Partial"
+#         verified_in_newton: "Yes" | "Unknown" | "No"
 #         evaluation_date: "YYYY-MM-DD"
 #         evaluator: "Name or identifier of person who evaluated this variant"
 #         notes: "Additional notes about this variant"
@@ -36,6 +37,7 @@ agilex_piper:
     model_name: piper
     notes: 'Most actuation in MuJoCo looks good, but the gripper is broken without equality constraints'
     verified: 'No'
+    verified_in_newton: 'Unknown'
 agility_cassie:
   _metadata:
     has_scene_xml: true
@@ -52,6 +54,7 @@ agility_cassie:
     model_name: cassie
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 aloha:
   _metadata:
     has_scene_xml: true
@@ -68,6 +71,7 @@ aloha:
     model_name: aloha
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 anybotics_anymal_b:
   _metadata:
     has_scene_xml: true
@@ -84,6 +88,7 @@ anybotics_anymal_b:
     model_name: anymal_b
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 anybotics_anymal_c:
   _metadata:
     has_scene_xml: true
@@ -100,6 +105,7 @@ anybotics_anymal_c:
     model_name: anymal_c
     notes: 'Manual actuation in MuJoCo looks good'
     verified: 'Yes'
+    verified_in_newton: Unknown
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c_mjx'
     evaluation_date: ''
@@ -108,6 +114,7 @@ anybotics_anymal_c:
     model_name: anymal_c_mjx
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 apptronik_apollo:
   _metadata:
     has_scene_xml: true
@@ -124,6 +131,7 @@ apptronik_apollo:
     model_name: apptronik_apollo
     notes: 'USD View looks good, and manual articulation in MuJoCo looks good, but without exclude pairs we cannot test actuation in MuJoCo as it falls through the ground plane'
     verified: 'No'
+    verified_in_newton: Unknown
 arx_l5:
   _metadata:
     has_scene_xml: true
@@ -140,6 +148,7 @@ arx_l5:
     model_name: arx_l5
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 berkeley_humanoid:
   _metadata:
     has_scene_xml: true
@@ -156,6 +165,7 @@ berkeley_humanoid:
     model_name: berkeley_humanoid
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 bitcraze_crazyflie_2:
   _metadata:
     has_scene_xml: true
@@ -172,6 +182,7 @@ bitcraze_crazyflie_2:
     model_name: cf2
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 booster_t1:
   _metadata:
     has_scene_xml: true
@@ -188,6 +199,7 @@ booster_t1:
     model_name: t1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 boston_dynamics_spot:
   _metadata:
     has_scene_xml: true
@@ -204,6 +216,7 @@ boston_dynamics_spot:
     model_name: spot
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: boston_dynamics_spot
     description: 'Model variant: spot_arm'
     evaluation_date: ''
@@ -212,6 +225,7 @@ boston_dynamics_spot:
     model_name: spot_arm
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 dynamixel_2r:
   _metadata:
     has_scene_xml: true
@@ -228,6 +242,7 @@ dynamixel_2r:
     model_name: dynamixel_2r
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 flybody:
   _metadata:
     has_scene_xml: true
@@ -244,6 +259,7 @@ flybody:
     model_name: fruitfly
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 fourier_n1:
   _metadata:
     has_scene_xml: true
@@ -260,6 +276,7 @@ fourier_n1:
     model_name: n1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 franka_emika_panda:
   _metadata:
     has_scene_xml: true
@@ -276,6 +293,7 @@ franka_emika_panda:
     model_name: hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda_nohand'
     evaluation_date: ''
@@ -284,6 +302,7 @@ franka_emika_panda:
     model_name: panda_nohand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda'
     evaluation_date: ''
@@ -292,6 +311,7 @@ franka_emika_panda:
     model_name: mjx_panda
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda'
     evaluation_date: ''
@@ -300,6 +320,7 @@ franka_emika_panda:
     model_name: panda
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda_nohand'
     evaluation_date: ''
@@ -308,6 +329,7 @@ franka_emika_panda:
     model_name: mjx_panda_nohand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 franka_fr3:
   _metadata:
     has_scene_xml: true
@@ -324,6 +346,7 @@ franka_fr3:
     model_name: fr3
     notes: 'Manual actuation in MuJoCo looks good'
     verified: 'Yes'
+    verified_in_newton: Unknown
 google_barkour_v0:
   _metadata:
     has_scene_xml: true
@@ -340,6 +363,7 @@ google_barkour_v0:
     model_name: barkour_v0_mjx
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: google_barkour_v0
     description: 'Model variant: barkour_v0'
     evaluation_date: '2025/07/31'
@@ -348,6 +372,7 @@ google_barkour_v0:
     model_name: barkour_v0
     notes: 'Manual actuation in MuJoCo looks good'
     verified: 'Yes'
+    verified_in_newton: Unknown
 google_barkour_vb:
   _metadata:
     has_scene_xml: true
@@ -364,6 +389,7 @@ google_barkour_vb:
     model_name: barkour_vb
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: google_barkour_vb
     description: 'Model variant: barkour_vb_mjx'
     evaluation_date: ''
@@ -372,6 +398,7 @@ google_barkour_vb:
     model_name: barkour_vb_mjx
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 google_robot:
   _metadata:
     has_scene_xml: true
@@ -388,6 +415,7 @@ google_robot:
     model_name: robot
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 hello_robot_stretch:
   _metadata:
     has_scene_xml: true
@@ -404,6 +432,7 @@ hello_robot_stretch:
     model_name: stretch
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 hello_robot_stretch_3:
   _metadata:
     has_scene_xml: true
@@ -420,6 +449,7 @@ hello_robot_stretch_3:
     model_name: stretch
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 i2rt_yam:
   _metadata:
     has_scene_xml: true
@@ -436,6 +466,7 @@ i2rt_yam:
     model_name: yam
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 iit_softfoot:
   _metadata:
     has_scene_xml: true
@@ -452,6 +483,7 @@ iit_softfoot:
     model_name: softfoot
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 kinova_gen3:
   _metadata:
     has_scene_xml: true
@@ -468,6 +500,7 @@ kinova_gen3:
     model_name: gen3
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 kuka_iiwa_14:
   _metadata:
     has_scene_xml: true
@@ -484,6 +517,7 @@ kuka_iiwa_14:
     model_name: iiwa14
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 leap_hand:
   _metadata:
     has_scene_xml: true
@@ -500,6 +534,7 @@ leap_hand:
     model_name: right_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: leap_hand
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -508,6 +543,7 @@ leap_hand:
     model_name: left_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 low_cost_robot_arm:
   _metadata:
     has_scene_xml: true
@@ -524,6 +560,7 @@ low_cost_robot_arm:
     model_name: low_cost_robot_arm
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 pal_talos:
   _metadata:
     has_scene_xml: true
@@ -540,6 +577,7 @@ pal_talos:
     model_name: talos
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_motor'
     evaluation_date: ''
@@ -548,6 +586,7 @@ pal_talos:
     model_name: talos_motor
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_position'
     evaluation_date: ''
@@ -556,6 +595,7 @@ pal_talos:
     model_name: talos_position
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 pal_tiago:
   _metadata:
     has_scene_xml: true
@@ -572,6 +612,7 @@ pal_tiago:
     model_name: tiago_position
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago'
     evaluation_date: ''
@@ -580,6 +621,7 @@ pal_tiago:
     model_name: tiago
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_velocity'
     evaluation_date: ''
@@ -588,6 +630,7 @@ pal_tiago:
     model_name: tiago_velocity
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_motor'
     evaluation_date: ''
@@ -596,6 +639,7 @@ pal_tiago:
     model_name: tiago_motor
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 pal_tiago_dual:
   _metadata:
     has_scene_xml: true
@@ -612,6 +656,7 @@ pal_tiago_dual:
     model_name: tiago_dual_velocity
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual'
     evaluation_date: ''
@@ -620,6 +665,7 @@ pal_tiago_dual:
     model_name: tiago_dual
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_motor'
     evaluation_date: ''
@@ -628,6 +674,7 @@ pal_tiago_dual:
     model_name: tiago_dual_motor
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_position'
     evaluation_date: ''
@@ -636,6 +683,7 @@ pal_tiago_dual:
     model_name: tiago_dual_position
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 pndbotics_adam_lite:
   _metadata:
     has_scene_xml: true
@@ -652,6 +700,7 @@ pndbotics_adam_lite:
     model_name: adam_lite
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 realsense_d435i:
   _metadata:
     has_scene_xml: false
@@ -668,6 +717,7 @@ realsense_d435i:
     model_name: d435i
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 rethink_robotics_sawyer:
   _metadata:
     has_scene_xml: true
@@ -684,6 +734,7 @@ rethink_robotics_sawyer:
     model_name: sawyer
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 robot_soccer_kit:
   _metadata:
     has_scene_xml: true
@@ -700,6 +751,7 @@ robot_soccer_kit:
     model_name: robot_soccer_kit
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 robotiq_2f85:
   _metadata:
     has_scene_xml: true
@@ -716,6 +768,7 @@ robotiq_2f85:
     model_name: 2f85
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 robotiq_2f85_v4:
   _metadata:
     has_scene_xml: true
@@ -732,6 +785,7 @@ robotiq_2f85_v4:
     model_name: 2f85
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: robotiq_2f85_v4
     description: 'Model variant: mjx_2f85'
     evaluation_date: ''
@@ -740,6 +794,7 @@ robotiq_2f85_v4:
     model_name: mjx_2f85
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 robotis_op3:
   _metadata:
     has_scene_xml: true
@@ -756,6 +811,7 @@ robotis_op3:
     model_name: op3
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 shadow_dexee:
   _metadata:
     has_scene_xml: true
@@ -772,6 +828,7 @@ shadow_dexee:
     model_name: shadow_dexee
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 shadow_hand:
   _metadata:
     has_scene_xml: true
@@ -788,6 +845,7 @@ shadow_hand:
     model_name: right_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: shadow_hand
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -796,6 +854,7 @@ shadow_hand:
     model_name: left_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 skydio_x2:
   _metadata:
     has_scene_xml: true
@@ -812,6 +871,7 @@ skydio_x2:
     model_name: x2
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 stanford_tidybot:
   _metadata:
     has_scene_xml: true
@@ -828,6 +888,7 @@ stanford_tidybot:
     model_name: tidybot
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: stanford_tidybot
     description: 'Model variant: base'
     evaluation_date: ''
@@ -836,6 +897,7 @@ stanford_tidybot:
     model_name: base
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 trossen_vx300s:
   _metadata:
     has_scene_xml: true
@@ -852,6 +914,7 @@ trossen_vx300s:
     model_name: vx300s
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 trossen_wx250s:
   _metadata:
     has_scene_xml: true
@@ -868,6 +931,7 @@ trossen_wx250s:
     model_name: wx250s
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 trs_so_arm100:
   _metadata:
     has_scene_xml: true
@@ -884,6 +948,7 @@ trs_so_arm100:
     model_name: so_arm100
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 ufactory_lite6:
   _metadata:
     has_scene_xml: true
@@ -900,6 +965,7 @@ ufactory_lite6:
     model_name: lite6_gripper_wide
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6'
     evaluation_date: ''
@@ -908,6 +974,7 @@ ufactory_lite6:
     model_name: lite6
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6_gripper_narrow'
     evaluation_date: ''
@@ -916,6 +983,7 @@ ufactory_lite6:
     model_name: lite6_gripper_narrow
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 ufactory_xarm7:
   _metadata:
     has_scene_xml: true
@@ -932,6 +1000,7 @@ ufactory_xarm7:
     model_name: hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7_nohand'
     evaluation_date: ''
@@ -940,6 +1009,7 @@ ufactory_xarm7:
     model_name: xarm7_nohand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7'
     evaluation_date: ''
@@ -948,6 +1018,7 @@ ufactory_xarm7:
     model_name: xarm7
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 umi_gripper:
   _metadata:
     has_scene_xml: true
@@ -964,6 +1035,7 @@ umi_gripper:
     model_name: umi_gripper
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_a1:
   _metadata:
     has_scene_xml: true
@@ -980,6 +1052,7 @@ unitree_a1:
     model_name: a1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_g1:
   _metadata:
     has_scene_xml: true
@@ -996,6 +1069,7 @@ unitree_g1:
     model_name: g1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_mjx'
     evaluation_date: ''
@@ -1004,6 +1078,7 @@ unitree_g1:
     model_name: g1_mjx
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_with_hands'
     evaluation_date: ''
@@ -1012,6 +1087,7 @@ unitree_g1:
     model_name: g1_with_hands
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_go1:
   _metadata:
     has_scene_xml: true
@@ -1028,6 +1104,7 @@ unitree_go1:
     model_name: go1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_go2:
   _metadata:
     has_scene_xml: true
@@ -1044,6 +1121,7 @@ unitree_go2:
     model_name: go2_mjx
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: unitree_go2
     description: 'Model variant: go2'
     evaluation_date: ''
@@ -1052,6 +1130,7 @@ unitree_go2:
     model_name: go2
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_h1:
   _metadata:
     has_scene_xml: true
@@ -1068,6 +1147,7 @@ unitree_h1:
     model_name: h1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 unitree_z1:
   _metadata:
     has_scene_xml: true
@@ -1084,6 +1164,7 @@ unitree_z1:
     model_name: z1
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: unitree_z1
     description: 'Model variant: z1_gripper'
     evaluation_date: ''
@@ -1092,6 +1173,7 @@ unitree_z1:
     model_name: z1_gripper
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 universal_robots_ur10e:
   _metadata:
     has_scene_xml: true
@@ -1108,6 +1190,7 @@ universal_robots_ur10e:
     model_name: ur10e
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 universal_robots_ur5e:
   _metadata:
     has_scene_xml: true
@@ -1124,6 +1207,7 @@ universal_robots_ur5e:
     model_name: ur5e
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
 wonik_allegro:
   _metadata:
     has_scene_xml: true
@@ -1140,6 +1224,7 @@ wonik_allegro:
     model_name: right_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
   - asset: wonik_allegro
     description: 'Model variant: left_hand'
     evaluation_date: ''
@@ -1148,3 +1233,4 @@ wonik_allegro:
     model_name: left_hand
     notes: ''
     verified: Unknown
+    verified_in_newton: Unknown
