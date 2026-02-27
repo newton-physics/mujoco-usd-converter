@@ -1,3 +1,26 @@
+# 0.1.0a8
+
+## Fixes
+
+- Visual geoms with default density & within the `inertiagrouprange` now contribute to the mass of a body
+  - They are now colliders, with collision disabled, with the `MassAPI` applied and `physics:density` authored
+  - This change only happens if `inertiafromgeom` is "auto" or "true"
+- Normalized the `physics:principleAxes` to pass UsdPhysics validation tests
+- Skipped authoring `physics:principalAxes` and `physics:diagonalInertia` when the mujoco inertia is (0, 0, 0)
+  - This is invalid in UsdPhysics, but in MuJoCo it occurs on static base bodies welded to the world.
+- Adjusted margin authoring to match newton runtime
+  - `newton:contactMargin = geom.margin - geom.gap`
+  - This change may be reverted in the future, when newton & mujoco margin/gap semantics are re-aligned
+
+## Documentation
+
+- Added a "Verified in Newton" column to the benchmark report
+  - Note no robots have been manually verified yet, we will update this column over time
+
+## Dependencies
+
+- Updated to `usd-exchange==2.2.2`
+
 # 0.1.0a7
 
 ## Features
