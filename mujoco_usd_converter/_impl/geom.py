@@ -303,7 +303,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     geom_over.ApplyAPI("MjcCollisionAPI")
 
     # Set NewtonCollisionAPI attributes
-    set_schema_attribute(geom_over, "newton:contactMargin", geom.margin)
+    set_schema_attribute(geom_over, "newton:contactMargin", geom.margin - geom.gap)
     set_schema_attribute(geom_over, "newton:contactGap", geom.gap)
 
     # Set all MjcCollisionAPI attributes

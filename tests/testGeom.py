@@ -285,7 +285,7 @@ class TestGeom(ConverterTestCase):
 
         # Check that newton:contactMargin is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
-        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.01)
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), -0.01)
 
         # Check that newton:contactGap is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
