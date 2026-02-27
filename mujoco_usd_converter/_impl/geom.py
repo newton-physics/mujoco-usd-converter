@@ -276,8 +276,10 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
 
     # some geom are for vizualization only, but still contribute to the mass of the body
     if geom.contype == 0 and geom.conaffinity == 0:
-        if geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):
-            if not np.isnan(geom.mass) or not np.isclose(geom.density, 1000.0, atol=1e-6):
+        if data.spec.compiler.inertiafromgeom != mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE and (
+            geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1)
+        ):
+            if not np.isnan(geom.mass) or geom.density > 0.0:
                 collider_enabled = False
             else:
                 is_collider = False
