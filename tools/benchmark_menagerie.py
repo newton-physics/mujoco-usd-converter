@@ -697,10 +697,11 @@ class MenagerieBenchmark:
         Please follow the steps below to verify:</p>
         <ul>
             <li>Convert MJCF to USD</li>
-            <li>Load each into an instance of mujoco Simulate app</li>
-            <li>Pause & manually move the joints</li>
-            <li>Run & manually activate the actuators</li>
+            <li>Write Python code to load USD files into Newton</li>
+            <li>Execute the Python code and launch the Newton viewer using "newton.examples"</li>
+            <li>Move the object to check the joint configuration and movement</li>
             <li>Inspect results visually & determine if they appear identical</li>
+            <li>Check whether enabling/disabling the "Visualization" checkbox produces the intended behavior</li>
             <li>Annoate the column in the report<br/>
             If not yet checked, specify "Unknown"<br/>
             If the result is correct, specify "Yes"<br/>
@@ -867,10 +868,11 @@ Update the annotations in the `tools/menagerie_annotations.yaml` file under each
 
 **Please follow the steps below to verify:**
 - Convert MJCF to USD
-- Load each into an instance of mujoco Simulate app
-- Pause & manually move the joints
-- Run & manually activate the actuators
+- Write Python code to load USD files into Newton
+- Execute the Python code and launch the Newton viewer using "newton.examples"
+- Move the object to check the joint configuration and movement
 - Inspect results visually & determine if they appear identical
+- Check whether enabling/disabling the "Visualization" checkbox produces the intended behavior
 - Annoate the column in the report
   - If not yet checked, specify "Unknown"
   - If the result is correct, specify "Yes"
