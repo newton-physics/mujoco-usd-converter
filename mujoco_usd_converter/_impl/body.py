@@ -64,10 +64,14 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             mass_api.CreateMassAttr().Set(body.mass)
             mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(body.ipos))
             if np.isnan(body.fullinertia[0]):
-                mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(body.iquat))
-                mass_api.CreateDiagonalInertiaAttr().Set(convert_vec3d(body.inertia))
+                quat = convert_quatf(body.iquat).GetNormalized()
+                inertia = convert_vec3d(body.inertia)
             else:
                 quat, inertia = extract_inertia(body.fullinertia)
+            # If the inertia is zero, don't set the principal axes or diagonal inertia
+            # In MuJoCo this represents a body with no rotational inertia (typically a static base),
+            # and in USD the mass alone is sufficient — the physics engine will handle it
+            if inertia != Gf.Vec3f(0, 0, 0):
                 mass_api.CreatePrincipalAxesAttr().Set(quat)
                 mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
