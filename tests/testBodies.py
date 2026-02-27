@@ -112,3 +112,13 @@ class TestBodies(ConverterTestCase):
         gravcomp_prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/gravity_compensated")
         self.assertTrue(gravcomp_prim.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertAlmostEqual(gravcomp_prim.GetAttribute("mjc:body:gravcomp").Get(), 0.2)
+
+    def test_zero_inertia(self):
+        zero_inertia_prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/zero_inertia")
+        self.assertTrue(zero_inertia_prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertTrue(zero_inertia_prim.HasAPI(UsdPhysics.MassAPI))
+        mass_api = UsdPhysics.MassAPI(zero_inertia_prim)
+        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 2.0)
+        self.assertEqual(mass_api.GetCenterOfMassAttr().Get(), Gf.Vec3f(0.1, 0.2, 0.3))
+        self.assertFalse(mass_api.GetPrincipalAxesAttr().HasAuthoredValue())
+        self.assertFalse(mass_api.GetDiagonalInertiaAttr().HasAuthoredValue())

@@ -49,5 +49,9 @@
             <geom type="box" size="0.1 0.1 0.1"/>
         </body>
 
+        <body name="zero_inertia" pos="5 0 0">
+            <inertial pos="0.1 0.2 0.3" mass="2" diaginertia="0 0 0"/>
+            <geom type="box" size="0.1 0.1 0.1"/>
+        </body>
     </worldbody>
 </mujoco>
