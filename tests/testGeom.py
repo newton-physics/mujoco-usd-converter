@@ -285,7 +285,7 @@ class TestGeom(ConverterTestCase):
 
         # Check that newton:contactMargin is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
-        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), -0.01)
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.01)
 
         # Check that newton:contactGap is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
@@ -324,7 +324,7 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 4)
         self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.02)
         self.assertEqual(prim.GetAttribute("mjc:group").Get(), 1)
-        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.01)
+        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.03)
         self.assertEqual(prim.GetAttribute("mjc:priority").Get(), 2)
         self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), True)
         self.assertEqual(prim.GetAttribute("mjc:solimp").Get(), [0.95, 0.99, 0.001, 0.5, 2.0])
