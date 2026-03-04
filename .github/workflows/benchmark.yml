@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
 
       - name: Bootstrap
         uses: ./.github/actions/bootstrap
@@ -27,14 +27,14 @@ jobs:
         run: uv run --group dev poe benchmark
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: mujoco-usd-converter-benchmarks-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || format('{0}', github.ref_name) }}
           path: benchmarks/*.*
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7.1.0
         with:
           script: |
             // Wait a bit for artifacts to be fully uploaded
