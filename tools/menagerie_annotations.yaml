@@ -35,8 +35,8 @@ agilex_piper:
     evaluator: 'andrewkaufman'
     filename: piper.xml
     model_name: piper
-    notes: 'Most actuation in MuJoCo looks good, but the gripper is broken without equality constraints'
-    verified: 'No'
+    notes: ''
+    verified: 'Yes'
     verified_in_newton: 'Unknown'
 agility_cassie:
   _metadata:
@@ -70,7 +70,7 @@ aloha:
     filename: aloha.xml
     model_name: aloha
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 anybotics_anymal_b:
   _metadata:
@@ -87,7 +87,7 @@ anybotics_anymal_b:
     filename: anymal_b.xml
     model_name: anymal_b
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 anybotics_anymal_c:
   _metadata:
@@ -129,7 +129,7 @@ apptronik_apollo:
     evaluator: 'andrewkaufman'
     filename: apptronik_apollo.xml
     model_name: apptronik_apollo
-    notes: 'USD View looks good, and manual articulation in MuJoCo looks good, but without exclude pairs we cannot test actuation in MuJoCo as it falls through the ground plane'
+    notes: 'USD View looks good, and manual articulation in MuJoCo looks good, but without contact pairs we cannot test actuation in MuJoCo as it falls through the ground plane'
     verified: 'No'
     verified_in_newton: Unknown
 arx_l5:
@@ -147,7 +147,7 @@ arx_l5:
     filename: arx_l5.xml
     model_name: arx_l5
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 berkeley_humanoid:
   _metadata:
@@ -164,7 +164,7 @@ berkeley_humanoid:
     filename: berkeley_humanoid.xml
     model_name: berkeley_humanoid
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 bitcraze_crazyflie_2:
   _metadata:
@@ -181,7 +181,7 @@ bitcraze_crazyflie_2:
     filename: cf2.xml
     model_name: cf2
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 booster_t1:
   _metadata:
@@ -198,7 +198,7 @@ booster_t1:
     filename: t1.xml
     model_name: t1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 boston_dynamics_spot:
   _metadata:
@@ -215,7 +215,7 @@ boston_dynamics_spot:
     filename: spot.xml
     model_name: spot
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: boston_dynamics_spot
     description: 'Model variant: spot_arm'
@@ -224,7 +224,7 @@ boston_dynamics_spot:
     filename: spot_arm.xml
     model_name: spot_arm
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 dynamixel_2r:
   _metadata:
@@ -241,7 +241,7 @@ dynamixel_2r:
     filename: dynamixel_2r.xml
     model_name: dynamixel_2r
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 flybody:
   _metadata:
@@ -275,7 +275,7 @@ fourier_n1:
     filename: n1.xml
     model_name: n1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 franka_emika_panda:
   _metadata:
@@ -292,7 +292,7 @@ franka_emika_panda:
     filename: hand.xml
     model_name: hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda_nohand'
@@ -301,7 +301,7 @@ franka_emika_panda:
     filename: panda_nohand.xml
     model_name: panda_nohand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda'
@@ -309,8 +309,8 @@ franka_emika_panda:
     evaluator: ''
     filename: mjx_panda.xml
     model_name: mjx_panda
-    notes: ''
-    verified: Unknown
+    notes: 'TODO: There are strange shapes in MuJoCo, but it behaves correctly'
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda'
@@ -319,7 +319,7 @@ franka_emika_panda:
     filename: panda.xml
     model_name: panda
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda_nohand'
@@ -328,7 +328,7 @@ franka_emika_panda:
     filename: mjx_panda_nohand.xml
     model_name: mjx_panda_nohand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 franka_fr3:
   _metadata:
@@ -362,7 +362,7 @@ google_barkour_v0:
     filename: barkour_v0_mjx.xml
     model_name: barkour_v0_mjx
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: google_barkour_v0
     description: 'Model variant: barkour_v0'
@@ -388,7 +388,7 @@ google_barkour_vb:
     filename: barkour_vb.xml
     model_name: barkour_vb
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: google_barkour_vb
     description: 'Model variant: barkour_vb_mjx'
@@ -397,7 +397,7 @@ google_barkour_vb:
     filename: barkour_vb_mjx.xml
     model_name: barkour_vb_mjx
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 google_robot:
   _metadata:
@@ -413,8 +413,8 @@ google_robot:
     evaluator: ''
     filename: robot.xml
     model_name: robot
-    notes: ''
-    verified: Unknown
+    notes: 'TODO: It behaves similarly in MuJoCo, but the joints are not exactly the same'
+    verified: 'Yes'
     verified_in_newton: Unknown
 hello_robot_stretch:
   _metadata:
@@ -430,8 +430,8 @@ hello_robot_stretch:
     evaluator: ''
     filename: stretch.xml
     model_name: stretch
-    notes: ''
-    verified: Unknown
+    notes: 'TODO: The lift actuator doesn't work properly in MuJoCo'
+    verified: 'No'
     verified_in_newton: Unknown
 hello_robot_stretch_3:
   _metadata:
@@ -447,8 +447,8 @@ hello_robot_stretch_3:
     evaluator: ''
     filename: stretch.xml
     model_name: stretch
-    notes: ''
-    verified: Unknown
+    notes: 'TODO: The lift actuator does not work properly in MuJoCo'
+    verified: 'No'
     verified_in_newton: Unknown
 i2rt_yam:
   _metadata:
@@ -465,7 +465,7 @@ i2rt_yam:
     filename: yam.xml
     model_name: yam
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 iit_softfoot:
   _metadata:
@@ -481,8 +481,8 @@ iit_softfoot:
     evaluator: ''
     filename: softfoot.xml
     model_name: softfoot
-    notes: ''
-    verified: Unknown
+    notes: 'scene.xml uses body/attach, causing issues with conversion. The model itself is slightly jittery in MuJoCo'
+    verified: 'No'
     verified_in_newton: Unknown
 kinova_gen3:
   _metadata:
@@ -499,7 +499,7 @@ kinova_gen3:
     filename: gen3.xml
     model_name: gen3
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 kuka_iiwa_14:
   _metadata:
@@ -516,7 +516,7 @@ kuka_iiwa_14:
     filename: iiwa14.xml
     model_name: iiwa14
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 leap_hand:
   _metadata:
@@ -533,7 +533,7 @@ leap_hand:
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: leap_hand
     description: 'Model variant: left_hand'
@@ -542,7 +542,7 @@ leap_hand:
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 low_cost_robot_arm:
   _metadata:
@@ -559,7 +559,7 @@ low_cost_robot_arm:
     filename: low_cost_robot_arm.xml
     model_name: low_cost_robot_arm
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 pal_talos:
   _metadata:
@@ -585,7 +585,7 @@ pal_talos:
     filename: talos_motor.xml
     model_name: talos_motor
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_position'
@@ -594,7 +594,7 @@ pal_talos:
     filename: talos_position.xml
     model_name: talos_position
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 pal_tiago:
   _metadata:
@@ -611,7 +611,7 @@ pal_tiago:
     filename: tiago_position.xml
     model_name: tiago_position
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago'
@@ -629,7 +629,7 @@ pal_tiago:
     filename: tiago_velocity.xml
     model_name: tiago_velocity
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_motor'
@@ -638,7 +638,7 @@ pal_tiago:
     filename: tiago_motor.xml
     model_name: tiago_motor
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 pal_tiago_dual:
   _metadata:
@@ -655,7 +655,7 @@ pal_tiago_dual:
     filename: tiago_dual_velocity.xml
     model_name: tiago_dual_velocity
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual'
@@ -673,7 +673,7 @@ pal_tiago_dual:
     filename: tiago_dual_motor.xml
     model_name: tiago_dual_motor
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_position'
@@ -682,7 +682,7 @@ pal_tiago_dual:
     filename: tiago_dual_position.xml
     model_name: tiago_dual_position
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 pndbotics_adam_lite:
   _metadata:
