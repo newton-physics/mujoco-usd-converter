@@ -31,8 +31,8 @@ agilex_piper:
   xml_files:
   - asset: agilex_piper
     description: 'Model variant: piper'
-    evaluation_date: '2025/10/03'
-    evaluator: 'andrewkaufman'
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: piper.xml
     model_name: piper
     notes: ''
