@@ -31,7 +31,7 @@ agilex_piper:
   xml_files:
   - asset: agilex_piper
     description: 'Model variant: piper'
-    evaluation_date: '2026/10/03'
+    evaluation_date: '2025/10/03'
     evaluator: 'andrewkaufman'
     filename: piper.xml
     model_name: piper
@@ -48,12 +48,12 @@ agility_cassie:
   xml_files:
   - asset: agility_cassie
     description: 'Model variant: cassie'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: cassie.xml
     model_name: cassie
-    notes: ''
-    verified: Unknown
+    notes: 'One of the legs on the USD model has inverted triangles, but it seems to behave similarly to the original model'
+    verified: 'Yes'
     verified_in_newton: Unknown
 aloha:
   _metadata:
@@ -65,8 +65,8 @@ aloha:
   xml_files:
   - asset: aloha
     description: 'Model variant: aloha'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: aloha.xml
     model_name: aloha
     notes: ''
@@ -82,8 +82,8 @@ anybotics_anymal_b:
   xml_files:
   - asset: anybotics_anymal_b
     description: 'Model variant: anymal_b'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: anymal_b.xml
     model_name: anymal_b
     notes: ''
@@ -142,8 +142,8 @@ arx_l5:
   xml_files:
   - asset: arx_l5
     description: 'Model variant: arx_l5'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: arx_l5.xml
     model_name: arx_l5
     notes: ''
@@ -159,8 +159,8 @@ berkeley_humanoid:
   xml_files:
   - asset: berkeley_humanoid
     description: 'Model variant: berkeley_humanoid'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: berkeley_humanoid.xml
     model_name: berkeley_humanoid
     notes: ''
@@ -176,8 +176,8 @@ bitcraze_crazyflie_2:
   xml_files:
   - asset: bitcraze_crazyflie_2
     description: 'Model variant: cf2'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: cf2.xml
     model_name: cf2
     notes: ''
@@ -193,8 +193,8 @@ booster_t1:
   xml_files:
   - asset: booster_t1
     description: 'Model variant: t1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: t1.xml
     model_name: t1
     notes: ''
@@ -210,8 +210,8 @@ boston_dynamics_spot:
   xml_files:
   - asset: boston_dynamics_spot
     description: 'Model variant: spot'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: spot.xml
     model_name: spot
     notes: ''
@@ -219,8 +219,8 @@ boston_dynamics_spot:
     verified_in_newton: Unknown
   - asset: boston_dynamics_spot
     description: 'Model variant: spot_arm'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: spot_arm.xml
     model_name: spot_arm
     notes: ''
@@ -236,8 +236,8 @@ dynamixel_2r:
   xml_files:
   - asset: dynamixel_2r
     description: 'Model variant: dynamixel_2r'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: dynamixel_2r.xml
     model_name: dynamixel_2r
     notes: ''
@@ -270,8 +270,8 @@ fourier_n1:
   xml_files:
   - asset: fourier_n1
     description: 'Model variant: n1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: n1.xml
     model_name: n1
     notes: ''
@@ -287,8 +287,8 @@ franka_emika_panda:
   xml_files:
   - asset: franka_emika_panda
     description: 'Model variant: hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: hand.xml
     model_name: hand
     notes: ''
@@ -296,8 +296,8 @@ franka_emika_panda:
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda_nohand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: panda_nohand.xml
     model_name: panda_nohand
     notes: ''
@@ -305,17 +305,17 @@ franka_emika_panda:
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: mjx_panda.xml
     model_name: mjx_panda
-    notes: 'TODO: There are strange shapes in MuJoCo, but it behaves correctly'
+    notes: 'There are strange shapes in MuJoCo, but it behaves correctly'
     verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: panda'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: panda.xml
     model_name: panda
     notes: ''
@@ -323,8 +323,8 @@ franka_emika_panda:
     verified_in_newton: Unknown
   - asset: franka_emika_panda
     description: 'Model variant: mjx_panda_nohand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: mjx_panda_nohand.xml
     model_name: mjx_panda_nohand
     notes: ''
@@ -357,8 +357,8 @@ google_barkour_v0:
   xml_files:
   - asset: google_barkour_v0
     description: 'Model variant: barkour_v0_mjx'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: barkour_v0_mjx.xml
     model_name: barkour_v0_mjx
     notes: ''
@@ -383,8 +383,8 @@ google_barkour_vb:
   xml_files:
   - asset: google_barkour_vb
     description: 'Model variant: barkour_vb'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: barkour_vb.xml
     model_name: barkour_vb
     notes: ''
@@ -392,8 +392,8 @@ google_barkour_vb:
     verified_in_newton: Unknown
   - asset: google_barkour_vb
     description: 'Model variant: barkour_vb_mjx'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: barkour_vb_mjx.xml
     model_name: barkour_vb_mjx
     notes: ''
@@ -409,11 +409,11 @@ google_robot:
   xml_files:
   - asset: google_robot
     description: 'Model variant: robot'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: robot.xml
     model_name: robot
-    notes: 'TODO: It behaves similarly in MuJoCo, but the joints are not exactly the same'
+    notes: 'It behaves similarly in MuJoCo Simulate, but the joints are not exactly the same'
     verified: 'Yes'
     verified_in_newton: Unknown
 hello_robot_stretch:
@@ -430,7 +430,7 @@ hello_robot_stretch:
     evaluator: ''
     filename: stretch.xml
     model_name: stretch
-    notes: 'TODO: The lift actuator doesn't work properly in MuJoCo'
+    notes: 'The lift actuator does not work properly in MuJoCo Simulate'
     verified: 'No'
     verified_in_newton: Unknown
 hello_robot_stretch_3:
@@ -447,7 +447,7 @@ hello_robot_stretch_3:
     evaluator: ''
     filename: stretch.xml
     model_name: stretch
-    notes: 'TODO: The lift actuator does not work properly in MuJoCo'
+    notes: 'The lift actuator does not work properly in MuJoCo Simulate'
     verified: 'No'
     verified_in_newton: Unknown
 i2rt_yam:
@@ -460,8 +460,8 @@ i2rt_yam:
   xml_files:
   - asset: i2rt_yam
     description: 'Model variant: yam'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: yam.xml
     model_name: yam
     notes: ''
@@ -494,8 +494,8 @@ kinova_gen3:
   xml_files:
   - asset: kinova_gen3
     description: 'Model variant: gen3'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: gen3.xml
     model_name: gen3
     notes: ''
@@ -511,8 +511,8 @@ kuka_iiwa_14:
   xml_files:
   - asset: kuka_iiwa_14
     description: 'Model variant: iiwa14'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: iiwa14.xml
     model_name: iiwa14
     notes: ''
@@ -528,8 +528,8 @@ leap_hand:
   xml_files:
   - asset: leap_hand
     description: 'Model variant: right_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
@@ -537,8 +537,8 @@ leap_hand:
     verified_in_newton: Unknown
   - asset: leap_hand
     description: 'Model variant: left_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
@@ -554,8 +554,8 @@ low_cost_robot_arm:
   xml_files:
   - asset: low_cost_robot_arm
     description: 'Model variant: low_cost_robot_arm'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: low_cost_robot_arm.xml
     model_name: low_cost_robot_arm
     notes: ''
@@ -580,8 +580,8 @@ pal_talos:
     verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_motor'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: talos_motor.xml
     model_name: talos_motor
     notes: ''
@@ -589,8 +589,8 @@ pal_talos:
     verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_position'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: talos_position.xml
     model_name: talos_position
     notes: ''
@@ -606,8 +606,8 @@ pal_tiago:
   xml_files:
   - asset: pal_tiago
     description: 'Model variant: tiago_position'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_position.xml
     model_name: tiago_position
     notes: ''
@@ -624,8 +624,8 @@ pal_tiago:
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_velocity'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_velocity.xml
     model_name: tiago_velocity
     notes: ''
@@ -633,8 +633,8 @@ pal_tiago:
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_motor'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_motor.xml
     model_name: tiago_motor
     notes: ''
@@ -650,8 +650,8 @@ pal_tiago_dual:
   xml_files:
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_velocity'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_dual_velocity.xml
     model_name: tiago_dual_velocity
     notes: ''
@@ -668,8 +668,8 @@ pal_tiago_dual:
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_motor'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_dual_motor.xml
     model_name: tiago_dual_motor
     notes: ''
@@ -677,8 +677,8 @@ pal_tiago_dual:
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_position'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_dual_position.xml
     model_name: tiago_dual_position
     notes: ''
@@ -698,7 +698,7 @@ pndbotics_adam_lite:
     evaluator: ''
     filename: adam_lite.xml
     model_name: adam_lite
-    notes: ''
+    notes: 'We do not apply the schema with inertia to visual geoms, so this model does not open in MuJoCo Simulate'
     verified: Unknown
     verified_in_newton: Unknown
 realsense_d435i:
@@ -711,12 +711,12 @@ realsense_d435i:
   xml_files:
   - asset: realsense_d435i
     description: 'Model variant: d435i'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: d435i.xml
     model_name: d435i
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 rethink_robotics_sawyer:
   _metadata:
@@ -728,12 +728,12 @@ rethink_robotics_sawyer:
   xml_files:
   - asset: rethink_robotics_sawyer
     description: 'Model variant: sawyer'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: sawyer.xml
     model_name: sawyer
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 robot_soccer_kit:
   _metadata:
@@ -745,12 +745,12 @@ robot_soccer_kit:
   xml_files:
   - asset: robot_soccer_kit
     description: 'Model variant: robot_soccer_kit'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: robot_soccer_kit.xml
     model_name: robot_soccer_kit
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 robotiq_2f85:
   _metadata:
@@ -762,12 +762,12 @@ robotiq_2f85:
   xml_files:
   - asset: robotiq_2f85
     description: 'Model variant: 2f85'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: 2f85.xml
     model_name: 2f85
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 robotiq_2f85_v4:
   _metadata:
@@ -792,7 +792,7 @@ robotiq_2f85_v4:
     evaluator: ''
     filename: mjx_2f85.xml
     model_name: mjx_2f85
-    notes: ''
+    notes: 'This converted model has extra collision geoms that interfere and do not allow the gripper to completely close in MuJoCo Simulate'
     verified: Unknown
     verified_in_newton: Unknown
 robotis_op3:
@@ -805,12 +805,12 @@ robotis_op3:
   xml_files:
   - asset: robotis_op3
     description: 'Model variant: op3'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: op3.xml
     model_name: op3
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 shadow_dexee:
   _metadata:
@@ -826,7 +826,7 @@ shadow_dexee:
     evaluator: ''
     filename: shadow_dexee.xml
     model_name: shadow_dexee
-    notes: ''
+    notes: 'The mujoco model itself will not load in MuJoCo Simulate: plugin mujoco.pid not found'
     verified: Unknown
     verified_in_newton: Unknown
 shadow_hand:
@@ -839,21 +839,21 @@ shadow_hand:
   xml_files:
   - asset: shadow_hand
     description: 'Model variant: right_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: shadow_hand
     description: 'Model variant: left_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 skydio_x2:
   _metadata:
@@ -865,12 +865,12 @@ skydio_x2:
   xml_files:
   - asset: skydio_x2
     description: 'Model variant: x2'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: x2.xml
     model_name: x2
-    notes: ''
-    verified: Unknown
+    notes: 'Collision on the rotor bodies not correct, possibly due to the ellipsoid geoms'
+    verified: 'Yes'
     verified_in_newton: Unknown
 stanford_tidybot:
   _metadata:
@@ -882,21 +882,21 @@ stanford_tidybot:
   xml_files:
   - asset: stanford_tidybot
     description: 'Model variant: tidybot'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tidybot.xml
     model_name: tidybot
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: stanford_tidybot
     description: 'Model variant: base'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: base.xml
     model_name: base
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 trossen_vx300s:
   _metadata:
@@ -908,12 +908,12 @@ trossen_vx300s:
   xml_files:
   - asset: trossen_vx300s
     description: 'Model variant: vx300s'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: vx300s.xml
     model_name: vx300s
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 trossen_wx250s:
   _metadata:
@@ -925,12 +925,12 @@ trossen_wx250s:
   xml_files:
   - asset: trossen_wx250s
     description: 'Model variant: wx250s'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: wx250s.xml
     model_name: wx250s
-    notes: ''
-    verified: Unknown
+    notes: 'The original model gripper does not work properly, the USD converted model behaves the same'
+    verified: 'Yes'
     verified_in_newton: Unknown
 trs_so_arm100:
   _metadata:
@@ -942,12 +942,12 @@ trs_so_arm100:
   xml_files:
   - asset: trs_so_arm100
     description: 'Model variant: so_arm100'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: so_arm100.xml
     model_name: so_arm100
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 ufactory_lite6:
   _metadata:
@@ -959,30 +959,30 @@ ufactory_lite6:
   xml_files:
   - asset: ufactory_lite6
     description: 'Model variant: lite6_gripper_wide'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: lite6_gripper_wide.xml
     model_name: lite6_gripper_wide
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: lite6.xml
     model_name: lite6
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: ufactory_lite6
     description: 'Model variant: lite6_gripper_narrow'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: lite6_gripper_narrow.xml
     model_name: lite6_gripper_narrow
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 ufactory_xarm7:
   _metadata:
@@ -994,30 +994,30 @@ ufactory_xarm7:
   xml_files:
   - asset: ufactory_xarm7
     description: 'Model variant: hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: hand.xml
     model_name: hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7_nohand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: xarm7_nohand.xml
     model_name: xarm7_nohand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: ufactory_xarm7
     description: 'Model variant: xarm7'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: xarm7.xml
     model_name: xarm7
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 umi_gripper:
   _metadata:
@@ -1029,12 +1029,12 @@ umi_gripper:
   xml_files:
   - asset: umi_gripper
     description: 'Model variant: umi_gripper'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: umi_gripper.xml
     model_name: umi_gripper
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_a1:
   _metadata:
@@ -1046,12 +1046,12 @@ unitree_a1:
   xml_files:
   - asset: unitree_a1
     description: 'Model variant: a1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: a1.xml
     model_name: a1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_g1:
   _metadata:
@@ -1063,12 +1063,12 @@ unitree_g1:
   xml_files:
   - asset: unitree_g1
     description: 'Model variant: g1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: g1.xml
     model_name: g1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_mjx'
@@ -1076,17 +1076,17 @@ unitree_g1:
     evaluator: ''
     filename: g1_mjx.xml
     model_name: g1_mjx
-    notes: ''
+    notes: 'Some of the collision volumes are visible in green in MuJoCo Simulate'
     verified: Unknown
     verified_in_newton: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_with_hands'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: g1_with_hands.xml
     model_name: g1_with_hands
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_go1:
   _metadata:
@@ -1098,12 +1098,12 @@ unitree_go1:
   xml_files:
   - asset: unitree_go1
     description: 'Model variant: go1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: go1.xml
     model_name: go1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_go2:
   _metadata:
@@ -1115,21 +1115,21 @@ unitree_go2:
   xml_files:
   - asset: unitree_go2
     description: 'Model variant: go2_mjx'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: go2_mjx.xml
     model_name: go2_mjx
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: unitree_go2
     description: 'Model variant: go2'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: go2.xml
     model_name: go2
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_h1:
   _metadata:
@@ -1141,12 +1141,12 @@ unitree_h1:
   xml_files:
   - asset: unitree_h1
     description: 'Model variant: h1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: h1.xml
     model_name: h1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 unitree_z1:
   _metadata:
@@ -1158,21 +1158,21 @@ unitree_z1:
   xml_files:
   - asset: unitree_z1
     description: 'Model variant: z1'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: z1.xml
     model_name: z1
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: unitree_z1
     description: 'Model variant: z1_gripper'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: z1_gripper.xml
     model_name: z1_gripper
-    notes: ''
-    verified: Unknown
+    notes: 'Note that the original model gripper shakes in MuJoCo Simulate, the USD model behaves the same'
+    verified: 'Yes'
     verified_in_newton: Unknown
 universal_robots_ur10e:
   _metadata:
@@ -1184,12 +1184,12 @@ universal_robots_ur10e:
   xml_files:
   - asset: universal_robots_ur10e
     description: 'Model variant: ur10e'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: ur10e.xml
     model_name: ur10e
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 universal_robots_ur5e:
   _metadata:
@@ -1201,12 +1201,12 @@ universal_robots_ur5e:
   xml_files:
   - asset: universal_robots_ur5e
     description: 'Model variant: ur5e'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: ur5e.xml
     model_name: ur5e
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 wonik_allegro:
   _metadata:
@@ -1218,19 +1218,19 @@ wonik_allegro:
   xml_files:
   - asset: wonik_allegro
     description: 'Model variant: right_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: right_hand.xml
     model_name: right_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: wonik_allegro
     description: 'Model variant: left_hand'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: left_hand.xml
     model_name: left_hand
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
