@@ -108,12 +108,12 @@ anybotics_anymal_c:
     verified_in_newton: Unknown
   - asset: anybotics_anymal_c
     description: 'Model variant: anymal_c_mjx'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: anymal_c_mjx.xml
     model_name: anymal_c_mjx
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
 apptronik_apollo:
   _metadata:
@@ -253,12 +253,12 @@ flybody:
   xml_files:
   - asset: flybody
     description: 'Model variant: fruitfly'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: fruitfly.xml
     model_name: fruitfly
-    notes: ''
-    verified: Unknown
+    notes: 'Many of the actuators in the USD model are not working properly in MuJoCo Simulate'
+    verified: 'No'
     verified_in_newton: Unknown
 fourier_n1:
   _metadata:
@@ -571,12 +571,12 @@ pal_talos:
   xml_files:
   - asset: pal_talos
     description: 'Model variant: talos'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: talos.xml
     model_name: talos
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_talos
     description: 'Model variant: talos_motor'
@@ -615,12 +615,12 @@ pal_tiago:
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago.xml
     model_name: tiago
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago
     description: 'Model variant: tiago_velocity'
@@ -659,12 +659,12 @@ pal_tiago_dual:
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: tiago_dual.xml
     model_name: tiago_dual
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: pal_tiago_dual
     description: 'Model variant: tiago_dual_motor'
@@ -698,7 +698,7 @@ pndbotics_adam_lite:
     evaluator: ''
     filename: adam_lite.xml
     model_name: adam_lite
-    notes: 'We do not apply the schema with inertia to visual geoms, so this model does not open in MuJoCo Simulate'
+    notes: 'We do not apply the schema with inertia to visual geoms, thus the model does not open in MuJoCo Simulate'
     verified: Unknown
     verified_in_newton: Unknown
 realsense_d435i:
@@ -779,12 +779,12 @@ robotiq_2f85_v4:
   xml_files:
   - asset: robotiq_2f85_v4
     description: 'Model variant: 2f85'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: 2f85.xml
     model_name: 2f85
     notes: ''
-    verified: Unknown
+    verified: 'Yes'
     verified_in_newton: Unknown
   - asset: robotiq_2f85_v4
     description: 'Model variant: mjx_2f85'
