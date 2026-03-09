@@ -309,7 +309,7 @@ franka_emika_panda:
     evaluator: 'LouRohanNV'
     filename: mjx_panda.xml
     model_name: mjx_panda
-    notes: 'There are strange shapes in MuJoCo, but it behaves correctly'
+    notes: 'The group 3 collision shapes are visible in MuJoCo Simulate, but it behaves correctly'
     verified: 'Yes'
     verified_in_newton: Unknown
   - asset: franka_emika_panda
@@ -792,8 +792,8 @@ robotiq_2f85_v4:
     evaluator: ''
     filename: mjx_2f85.xml
     model_name: mjx_2f85
-    notes: 'This converted model has collision geoms that interfere and do not allow the gripper to completely close in MuJoCo Simulate, collision is somehow disabled for the MJCF model between the left and right follower bodies and the base, possibly due to different conaffinity values'
-    verified: Unknown
+    notes: 'The left and right follower bodies collide with the base due to unsupported collision filtering via the `contype` & `conaffinity` in the MJCF model'
+    verified: 'No'
     verified_in_newton: Unknown
 robotis_op3:
   _metadata:
