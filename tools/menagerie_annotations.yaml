@@ -413,8 +413,8 @@ google_robot:
     evaluator: 'LouRohanNV'
     filename: robot.xml
     model_name: robot
-    notes: 'It behaves similarly in MuJoCo Simulate, but the joints are not exactly the same'
-    verified: 'Yes'
+    notes: 'The shoulder actuator from the USD model is weaker in MuJoCo Simulate, possibly due to how the position-based actuators decoded to general actuators'
+    verified: 'No'
     verified_in_newton: Unknown
 hello_robot_stretch:
   _metadata:
@@ -792,7 +792,7 @@ robotiq_2f85_v4:
     evaluator: ''
     filename: mjx_2f85.xml
     model_name: mjx_2f85
-    notes: 'This converted model has extra collision geoms that interfere and do not allow the gripper to completely close in MuJoCo Simulate'
+    notes: 'This converted model has collision geoms that interfere and do not allow the gripper to completely close in MuJoCo Simulate, collision is somehow disabled for the MJCF model between the left and right follower bodies and the base, possibly due to different conaffinity values'
     verified: Unknown
     verified_in_newton: Unknown
 robotis_op3:
@@ -1072,8 +1072,8 @@ unitree_g1:
     verified_in_newton: Unknown
   - asset: unitree_g1
     description: 'Model variant: g1_mjx'
-    evaluation_date: ''
-    evaluator: ''
+    evaluation_date: '2026/03/06'
+    evaluator: 'LouRohanNV'
     filename: g1_mjx.xml
     model_name: g1_mjx
     notes: 'Some of the collision volumes are visible in green in MuJoCo Simulate'
