@@ -1,4 +1,4 @@
-# 0.1.0a8
+# 0.1.0
 
 ## Fixes
 
@@ -20,6 +20,7 @@
 ## Dependencies
 
 - Updated to `usd-exchange==2.2.2`
+- Updated to `newton-usd-schemas>=0.1.0`
 
 # 0.1.0a7
 
@@ -249,3 +250,5 @@
   - Support for nested bodies in UsdPhysics is fairly new (as of USD 25.11), and some existing applications may not support this style of nesting.
 - Certain typed prims (e.g. `MjcActuator`) and applied APIs (e.g. `MjcJointAPI`) are MuJoCo specific
   - These likely will not import into other applications, unless special care is taken to account for the `MjcPhysics` schemas
+- Multiple joints targeting the same two bodies are converted to USD, but this can cause an over-constrained system for maximal coordinate simulators.
+  - For example, 2 hinge joints operating in different axes may be interpreted as a 0 DOF system (rather than the 2 DOF system that was intended).
