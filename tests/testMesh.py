@@ -87,9 +87,6 @@ class TestMesh(ConverterTestCase):
         stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        # @TODO: DO NOT COMMIT
-        stage.Export("/tmp/attach_scene.usda")
-
         # Test mesh conversion
         mesh_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/mount/robot_base/robot_child/robot_box")
         self.assertTrue(mesh_prim)
