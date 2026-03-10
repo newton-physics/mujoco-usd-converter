@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -51,7 +51,7 @@ def convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
         # FUTURE: support inline meshes
         raise Tf.RaiseRuntimeError(f"Mesh {mesh.name} has no file")
 
-    mesh_file = pathlib.Path(data.spec.modelfiledir) / pathlib.Path(data.spec.meshdir) / pathlib.Path(mesh.file)
+    mesh_file = pathlib.Path(data.spec.modelfiledir) / pathlib.Path(mesh.compiler.meshdir) / pathlib.Path(mesh.file)
     if not mesh_file.exists():
         raise Tf.RaiseRuntimeError(f"Mesh {mesh.name} file {mesh_file} does not exist")
 
