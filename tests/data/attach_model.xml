@@ -1,0 +1,19 @@
+<mujoco model="attach_model">
+    <compiler meshdir="assets" texturedir="assets"/>
+
+    <asset>
+        <texture name="grid_texture" type="2d" file="grid.png"/>
+        <material name="textured_material" texture="grid_texture"/>
+        <mesh name="box" file="box.obj"/>
+    </asset>
+
+    <worldbody>
+        <body name="base">
+            <geom type="mesh" mesh="box" material="textured_material"/>
+            <body name="child" pos="0 0 0.5">
+                <joint type="hinge" axis="0 1 0"/>
+                <geom type="mesh" mesh="box" material="textured_material"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

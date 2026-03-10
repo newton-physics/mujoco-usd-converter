@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 
 import pathlib
 
-from pxr import Sdf, Usd, UsdGeom
+from pxr import Sdf, Usd, UsdGeom, UsdShade
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -79,3 +79,31 @@ class TestMesh(ConverterTestCase):
         self.assertTrue(uvs_primvar.IsDefined())
         self.assertEqual(len(uvs_primvar.GetAttr().Get()), 4)
         self.assertEqual(len(uvs_primvar.GetIndicesAttr().Get()), 24)
+
+    def test_attach_mesh_conversion(self):
+        model_path = pathlib.Path("./tests/data/attach_scene.xml")
+        model_name = model_path.stem
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.tmpDir())
+        stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # @TODO: DO NOT COMMIT
+        stage.Export("/tmp/attach_scene.usda")
+
+        # Test mesh conversion
+        mesh_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/mount/robot_base/robot_child/robot_box")
+        self.assertTrue(mesh_prim)
+
+        # Check for the textured material binding
+        material_binding = UsdShade.MaterialBindingAPI(mesh_prim)
+        self.assertTrue(material_binding)
+        self.assertTrue(material_binding.GetDirectBindingRel())
+        self.assertEqual(len(material_binding.GetDirectBindingRel().GetTargets()), 1)
+        bound_material = material_binding.GetDirectBindingRel().GetTargets()[0]
+        material = UsdShade.Material(stage.GetPrimAtPath(bound_material))
+        self.assertTrue(material)
+        self.assertEqual(material.GetPrim().GetName(), "robot_textured_material")
+
+        # Test for the plane (from the scene)
+        plane_prim: Usd.Prim = stage.GetPrimAtPath(f"/{model_name}/Geometry/Plane")
+        self.assertTrue(plane_prim)
