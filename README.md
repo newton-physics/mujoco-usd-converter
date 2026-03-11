@@ -4,7 +4,9 @@
 
 A [MuJoCo](https://mujoco.org) to [OpenUSD](https://openusd.org) Data Converter
 
-> Important: This is currently an Alpha product. See the [CHANGELOG](./CHANGELOG.md) for features and known limitations.
+![Mujoco Menagerie as USD](./docs/mujoco_menagerie_as_usd.png)
+
+> Important: This is currently an Alpha product. See the [CHANGELOG](./CHANGELOG.md) for features and [known limitations](./CHANGELOG.md#known-limitations).
 
 Key Features:
 - Converts an input MJCF file into an OpenUSD Layer
