@@ -1,0 +1,13 @@
+<mujoco model="attach_scene">
+    <asset>
+        <model name="robot" file="attach_model.xml"/>
+    </asset>
+
+    <worldbody>
+        <geom type="plane" size="5 5 0.1"/>
+        <body name="mount" pos="0 0 1">
+            <joint name="load" type="slide" axis="0 0 -1"/>
+            <attach model="robot" body="base" prefix="robot_"/>
+        </body>
+    </worldbody>
+</mujoco>

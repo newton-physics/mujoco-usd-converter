@@ -102,7 +102,7 @@ def convert_2d_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.
         Tf.Warn(f"Unsupported content type {texture.content_type} for texture '{texture.name}'")
         return Sdf.AssetPath()
 
-    texture_path = pathlib.Path(data.spec.modelfiledir) / pathlib.Path(data.spec.texturedir) / pathlib.Path(texture.file)
+    texture_path = pathlib.Path(data.spec.modelfiledir) / pathlib.Path(texture.compiler.texturedir) / pathlib.Path(texture.file)
     if not texture_path.exists():
         raise Tf.RaiseRuntimeError(f"Texture {texture.name} file {texture_path} does not exist")
 
