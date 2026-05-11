@@ -19,13 +19,13 @@ class TestPhysicsMaterials(ConverterTestCase):
         prim1 = stage.GetPrimAtPath("/physics_materials/Geometry/custom_friction_1")
         prim2 = stage.GetPrimAtPath("/physics_materials/Geometry/custom_friction_2")
         prim3 = stage.GetPrimAtPath("/physics_materials/Geometry/different_friction")
-        prim4 = stage.GetPrimAtPath("/physics_materials/Geometry/default_friction")
+        default_friction_prim = stage.GetPrimAtPath("/physics_materials/Geometry/default_friction")
 
         # Get material bindings
         binding_api_1 = UsdShade.MaterialBindingAPI(prim1)
         binding_api_2 = UsdShade.MaterialBindingAPI(prim2)
         binding_api_3 = UsdShade.MaterialBindingAPI(prim3)
-        binding_api_4 = UsdShade.MaterialBindingAPI(prim4)
+        binding_api_4 = UsdShade.MaterialBindingAPI(default_friction_prim)
 
         # Check Physics Bindings
         phys_binding_1 = binding_api_1.GetDirectBinding(materialPurpose="physics")
@@ -64,6 +64,26 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:rollingFriction").Get(), 0.05)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:torsionalfriction").Get(), 0.1)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:rollingfriction").Get(), 0.05)
+
+        # Assert the default values for the physics material schema on the default_friction geom
+        default_friction_material_prim = stage.GetPrimAtPath(phys_binding_4.GetMaterialPath())
+        self.assertTrue(default_friction_material_prim.IsValid())
+        self.assertTrue(default_friction_material_prim.HasAPI("NewtonMaterialAPI"))
+        # Because NewtonMaterialAPI schema uses floats, the defaults are slightly different from the MuJoCo runtime defaults, so they will be authored
+        self.assertTrue(default_friction_material_prim.GetAttribute("newton:torsionalFriction").HasAuthoredValue())
+        self.assertTrue(default_friction_material_prim.GetAttribute("newton:rollingFriction").HasAuthoredValue())
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("newton:torsionalFriction").Get(), 0.005)
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("newton:rollingFriction").Get(), 0.0001)
+
+        self.assertTrue(default_friction_material_prim.HasAPI("MjcMaterialAPI"))
+        self.assertFalse(default_friction_material_prim.GetAttribute("mjc:torsionalfriction").HasAuthoredValue())
+        self.assertFalse(default_friction_material_prim.GetAttribute("mjc:rollingfriction").HasAuthoredValue())
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("mjc:torsionalfriction").Get(), 0.005)
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("mjc:rollingfriction").Get(), 0.0001)
+
+        self.assertTrue(default_friction_material_prim.HasAPI("PhysicsMaterialAPI"))
+        self.assertFalse(default_friction_material_prim.GetAttribute("dynamicFriction").HasAuthoredValue())
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("physics:dynamicFriction").Get(), 1.0)
 
         # Assert there are the correct number of materials in the dedicated scope
         physics_scope = stage.GetPrimAtPath("/physics_materials/Physics")

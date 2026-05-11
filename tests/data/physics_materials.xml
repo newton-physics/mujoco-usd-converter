@@ -14,6 +14,6 @@
         <geom name="different_friction" type="capsule" size="0.1 0.2" pos="2 0 0" friction="0.5 0.2 0.1" material="visual_mat_2"/>
 
         <!-- Case 4: Geom with default friction and no visual material. -->
-        <geom name="default_friction" type="sphere" size="0.1" pos="3 0 0" friction="1 0.005 0.0001" />
+        <geom name="default_friction" type="sphere" size="0.1" pos="3 0 0"/>
     </worldbody>
 </mujoco>
