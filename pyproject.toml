@@ -64,16 +64,16 @@ help = "Show coverage report in terminal"
 cmd = "coverage report -m"
 
 [tool.poe.tasks.benchmark]
-help = "Run MuJoCo Menagerie benchmark"
-cmd = "python tools/benchmark_menagerie.py"
+help = "Run MuJoCo benchmark"
+cmd = "python tools/benchmark_and_report.py"
 
 [tool.poe.tasks.benchmark-publish]
-help = "Run MuJoCo Menagerie benchmark and output the markdown report so it overwrites the committed report"
-cmd = "python tools/benchmark_menagerie.py --report-format md --report-output-dir ."
+help = "Run MuJoCo benchmark and output the markdown report so it overwrites the committed report"
+cmd = "python tools/benchmark_and_report.py --report-format md --report-output-dir ."
 
 [tool.poe.tasks.benchmark-csv]
-help = "Run MuJoCo Menagerie benchmark and generate CSV report only"
-cmd = "python tools/benchmark_menagerie.py --report-format csv"
+help = "Run MuJoCo benchmark and generate CSV report only"
+cmd = "python tools/benchmark_and_report.py --report-format csv"
 
 [tool.poe.tasks.annotations]
 help = "Show annotation summary"
@@ -84,7 +84,7 @@ help = "Validate annotation file"
 cmd = "python tools/manage_annotations.py --validate"
 
 [tool.poe.tasks.annotations-update]
-help = "Update annotation file with new assets from Menagerie"
+help = "Update annotation file with new assets"
 cmd = "python tools/manage_annotations.py --update"
 
 [tool.poe.tasks.lint]
