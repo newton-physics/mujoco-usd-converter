@@ -24,7 +24,7 @@ jobs:
         uses: ./.github/actions/bootstrap
 
       - name: Run benchmarks for all repositories
-        run:
+        run: |
           # Define repositories as arrays
           declare -a urls=(
             "https://github.com/google-deepmind/mujoco_menagerie"
