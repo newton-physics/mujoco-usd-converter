@@ -665,7 +665,7 @@ class MJCFBenchmarks:
 
 ### Verified Status
 Each model variant can be individually annotated with "Yes", "No", or "Unknown" based on manual
-inspection of the converted USD files. Update the annotations in the `tools/&lt;repository name&gt;_annotations.yaml`
+inspection of the converted USD files. Update the annotations in the `tools/<repository name>_annotations.yaml`
 file under each variant's `verified` field.
 
 **Consider these factors:**
@@ -677,7 +677,7 @@ file under each variant's `verified` field.
 
 ### Verified In Newton Status
 The results of verifying the converted USD file in the Newton runtime will be annotated as "Yes", "No", or "Unknown".
-Update the annotations in the `tools/&lt;repository name&gt;_annotations.yaml` file under each variant's `verified_in_newton` field.
+Update the annotations in the `tools/<repository name>_annotations.yaml` file under each variant's `verified_in_newton` field.
 
 **Please follow the steps below to verify:**
 - Convert MJCF to USD
