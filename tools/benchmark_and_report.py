@@ -495,7 +495,7 @@ class MJCFBenchmarks:
         <p><strong>Verified:</strong> Each model variant can be individually annotated with "Yes", "No", or "Unknown"
         based on manual inspection of the converted USD files.<br/>
         Update the annotations in the
-        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified</code> field.<br/>
+        <code>tools/&lt;repository name&gt;_annotations.yaml</code> file under each variant's <code>verified</code> field.<br/>
         Consider factors like:</p>
         <ul>
             <li>Visual correctness when loaded in USD viewer</li>
@@ -507,7 +507,7 @@ class MJCFBenchmarks:
         <p><strong>Verified In Newton:</strong> The results of verifying the converted USD file in the Newton runtime
         will be annotated as "Yes", "No", or "Unknown".<br/>
         Update the annotations in the
-        <code>tools/menagerie_annotations.yaml</code> file under each variant's <code>verified_in_newton</code> field.<br/>
+        <code>tools/&lt;repository name&gt;_annotations.yaml</code> file under each variant's <code>verified_in_newton</code> field.<br/>
         Please follow the steps below to verify:</p>
         <ul>
             <li>Convert MJCF to USD</li>
@@ -665,7 +665,7 @@ class MJCFBenchmarks:
 
 ### Verified Status
 Each model variant can be individually annotated with "Yes", "No", or "Unknown" based on manual
-inspection of the converted USD files. Update the annotations in the `tools/menagerie_annotations.yaml`
+inspection of the converted USD files. Update the annotations in the `tools/&lt;repository name&gt;_annotations.yaml`
 file under each variant's `verified` field.
 
 **Consider these factors:**
@@ -677,7 +677,7 @@ file under each variant's `verified` field.
 
 ### Verified In Newton Status
 The results of verifying the converted USD file in the Newton runtime will be annotated as "Yes", "No", or "Unknown".
-Update the annotations in the `tools/menagerie_annotations.yaml` file under each variant's `verified_in_newton` field.
+Update the annotations in the `tools/&lt;repository name&gt;_annotations.yaml` file under each variant's `verified_in_newton` field.
 
 **Please follow the steps below to verify:**
 - Convert MJCF to USD
