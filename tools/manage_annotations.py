@@ -215,6 +215,23 @@ class AnnotationManager:
 
         return issues
 
+    def _generate_template_for_model(self, asset_name: str, file_path: Path) -> dict:
+        """
+        Generate a template annotation for a model.
+        """
+        _dict: dict = {
+            "asset": asset_name,
+            "description": f"Model variant: {file_path.stem}",
+            "evaluation_date": "",
+            "evaluator": "",
+            "filename": file_path.name,
+            "model_name": file_path.stem,
+            "notes": "",
+            "verified": "Unknown",
+            "verified_in_newton": "Unknown",
+        }
+        return _dict
+
     def _generate_template_for_asset(self, asset_name: str, file_paths: list[Path]) -> dict:
         """
         Generate a template annotation for a new asset.
@@ -232,53 +249,79 @@ class AnnotationManager:
         for file_path in file_paths:
             if file_path.name == "scene.xml":
                 continue
-            _dict["xml_files"].append(
-                {
-                    "asset": asset_name,
-                    "description": f"Model variant: {file_path.stem}",
-                    "evaluation_date": "",
-                    "evaluator": "",
-                    "filename": file_path.name,
-                    "model_name": file_path.stem,
-                    "notes": "",
-                    "verified": "Unknown",
-                    "verified_in_newton": "Unknown",
-                }
-            )
+            _dict["xml_files"].append(self._generate_template_for_model(asset_name, file_path))
 
         return _dict
 
-    def update_annotation_file(self, new_assets: set[str], discovered_files: dict[str, list[Path]], dry_run: bool = False):
+    def _update_asset_meta_data(self, asset_name: str, discovered_files: dict[str, list[Path]]) -> bool:
+        """
+        Update the metadata for an asset.
+
+        Args:
+            asset_name: The name of the asset.
+            discovered_files: The dictionary of discovered file paths.
+
+        Returns:
+            True if the metadata was updated, False otherwise.
+        """
+        _metadata = self.annotations[asset_name].get("_metadata", {})
+        _xml_files = self.annotations[asset_name].get("xml_files", [])
+        _pre_total_xml_files = _metadata.get("total_xml_files", 0)
+        _pre_has_scene_xml = _metadata.get("has_scene_xml", False)
+
+        _metadata["has_scene_xml"] = any(file_path.name == "scene.xml" for file_path in discovered_files[asset_name])
+        _metadata["total_xml_files"] = len(_xml_files)
+        self.annotations[asset_name]["_metadata"] = _metadata
+
+        return _pre_total_xml_files != _metadata["total_xml_files"] or _pre_has_scene_xml != _metadata["has_scene_xml"]
+
+    def update_annotations(self, discovered_files: dict[str, list[Path]], dry_run: bool = False) -> list[str]:
         """
         Update the annotation file with new assets.
 
         Args:
-            new_assets: The set of new asset names.
             discovered_files: The dictionary of discovered file paths.
             dry_run: Whether to run in dry run mode.
+
+        Returns:
+            A list of messages about the updates.
         """
-        if not new_assets:
-            logger.info("No new assets to add")
-            return
+        messages = []
+        for asset_name, file_paths in discovered_files.items():
+            # Add templates for new assets
+            if asset_name not in self.annotations:
+                self.annotations[asset_name] = self._generate_template_for_asset(asset_name, discovered_files[asset_name])
+                messages.append(f"Added template for new asset: {asset_name}")
+                continue
 
-        logger.info("Adding templates for %d new assets: %s", len(new_assets), ", ".join(sorted(new_assets)))
-
-        # Add templates for new assets
-        for asset_name in new_assets:
-            self.annotations[asset_name] = self._generate_template_for_asset(asset_name, discovered_files[asset_name])
+            _xml_files = self.annotations[asset_name].get("xml_files", [])
+            _updated_count = 0
+            for file_path in file_paths:
+                if file_path.name == "scene.xml":
+                    continue
+                # Append to _xml_files if no entry has "filename" equal to file_path.name
+                if not any(xml_file["filename"] == file_path.name for xml_file in _xml_files):
+                    _xml_files.append(self._generate_template_for_model(asset_name, file_path))
+                    messages.append(f"Added template for new model: {asset_name}: {file_path.name}")
+                    _updated_count += 1
+            if _updated_count > 0 and self._update_asset_meta_data(asset_name, discovered_files):
+                messages.append(f"Updated metadata for asset: {asset_name}")
 
         if dry_run:
             logger.info("Dry run: would update annotation file")
-            return
+            return messages
 
         # Write updated annotations
-        try:
-            with Path.open(self.annotation_file, "w", encoding="utf-8") as f:
-                f.write(self._get_annotation_header())
-                yaml.dump(self.annotations, f, default_flow_style=False, sort_keys=True, allow_unicode=True, width=100)
-            logger.info("Updated annotation file: %s", self.annotation_file)
-        except Exception as e:
-            logger.error("Failed to update annotation file: %s", e)
+        if len(messages) > 0:
+            try:
+                with Path.open(self.annotation_file, "w", encoding="utf-8") as f:
+                    f.write(self._get_annotation_header())
+                    yaml.dump(self.annotations, f, default_flow_style=False, sort_keys=True, allow_unicode=True, width=100)
+                logger.info("Updated annotation file: %s", self.annotation_file)
+            except Exception as e:
+                logger.error("Failed to update annotation file: %s", e)
+
+        return messages
 
     def cleanup(self):
         """Clean up temporary resources."""
@@ -321,7 +364,8 @@ class AnnotationManager:
                         date = xml_file["evaluation_date"]
                         evaluator = xml_file.get("evaluator", "Unknown")
                         success = xml_file.get("verified", "Unknown")
-                        print(f"  {asset_name}: {success} ({date}, {evaluator})")
+                        model_name = xml_file.get("model_name", "")
+                        print(f"  {asset_name}: {model_name}: {success} ({date}, {evaluator})")
 
 
 def main():
@@ -363,15 +407,16 @@ def main():
 
     # Update annotations if requested
     if args.update:
+        # Discover MJCF asset files from the repository.
         discovered_files = manager._discover_mjcf_asset_files()
-        discovered_assets = discovered_files.keys()
-        existing_assets = set(manager.annotations.keys())
-        new_assets = discovered_assets - existing_assets
 
-        if new_assets:
-            manager.update_annotation_file(new_assets, discovered_files, dry_run=args.dry_run)
+        # Update annotations.
+        messages = manager.update_annotations(discovered_files, dry_run=args.dry_run)
+        if len(messages) > 0:
+            for message in messages:
+                logger.info("  %s", message)
         else:
-            logger.info("No new assets found")
+            logger.info("No new assets/models found")
 
     # Print summary
     manager.print_summary()
