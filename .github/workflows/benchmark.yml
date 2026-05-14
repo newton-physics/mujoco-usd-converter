@@ -25,26 +25,9 @@ jobs:
 
       - name: Run benchmarks for all repositories
         run: |
-          # Define repositories as arrays
-          declare -a urls=(
-            "https://github.com/google-deepmind/mujoco_menagerie"
-            "https://github.com/google-deepmind/mujoco"
-          )
-
-          # Build arguments array with --mjcf-repository-path for each URL
-          args=()
-          for url in "${urls[@]}"; do
-            args+=(--mjcf-repository-path "$url")
-          done
-
           # Run benchmarks for all repositories in a single command
-          echo "============================================"
           echo "Running benchmarks for all repositories:"
-          for url in "${urls[@]}"; do
-            echo "  - $url"
-          done
-          echo "============================================"
-          uv run --group dev poe benchmark "${args[@]}"
+          uv run --group dev poe benchmark --all
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2

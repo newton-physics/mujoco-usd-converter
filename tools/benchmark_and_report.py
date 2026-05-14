@@ -962,8 +962,8 @@ class MJCFBenchmark:
         # Run conversion via subprocess to capture diagnostics properly
         stdout, stderr, return_code = self.diagnostics.capture_subprocess_output(
             [
-                "uv",
-                "run",
+                sys.executable,
+                "-m",
                 "mujoco_usd_converter",
                 str(mjcf_file_path),
                 str(model_output_dir),
@@ -1100,9 +1100,12 @@ def main():
     parser.add_argument(
         "--mjcf-repository-path",
         type=str,
-        required=True,
+        required=False,
+        default=None,
         action="append",
-        help="URL or local path of the repository containing the URDF.",
+        metavar="PATH",
+        help="URL or local path of the repository containing MJCF assets. "
+        "May be repeated. Required unless --all is specified (then built-in Menagerie + MuJoCo URLs are used).",
     )
 
     parser.add_argument("--conversion-output-dir", type=str, default="benchmarks/usd", help="Directory to store converted USD assets")
@@ -1110,16 +1113,27 @@ def main():
     parser.add_argument("--report-format", choices=["csv", "html", "md", "all"], default="all", help="Format for the benchmark report")
 
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
+    parser.add_argument("--all", action="store_true", help="Run all benchmarks")
 
     args = parser.parse_args()
 
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    if args.all:
+        _mjcf_repository_path = [
+            "https://github.com/google-deepmind/mujoco_menagerie",
+            "https://github.com/google-deepmind/mujoco",
+        ]
+    elif args.mjcf_repository_path:
+        _mjcf_repository_path = args.mjcf_repository_path
+    else:
+        parser.error("--mjcf-repository-path is required unless --all is specified")
+
     # Create benchmark instance
     # mjcf_repository_path contains a list of multiple paths.
     benchmarks = MJCFBenchmarks(
-        mjcf_repository_path_list=args.mjcf_repository_path,
+        mjcf_repository_path_list=_mjcf_repository_path,
         report_output_dir=args.report_output_dir,
         conversion_output_dir=args.conversion_output_dir,
     )
