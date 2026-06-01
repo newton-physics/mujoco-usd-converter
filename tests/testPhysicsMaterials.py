@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
+import math
+
 from pxr import Sdf, Usd, UsdPhysics, UsdShade
 
 import mujoco_usd_converter
@@ -99,16 +101,36 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertFalse(default_friction_material_prim.GetAttribute("dynamicFriction").HasAuthoredValue())
         self.assertAlmostEqual(default_friction_material_prim.GetAttribute("physics:dynamicFriction").Get(), 1.0)
 
+        # Assert direct-mode solref (both negative) produces correct ke/kd
+        direct_prim = stage.GetPrimAtPath("/physics_materials/Geometry/direct_solref")
+        binding_api_direct = UsdShade.MaterialBindingAPI(direct_prim)
+        phys_binding_direct = binding_api_direct.GetDirectBinding(materialPurpose="physics")
+        direct_material_prim = stage.GetPrimAtPath(phys_binding_direct.GetMaterialPath())
+        self.assertTrue(direct_material_prim.IsValid())
+        self.assertAlmostEqual(direct_material_prim.GetAttribute("newton:contactStiffness").Get(), 500.0)
+        self.assertAlmostEqual(direct_material_prim.GetAttribute("newton:contactDamping").Get(), 50.0)
+        # Same friction as default_friction but different solref → separate material
+        self.assertNotEqual(phys_binding_direct.GetMaterialPath(), phys_binding_4.GetMaterialPath())
+
+        # Assert invalid solref (timeconst = 0) falls back to engine defaults (-inf)
+        invalid_prim = stage.GetPrimAtPath("/physics_materials/Geometry/invalid_solref")
+        binding_api_invalid = UsdShade.MaterialBindingAPI(invalid_prim)
+        phys_binding_invalid = binding_api_invalid.GetDirectBinding(materialPurpose="physics")
+        invalid_material_prim = stage.GetPrimAtPath(phys_binding_invalid.GetMaterialPath())
+        self.assertTrue(invalid_material_prim.IsValid())
+        self.assertTrue(math.isinf(invalid_material_prim.GetAttribute("newton:contactStiffness").Get()))
+        self.assertTrue(math.isinf(invalid_material_prim.GetAttribute("newton:contactDamping").Get()))
+
         # Assert there are the correct number of materials in the dedicated scope
         physics_scope = stage.GetPrimAtPath("/physics_materials/Physics")
-        self.assertEqual(len(physics_scope.GetChildren()), 3)
+        self.assertEqual(len(physics_scope.GetChildren()), 5)
 
         # Assert that the physics materials are in the physics layer & not mixed with the visual materials
         physics_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Physics.usda"
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         physics_materials_scope = physics_stage.GetPrimAtPath("/physics_materials/Physics")
-        self.assertEqual(len(physics_materials_scope.GetChildren()), 3)
+        self.assertEqual(len(physics_materials_scope.GetChildren()), 5)
 
         # Assert that the visual materials are in the materials layer & not mixed with the physics materials
         materials_layer_path = pathlib.Path(self.tmpDir()) / "Payload" / "Materials.usda"
