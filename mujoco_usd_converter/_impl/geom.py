@@ -411,7 +411,7 @@ def hash_physics_material(material: UsdPhysics.MaterialAPI) -> tuple[float, ...]
 
 
 def _material_hash_close(a: tuple[float, ...], b: tuple[float, ...], tol: float = 1e-6) -> bool:
-    return all(abs(x - y) < tol for x, y in zip(a, b))
+    return len(a) == len(b) and all(x == y or abs(x - y) < tol for x, y in zip(a, b))
 
 
 def get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:

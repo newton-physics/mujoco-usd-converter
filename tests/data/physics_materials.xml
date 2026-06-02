@@ -21,5 +21,8 @@
 
         <!-- Case 6: Geom with invalid solref (timeconst = 0 → uses engine defaults). -->
         <geom name="invalid_solref" type="box" size="0.1 0.1 0.1" pos="5 0 0" friction="0.3 0.01 0.001" solref="0 1"/>
+
+        <!-- Case 7: Matching invalid solref should reuse Case 6's physics material. -->
+        <geom name="invalid_solref_duplicate" type="box" size="0.1 0.1 0.1" pos="6 0 0" friction="0.3 0.01 0.001" solref="0 1"/>
     </worldbody>
 </mujoco>

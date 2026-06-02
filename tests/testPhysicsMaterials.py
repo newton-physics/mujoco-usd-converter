@@ -120,6 +120,12 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertTrue(math.isinf(invalid_material_prim.GetAttribute("newton:contactStiffness").Get()))
         self.assertTrue(math.isinf(invalid_material_prim.GetAttribute("newton:contactDamping").Get()))
 
+        # Matching invalid solref values should reuse the same physics material.
+        invalid_duplicate_prim = stage.GetPrimAtPath("/physics_materials/Geometry/invalid_solref_duplicate")
+        binding_api_invalid_duplicate = UsdShade.MaterialBindingAPI(invalid_duplicate_prim)
+        phys_binding_invalid_duplicate = binding_api_invalid_duplicate.GetDirectBinding(materialPurpose="physics")
+        self.assertEqual(phys_binding_invalid_duplicate.GetMaterialPath(), phys_binding_invalid.GetMaterialPath())
+
         # Assert there are the correct number of materials in the dedicated scope
         physics_scope = stage.GetPrimAtPath("/physics_materials/Physics")
         self.assertEqual(len(physics_scope.GetChildren()), 5)
