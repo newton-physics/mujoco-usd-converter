@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
-import pathlib
-
 import math
+import pathlib
 
 from pxr import Sdf, Usd, UsdPhysics, UsdShade
 
