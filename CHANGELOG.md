@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.0
 
 ## Features
 
@@ -6,6 +6,10 @@
 - Apply `NewtonMassAPI` with `newton:massModel = "shell"` on collision geoms with shell inertia
 - Author `newton:inertia` compact tensor on bodies with full inertia matrices
 - Author `newton:contactStiffness` and `newton:contactDamping` on physics materials (computed from MuJoCo solref)
+
+## Fixes
+
+- Fixed `mjc:flag:multiccd` authoring; it was changed to a disable bit flag in mujoco 3.8+
 
 ## Dependencies
 
