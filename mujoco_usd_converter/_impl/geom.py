@@ -325,6 +325,9 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     set_schema_attribute(geom_over, "mjc:priority", geom.priority)
     set_schema_attribute(geom_over, "mjc:solimp", list(geom.solimp))
     set_schema_attribute(geom_over, "mjc:solmix", geom.solmix)
+    # Always author mjc:solref since the conversion to ke/kd can be lossy
+    # solref compatible runtimes should prefer mjc:solref on the shape
+    # rather than falling through to material-level ke/kd.
     geom_over.GetAttribute("mjc:solref").Set(list(geom.solref))
 
     if geom.type == mujoco.mjtGeom.mjGEOM_MESH:
