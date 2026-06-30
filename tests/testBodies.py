@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -29,14 +29,19 @@ class TestBodies(ConverterTestCase):
         self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
 
-        # Kinematic Body is not an articulation root as there are no joints to its child bodies
+        # Kinematic Body is also an articulation root as there is an implicit fixed joint to the child body
         prim = self.stage.GetPrimAtPath("/bodies/Geometry/kinematic_body")
-        self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
 
         # Static Base is an articulation root as it has a descendant body with a non-free joint
         prim = self.stage.GetPrimAtPath("/bodies/Geometry/static_base")
         self.assertTrue(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+
+        # regular_dynamic is not an articulation as it has no child bodies
+        prim = self.stage.GetPrimAtPath("/bodies/Geometry/regular_dynamic")
+        self.assertFalse(prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
 
     def test_kinematic_body(self):
