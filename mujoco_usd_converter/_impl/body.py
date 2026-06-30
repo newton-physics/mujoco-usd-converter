@@ -102,7 +102,8 @@ def is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:
 
 
 def has_articulated_descendants(body: mujoco.MjsBody) -> bool:
-    # Check if this body has child bodies with non-free joints (recursively)
+    # Recursively check if this body has child bodies connected
+    # by non-free joints or implicit fixed joints
     for child_body in body.bodies:
         # a child body without joints indicates a fully-constrained relationship,
         # which we do consider an articulation, as the USD equivalent will have

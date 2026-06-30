@@ -290,8 +290,10 @@ class TestJoints(ConverterTestCase):
         )
         self.assertRotationsAlmostEqual(fixed_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
 
-        # A free floating body has no joint in USD
+        # A free floating body has no joint to world, but it is an articulation root
+        # because its child body is connected by an implicit fixed joint.
         body3_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3")
+        self.assertTrue(body3_prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         for child in body3_prim.GetChildren():
             self.assertFalse(child.IsA(UsdPhysics.Joint))
 
