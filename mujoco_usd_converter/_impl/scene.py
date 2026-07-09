@@ -93,7 +93,6 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:sdf_initpoints", data.spec.option.sdf_initpoints)
     set_schema_attribute(scene_prim, "mjc:option:sdf_iterations", data.spec.option.sdf_iterations)
     set_schema_attribute(scene_prim, "mjc:option:solver", get_solver_token(data.spec.option.solver))
-    set_schema_attribute(scene_prim, "mjc:option:timestep", timestep)
     set_schema_attribute(scene_prim, "mjc:option:tolerance", data.spec.option.tolerance)
     set_schema_attribute(scene_prim, "mjc:option:viscosity", data.spec.option.viscosity)
     set_schema_attribute(scene_prim, "mjc:option:wind", convert_vec3d(data.spec.option.wind))
