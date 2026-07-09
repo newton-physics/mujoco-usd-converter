@@ -89,6 +89,7 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             child_body_over = data.content[Tokens.Physics].OverridePrim(child_body_prim.GetPath())
             UsdPhysics.ArticulationRootAPI.Apply(child_body_over)
             child_body_over.ApplyAPI("NewtonArticulationRootAPI")
+            set_schema_attribute(child_body_over, "newton:jointsAddMobility", True)
 
     return body_prim
 

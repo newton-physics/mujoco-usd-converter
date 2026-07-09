@@ -72,6 +72,7 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
 def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     prim.ApplyAPI("MjcJointAPI")
+    prim.ApplyAPI("NewtonJointAPI")
 
     limited_token = mj_limited_to_token(joint.actfrclimited)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
@@ -91,6 +92,10 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:springdamper", list(joint.springdamper))
     set_schema_attribute(prim, "mjc:springref", joint.springref)
     set_schema_attribute(prim, "mjc:stiffness", joint.stiffness[0])
+
+    set_schema_attribute(prim, "newton:armature", joint.armature)
+    set_schema_attribute(prim, "newton:damping", joint.damping[0])
+    set_schema_attribute(prim, "newton:friction", joint.frictionloss)
 
 
 def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
