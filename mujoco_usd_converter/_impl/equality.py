@@ -179,12 +179,9 @@ def convert_equality(
         # Apply the MjcEqualityJointAPI schema
         joint_prim.ApplyAPI("MjcEqualityJointAPI")
         set_base_equality_schema_attrs(equality, joint_prim)
-        set_schema_attribute(joint_prim, "mjc:coef0", equality.data[0])
-        set_schema_attribute(joint_prim, "mjc:coef1", equality.data[1])
         set_schema_attribute(joint_prim, "mjc:coef2", equality.data[2])
         set_schema_attribute(joint_prim, "mjc:coef3", equality.data[3])
         set_schema_attribute(joint_prim, "mjc:coef4", equality.data[4])
-        joint_prim.GetRelationship("mjc:target").SetTargets([target_joint_path])
         set_schema_attribute(joint_prim, "physics:jointEnabled", equality.active)
 
         return joint_prim, False

@@ -339,9 +339,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
                 geom_over.ApplyAPI("NewtonMassAPI")
                 set_schema_attribute(geom_over, "newton:massModel", "shell")
         if maxhullvert := get_maxhullvert(geom, data):
-            geom_over.ApplyAPI("MjcMeshCollisionAPI")
             set_schema_attribute(geom_over, "newton:maxHullVertices", maxhullvert)
-            set_schema_attribute(geom_over, "mjc:maxhullvert", maxhullvert)
     else:
         set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
         if geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL:
@@ -395,17 +393,14 @@ def create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, d
     set_schema_attribute(material.GetPrim(), "newton:rollingFriction", rolling_friction)
     set_schema_attribute(material.GetPrim(), "newton:contactStiffness", ke)
     set_schema_attribute(material.GetPrim(), "newton:contactDamping", kd)
-    material.GetPrim().ApplyAPI("MjcMaterialAPI")
-    set_schema_attribute(material.GetPrim(), "mjc:torsionalfriction", torsional_friction)
-    set_schema_attribute(material.GetPrim(), "mjc:rollingfriction", rolling_friction)
 
     return material
 
 
 def hash_physics_material(material: UsdPhysics.MaterialAPI) -> tuple[float, ...]:
     sliding_friction = material.GetDynamicFrictionAttr().Get()
-    torsional_friction = material.GetPrim().GetAttribute("mjc:torsionalfriction").Get()
-    rolling_friction = material.GetPrim().GetAttribute("mjc:rollingfriction").Get()
+    torsional_friction = material.GetPrim().GetAttribute("newton:torsionalFriction").Get()
+    rolling_friction = material.GetPrim().GetAttribute("newton:rollingFriction").Get()
     ke = material.GetPrim().GetAttribute("newton:contactStiffness").Get()
     kd = material.GetPrim().GetAttribute("newton:contactDamping").Get()
     return (sliding_friction, torsional_friction, rolling_friction, ke, kd)

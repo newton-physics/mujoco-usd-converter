@@ -297,10 +297,19 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(custom_joint.HasAPI("MjcEqualityJointAPI"))
 
         # Check that all MJC equality properties are authored for custom joint
-        equality_properties = ["mjc:solimp", "mjc:solref", "mjc:coef0", "mjc:coef1", "mjc:coef2", "mjc:coef3", "mjc:coef4", "mjc:target"]
+        equality_properties = ["mjc:solimp", "mjc:solref", "mjc:coef2", "mjc:coef3", "mjc:coef4"]
         for prop_name in equality_properties:
             prop = custom_joint.GetProperty(prop_name)
             self.assertTrue(self.__has_authored_value(prop), f"Property {prop_name} is not authored")
+
+        deprecated_replacements = {
+            "mjc:coef0": "newton:mimicCoef0",
+            "mjc:coef1": "newton:mimicCoef1",
+            "mjc:target": "newton:mimicJoint",
+        }
+        for prop_name, replacement in deprecated_replacements.items():
+            prop = custom_joint.GetProperty(prop_name)
+            self.assertFalse(self.__has_authored_value(prop), f"{prop_name} is deprecated; use {replacement}")
 
         # Check solimp values
         expected_solimp = [0.85, 0.92, 0.003, 0.7, 4]
@@ -316,17 +325,10 @@ class TestEqualities(ConverterTestCase):
         for i in range(2):
             self.assertAlmostEqual(actual_solref[i], expected_solref[i])
 
-        # Check polynomial coefficients (polycoef="0.5 1.5 0.1 0.05 0.02")
-        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef0").Get(), 0.5)
-        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef1").Get(), 1.5)
+        # Check higher-order polynomial coefficients (polycoef="0.5 1.5 0.1 0.05 0.02")
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef2").Get(), 0.1)
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef3").Get(), 0.05)
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:coef4").Get(), 0.02)
-
-        # Check that the target relationship points to hinge1
-        targets = custom_joint.GetRelationship("mjc:target").GetTargets()
-        self.assertEqual(len(targets), 1)
-        self.assertEqual("/equality_joint_attributes/Geometry/body0/body1/hinge1", str(targets[0]))
 
         # Check NewtonMimicAPI attributes
         self.assertTrue(custom_joint.HasAPI("NewtonMimicAPI"))
@@ -343,8 +345,8 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
         self.assertTrue(default_joint.HasAPI("MjcEqualityJointAPI"))
 
-        # Check that only the target relationship is authored (required), default values are NOT authored
-        authored_properties = ["mjc:target"]
+        # Check that no default or deprecated MJC equality values are authored.
+        authored_properties = []
         for property in default_joint.GetPropertiesInNamespace("mjc"):
             if property.GetName() in authored_properties:
                 self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
@@ -371,11 +373,6 @@ class TestEqualities(ConverterTestCase):
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:coef3").Get(), 0.0)
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:coef4").Get(), 0.0)
 
-        # Check that the target relationship points to slide1
-        targets = default_joint.GetRelationship("mjc:target").GetTargets()
-        self.assertEqual(len(targets), 1)
-        self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
-
         # Check NewtonMimicAPI attributes
         self.assertTrue(default_joint.HasAPI("NewtonMimicAPI"))
         self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef0").Get(), 0.0)
@@ -384,9 +381,11 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(targets), 1)
         self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
         self.assertTrue(default_joint.GetAttribute("newton:mimicEnabled").Get())
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitStiffness").Get(), 2500)
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitDamping").Get(), 100)
 
-        # Check that only the target relationship is authored (required), default values are NOT authored
-        authored_properties = ["newton:mimicJoint"]
+        # Check that only required relationships and Newton joint values whose schema defaults differ are authored.
+        authored_properties = ["newton:mimicJoint", "newton:limitStiffness", "newton:limitDamping"]
         for property in default_joint.GetPropertiesInNamespace("newton"):
             if property.GetName() in authored_properties:
                 self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")

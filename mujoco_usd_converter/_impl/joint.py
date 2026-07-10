@@ -67,10 +67,10 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint, limits[0] is not None and limits[1] is not None)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited: bool):
     prim.ApplyAPI("MjcJointAPI")
     prim.ApplyAPI("NewtonJointAPI")
 
@@ -96,6 +96,37 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "newton:armature", joint.armature)
     set_schema_attribute(prim, "newton:damping", joint.damping[0])
     set_schema_attribute(prim, "newton:friction", joint.frictionloss)
+    if is_joint_limited:
+        limit_stiffness, limit_damping = get_newton_limit_stiffness_damping(joint)
+        if limit_stiffness is not None:
+            set_schema_attribute(prim, "newton:limitStiffness", limit_stiffness)
+        if limit_damping is not None:
+            set_schema_attribute(prim, "newton:limitDamping", limit_damping)
+
+
+def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint) -> tuple[float | None, float | None]:
+    try:
+        timeconst = float(joint.solref_limit[0])
+        dampratio = float(joint.solref_limit[1])
+    except (IndexError, TypeError, ValueError):
+        return None, None
+
+    if timeconst < 0.0 and dampratio < 0.0:
+        stiffness = -timeconst
+        damping = -dampratio
+    else:
+        if timeconst <= 0.0 or dampratio <= 0.0:
+            return None, None
+        stiffness = 1.0 / (timeconst * timeconst * dampratio * dampratio)
+        damping = 2.0 / timeconst
+
+    if joint.type in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_BALL):
+        # NewtonJointAPI angular limit stiffness/damping are authored per degree.
+        radians_per_degree = np.pi / 180.0
+        stiffness *= radians_per_degree
+        damping *= radians_per_degree
+
+    return stiffness, damping
 
 
 def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:

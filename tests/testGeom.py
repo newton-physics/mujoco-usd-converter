@@ -218,15 +218,25 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "convex")
 
-        # Check that mjc:maxhullvert attribute is authored and has the correct value
-        self.assertTrue(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), 100)
+        # Check that deprecated mjc:maxhullvert is not authored
+        self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
 
-        # Check that all MJC properties are authored
+        # Check that all non-deprecated MJC properties are authored
+        deprecated_replacements = {
+            "mjc:gap": "newton:contactGap",
+            "mjc:margin": "newton:contactMargin",
+            "mjc:maxhullvert": "newton:maxHullVertices",
+        }
         for property in prim.GetPropertiesInNamespace("mjc"):
             # skip shellinertia as it is not applicable to mesh colliders
-            if property.GetName() in ("mjc:shellinertia", "mjc:gap", "mjc:margin"):
+            if property.GetName() == "mjc:shellinertia":
                 self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+            elif property.GetName() in deprecated_replacements:
+                self.assertFalse(
+                    property.HasAuthoredValue(),
+                    f"{property.GetName()} is deprecated; use {deprecated_replacements[property.GetName()]}",
+                )
             else:
                 self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 

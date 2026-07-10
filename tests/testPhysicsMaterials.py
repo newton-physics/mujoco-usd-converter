@@ -64,8 +64,6 @@ class TestPhysicsMaterials(ConverterTestCase):
                 "newton:torsionalFriction",
                 "newton:contactStiffness",
                 "newton:contactDamping",
-                "mjc:rollingfriction",
-                "mjc:torsionalfriction",
             },
         )
         self.assertAlmostEqual(phys_mat_1.GetDynamicFrictionAttr().Get(), 0.8)
@@ -73,8 +71,7 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:rollingFriction").Get(), 0.05)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:contactStiffness").Get(), 2500.0)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:contactDamping").Get(), 100.0)
-        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:torsionalfriction").Get(), 0.1)
-        self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("mjc:rollingfriction").Get(), 0.05)
+        self.assertFalse(material_1_prim.HasAPI("MjcMaterialAPI"))
 
         # Assert the default values for the physics material schema on the default_friction geom
         default_friction_material_prim = stage.GetPrimAtPath(phys_binding_4.GetMaterialPath())
@@ -90,11 +87,7 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertAlmostEqual(default_friction_material_prim.GetAttribute("newton:contactStiffness").Get(), 2500.0)
         self.assertAlmostEqual(default_friction_material_prim.GetAttribute("newton:contactDamping").Get(), 100.0)
 
-        self.assertTrue(default_friction_material_prim.HasAPI("MjcMaterialAPI"))
-        self.assertFalse(default_friction_material_prim.GetAttribute("mjc:torsionalfriction").HasAuthoredValue())
-        self.assertFalse(default_friction_material_prim.GetAttribute("mjc:rollingfriction").HasAuthoredValue())
-        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("mjc:torsionalfriction").Get(), 0.005)
-        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("mjc:rollingfriction").Get(), 0.0001)
+        self.assertFalse(default_friction_material_prim.HasAPI("MjcMaterialAPI"))
 
         self.assertTrue(default_friction_material_prim.HasAPI("PhysicsMaterialAPI"))
         self.assertFalse(default_friction_material_prim.GetAttribute("dynamicFriction").HasAuthoredValue())
