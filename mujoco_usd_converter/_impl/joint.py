@@ -105,11 +105,8 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited
 
 
 def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint) -> tuple[float | None, float | None]:
-    try:
-        timeconst = float(joint.solref_limit[0])
-        dampratio = float(joint.solref_limit[1])
-    except (IndexError, TypeError, ValueError):
-        return None, None
+    timeconst = joint.solref_limit[0]
+    dampratio = joint.solref_limit[1]
 
     if timeconst < 0.0 and dampratio < 0.0:
         stiffness = -timeconst
