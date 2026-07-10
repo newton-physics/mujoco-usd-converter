@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import math
 import pathlib
-from types import SimpleNamespace
 
 import mujoco
 from pxr import Gf, Sdf, Usd, UsdPhysics
@@ -15,34 +14,42 @@ from tests.util.ConverterTestCase import ConverterTestCase
 class TestJoints(ConverterTestCase):
 
     def test_newton_limit_stiffness_damping_from_solreflimit(self):
+        spec = mujoco.MjSpec()
+        body = spec.worldbody.add_body(name="limit_gain_test_body")
+
+        def add_joint(name, joint_type, solref_limit):
+            joint = body.add_joint(name=name, type=joint_type)
+            joint.solref_limit = solref_limit
+            return joint
+
         # Standard positive solref mode:
         #   stiffness = 1 / (timeconst^2 * dampratio^2)
         #   damping = 2 / timeconst
-        linear_joint = SimpleNamespace(type=mujoco.mjtJoint.mjJNT_SLIDE, solref_limit=[0.04, 0.5])
+        linear_joint = add_joint("linear_joint", mujoco.mjtJoint.mjJNT_SLIDE, [0.04, 0.5])
         stiffness, damping = get_newton_limit_stiffness_damping(linear_joint)
         self.assertAlmostEqual(stiffness, 2500.0)
         self.assertAlmostEqual(damping, 50.0)
 
         # Hinge/ball limit gains are authored in USD's per-degree angular units.
-        hinge_joint = SimpleNamespace(type=mujoco.mjtJoint.mjJNT_HINGE, solref_limit=[0.04, 0.5])
+        hinge_joint = add_joint("hinge_joint", mujoco.mjtJoint.mjJNT_HINGE, [0.04, 0.5])
         stiffness, damping = get_newton_limit_stiffness_damping(hinge_joint)
         self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
         self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
 
-        ball_joint = SimpleNamespace(type=mujoco.mjtJoint.mjJNT_BALL, solref_limit=[0.04, 0.5])
+        ball_joint = add_joint("ball_joint", mujoco.mjtJoint.mjJNT_BALL, [0.04, 0.5])
         stiffness, damping = get_newton_limit_stiffness_damping(ball_joint)
         self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
         self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
 
         # Direct negative solref mode encodes (-stiffness, -damping).
-        direct_joint = SimpleNamespace(type=mujoco.mjtJoint.mjJNT_SLIDE, solref_limit=[-12.0, -3.0])
+        direct_joint = add_joint("direct_joint", mujoco.mjtJoint.mjJNT_SLIDE, [-12.0, -3.0])
         stiffness, damping = get_newton_limit_stiffness_damping(direct_joint)
         self.assertAlmostEqual(stiffness, 12.0)
         self.assertAlmostEqual(damping, 3.0)
 
         # Invalid mixed-sign or zero values are not converted.
-        for solref_limit in ([0.0, 1.0], [0.04, 0.0], [-12.0, 3.0], [12.0, -3.0], [0.04]):
-            joint = SimpleNamespace(type=mujoco.mjtJoint.mjJNT_SLIDE, solref_limit=solref_limit)
+        for index, solref_limit in enumerate(([0.0, 1.0], [0.04, 0.0], [-12.0, 3.0], [12.0, -3.0])):
+            joint = add_joint(f"invalid_joint_{index}", mujoco.mjtJoint.mjJNT_SLIDE, solref_limit)
             self.assertEqual(get_newton_limit_stiffness_damping(joint), (None, None))
 
     def test_hinge_joints(self):
