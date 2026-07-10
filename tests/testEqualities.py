@@ -345,13 +345,9 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
         self.assertTrue(default_joint.HasAPI("MjcEqualityJointAPI"))
 
-        # Check that no default or deprecated MJC equality values are authored.
-        authored_properties = []
+        # Check that no default MJC equality values or deprecated mimic aliases are authored.
         for property in default_joint.GetPropertiesInNamespace("mjc"):
-            if property.GetName() in authored_properties:
-                self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
-            else:
-                self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
+            self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
 
         # Verify the resolved values still match expected defaults
         expected_default_solimp = [0.9, 0.95, 0.001, 0.5, 2]
