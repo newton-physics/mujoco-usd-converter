@@ -1,3 +1,30 @@
+# 0.4.0rc1
+
+## Features
+
+- Author `NewtonJointAPI`
+  - Direct value authoring for `newton:armature`, `newton:friction`, and `newton:damping`
+    - The equivalent `mjc:armature`, `mjc:frictionloss`, and `mjc:damping` are still authored as well, for applications not yet parsing `NewtonJointAPI`
+  - Converted value authroing for `newton:limitStiffness/damping` from `mjc:solreflimit` for limited joints, including angular per-degree scaling.
+- Author `newton:jointsAddMobility = true` on all articulation roots, reflecting the intent of MuJoCo's joint description.
+
+## Breaking Changes
+
+- Stopped authoring MJC schema aliases which have been deprecated in MuJoCo 3.10
+ - Affects some scene options, collision margin/gap, mesh max hull vertices, material rolling/torsional friction, and equality mimic metadata
+ - All affected attributes have Newton equivalants which are now parsed in both MuJoCo and Newton.
+- Mapped MuJoCo `margin` directly to `newton:contactMargin` and `gap` to `newton:contactGap`, matching the MuJoCo 3.10 margin/gap semantics
+
+## Fixed
+
+- Aligned converter output with MuJoCo 3.10 USD decoder expectations
+- Bodies with fixed child bodies are now considered articulation roots
+
+## Dependencies
+
+- Updated to `newton-usd-schemas>=0.4.0`
+- Locked `mujoco` to `>=3.10.0,<3.11` to avoid breaking changes in 3.11.x
+
 # 0.3.0
 
 ## Features

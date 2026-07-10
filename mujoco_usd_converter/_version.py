@@ -1,3 +1,3 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
-__version__ = "0.3.0"
+__version__ = "0.4.0rc1"
