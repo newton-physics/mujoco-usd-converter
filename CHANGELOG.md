@@ -11,8 +11,8 @@
 ## Breaking Changes
 
 - Stopped authoring MJC schema aliases which have been deprecated in MuJoCo 3.10
- - Affects some scene options, collision margin/gap, mesh max hull vertices, material rolling/torsional friction, and equality mimic metadata
- - All affected attributes have Newton equivalants which are now parsed in both MuJoCo and Newton.
+  - Affects some scene options, collision margin/gap, mesh max hull vertices, material rolling/torsional friction, and equality mimic metadata
+  - All affected attributes have Newton equivalents which are now parsed in both MuJoCo and Newton.
 - Mapped MuJoCo `margin` directly to `newton:contactMargin` and `gap` to `newton:contactGap`, matching the MuJoCo 3.10 margin/gap semantics
 
 ## Fixes
