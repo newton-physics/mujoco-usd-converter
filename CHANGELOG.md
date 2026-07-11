@@ -5,7 +5,7 @@
 - Author `NewtonJointAPI`
   - Direct value authoring for `newton:armature`, `newton:friction`, and `newton:damping`
     - The equivalent `mjc:armature`, `mjc:frictionloss`, and `mjc:damping` are still authored as well, for applications not yet parsing `NewtonJointAPI`
-  - Converted value authroing for `newton:limitStiffness/damping` from `mjc:solreflimit` for limited joints, including angular per-degree scaling.
+  - Converted value authoring for `newton:limitStiffness/damping` from `mjc:solreflimit` for limited joints, including angular per-degree scaling.
 - Author `newton:jointsAddMobility = true` on all articulation roots, reflecting the intent of MuJoCo's joint description.
 
 ## Breaking Changes
