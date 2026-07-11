@@ -15,7 +15,7 @@
  - All affected attributes have Newton equivalants which are now parsed in both MuJoCo and Newton.
 - Mapped MuJoCo `margin` directly to `newton:contactMargin` and `gap` to `newton:contactGap`, matching the MuJoCo 3.10 margin/gap semantics
 
-## Fixed
+## Fixes
 
 - Aligned converter output with MuJoCo 3.10 USD decoder expectations
 - Bodies with fixed child bodies are now considered articulation roots
