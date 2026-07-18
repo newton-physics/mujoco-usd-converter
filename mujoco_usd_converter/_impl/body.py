@@ -79,6 +79,23 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
                 if not np.isnan(body.fullinertia[0]):
                     body_over.ApplyAPI("NewtonMassAPI")
                     set_schema_attribute(body_over, "newton:inertia", Vt.DoubleArray.FromNumpy(body.fullinertia))
+        else:
+            # Author body-level mass/inertia from the compiled model so downstream
+            # readers honor it authoritatively. Without this, a rigid body with
+            # multiple collision shapes can have its mass recomputed from geometry
+            # (e.g. the Newton USD import), diverging from MuJoCo's body inertia.
+            if data.model is None:
+                data.model = data.spec.compile()
+            bid = data.model.body(body.name).id
+            bmass = float(data.model.body_mass[bid])
+            if bmass > 0.0:
+                mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
+                mass_api.CreateMassAttr().Set(bmass)
+                mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(data.model.body_ipos[bid]))
+                inertia = convert_vec3d(data.model.body_inertia[bid])
+                if inertia != Gf.Vec3f(0, 0, 0):
+                    mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(data.model.body_iquat[bid]).GetNormalized())
+                    mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
         convert_joints(parent=body_over, body=body, data=data)
 
