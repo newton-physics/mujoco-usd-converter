@@ -421,10 +421,17 @@ class TestGeomVisualDefaultDensity(ConverterTestCase):
         self.assertIsValidUsd(self.stage)
 
     def test_visual_default_density(self):
+        # the visual geom's default density and the zero mass collision geom are ambiguous
+        # for readers that recompute mass from geometry, so the body authors the inferred inertial
+        body_prim: Usd.Prim = self.stage.GetPrimAtPath("/geom_default_density/Geometry/test")
+        self.assertTrue(body_prim.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(body_prim).GetMassAttr().Get(), 8.0, places=6)
+
+        # the geom-level mass properties must still support density-based recomputation
         total_mass = 0.0
         bbox_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
         for prim in self.stage.Traverse():
-            if prim.HasAPI(UsdPhysics.MassAPI):
+            if prim.HasAPI(UsdPhysics.MassAPI) and prim.IsA(UsdGeom.Gprim):
                 mass_api = UsdPhysics.MassAPI(prim)
                 density = mass_api.GetDensityAttr().Get()
                 if mass_api.GetMassAttr().HasAuthoredValue():

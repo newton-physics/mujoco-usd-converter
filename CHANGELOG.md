@@ -19,6 +19,7 @@
 
 - Aligned converter output with MuJoCo 3.10 USD decoder expectations
 - Bodies with fixed child bodies are now considered articulation roots
+- Bodies with an inferred inertial from multiple mass-contributing geoms now author the compiled body-level mass properties, so downstream readers reproduce MuJoCo's body mass exactly (#100)
 
 ## Dependencies
 

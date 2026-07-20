@@ -4,10 +4,10 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
-from .geom import convert_geom, get_geom_name
+from .geom import convert_geom, get_geom_name, is_physics_geom
 from .joint import convert_joints
 from .numpy import convert_quatf, convert_vec3d
 from .utils import set_schema_attribute, set_transform
@@ -79,22 +79,25 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
                 if not np.isnan(body.fullinertia[0]):
                     body_over.ApplyAPI("NewtonMassAPI")
                     set_schema_attribute(body_over, "newton:inertia", Vt.DoubleArray.FromNumpy(body.fullinertia))
-        else:
-            # Author body-level mass/inertia from the compiled model so downstream
-            # readers honor it authoritatively. Without this, a rigid body with
-            # multiple collision shapes can have its mass recomputed from geometry
-            # (e.g. the Newton USD import), diverging from MuJoCo's body inertia.
-            if data.model is None:
-                data.model = data.spec.compile()
-            bid = data.model.body(body.name).id
-            bmass = float(data.model.body_mass[bid])
-            if bmass > 0.0:
+        elif sum(is_physics_geom(x, data) for x in body.geoms) > 1:
+            # When the inferred inertial comes from a body with several collider shapes,
+            # downstream readers may combine them differently than MuJoCo does (e.g.
+            # Newton's USD import recomputes multi-shape bodies from geometry, ignoring
+            # per-geom authored mass, and massless density="0" geoms author no mass
+            # properties at all). Author the compiled body-level mass properties so the
+            # USD unambiguously reproduces MuJoCo's inferred inertial. Single-shape
+            # bodies are already represented faithfully by the geom-level properties,
+            # so we leave them free to be recomputed from geometry.
+            body_id = get_model_body_id(body, data)
+            mass = float(data.model.body_mass[body_id]) if body_id is not None else 0.0
+            if mass > 0.0:
                 mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
-                mass_api.CreateMassAttr().Set(bmass)
-                mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(data.model.body_ipos[bid]))
-                inertia = convert_vec3d(data.model.body_inertia[bid])
+                mass_api.CreateMassAttr().Set(mass)
+                mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(data.model.body_ipos[body_id]))
+                inertia = convert_vec3d(data.model.body_inertia[body_id])
+                # If the inertia is zero, don't set the principal axes or diagonal inertia (see above)
                 if inertia != Gf.Vec3f(0, 0, 0):
-                    mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(data.model.body_iquat[bid]).GetNormalized())
+                    mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(data.model.body_iquat[body_id]).GetNormalized())
                     mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
         convert_joints(parent=body_over, body=body, data=data)
@@ -109,6 +112,41 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             set_schema_attribute(child_body_over, "newton:jointsAddMobility", True)
 
     return body_prim
+
+
+def iter_bodies(body: mujoco.MjsBody):
+    yield body
+    for child_body in body.bodies:
+        yield from iter_bodies(child_body)
+
+
+def get_model_body_id(body: mujoco.MjsBody, data: ConversionData) -> int | None:
+    if data.model_unavailable:
+        return None
+
+    if data.model is None:
+        # compiling can mutate or even invalidate live spec elements (e.g. fusestatic
+        # removes fused bodies, discardvisual removes geoms), so the model is always
+        # compiled from a copy. A model that MuJoCo cannot compile has no inferred
+        # inertial to author, but it may still be convertible, so continue without it.
+        try:
+            data.model = data.spec.copy().compile()
+        except Exception as e:
+            data.model_unavailable = True
+            Tf.Warn(f"Body-level mass properties will not be authored. Failed to compile model: {e}")
+            return None
+
+    # model body ids follow the spec's depth-first document order, which is the only
+    # reliable lookup for unnamed bodies. A count mismatch means compilation
+    # restructured the body tree (e.g. fusestatic), so the compiled body data
+    # cannot be transferred onto the converted bodies.
+    spec_bodies = list(iter_bodies(data.spec.worldbody))
+    if len(spec_bodies) != data.model.nbody:
+        data.model_unavailable = True
+        Tf.Warn("Body-level mass properties will not be authored. Compilation restructured the body tree (e.g. fusestatic).")
+        return None
+
+    return next(i for i, x in enumerate(spec_bodies) if x == body)
 
 
 def is_kinematic(body: mujoco.MjsBody, physics_prim: Usd.Prim) -> bool:

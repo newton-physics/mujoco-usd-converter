@@ -36,3 +36,6 @@ class ConversionData:
     name_cache: usdex.core.NameCache
     scene: bool
     comment: str
+    # set when the compiled model cannot provide reliable per-body data, either
+    # because compilation failed or because it restructured the body tree
+    model_unavailable: bool = False

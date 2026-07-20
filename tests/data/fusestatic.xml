@@ -1,0 +1,19 @@
+<mujoco model="fusestatic">
+    <compiler fusestatic="true"/>
+    <worldbody>
+        <body name="root" pos="0 0 1">
+            <freejoint/>
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="static_child" pos="0 0 0.3">
+                <geom type="box" size="0.05 0.05 0.05" mass="0.1"/>
+                <geom type="sphere" size="0.05" pos="0 0 0.15" mass="0.1"/>
+            </body>
+        </body>
+        <!-- a second multi-geom body must not repeat the compilation attempt or the warning -->
+        <body name="other" pos="1 0 1">
+            <freejoint/>
+            <geom type="box" size="0.1 0.1 0.1" mass="0.2"/>
+            <geom type="sphere" size="0.05" pos="0 0 0.2" mass="0.2"/>
+        </body>
+    </worldbody>
+</mujoco>

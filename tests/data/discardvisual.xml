@@ -1,0 +1,15 @@
+<mujoco model="discardvisual">
+    <compiler discardvisual="true"/>
+    <worldbody>
+        <body name="first" pos="0 0 0.5">
+            <joint type="hinge"/>
+            <geom type="box" size="0.1 0.1 0.1" mass="0.3"/>
+            <geom type="sphere" size="0.05" pos="0 0 0.2" mass="0.3"/>
+        </body>
+        <body name="second" pos="1 0 0.5">
+            <joint type="hinge"/>
+            <geom name="vis2" type="box" size="0.1 0.1 0.1" contype="0" conaffinity="0" rgba="1 0 0 1"/>
+            <geom name="col2" type="box" size="0.1 0.1 0.1"/>
+        </body>
+    </worldbody>
+</mujoco>

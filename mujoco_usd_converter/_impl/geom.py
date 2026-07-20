@@ -276,26 +276,26 @@ def bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
     usdex.core.bindMaterial(geom_over, material_prim)
 
 
-def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
+def is_physics_geom(geom: mujoco.MjsGeom, data: ConversionData) -> bool:
     # most geom are colliders
-    is_collider = True
-    collider_enabled = True
+    # some geom are for vizualization only, but still contribute to the mass of the body
+    if geom.contype == 0 and geom.conaffinity == 0:
+        if data.spec.compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
+            return False
+        if geom.group not in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1):
+            return False
+        return not np.isnan(geom.mass) or geom.density > 0.0
+    return True
+
+
+def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
+    is_collider = is_physics_geom(geom, data)
+    # visual-only geoms that contribute mass are kept as disabled colliders
+    collider_enabled = geom.contype != 0 or geom.conaffinity != 0
 
     # Tendons target non-collision geoms by name, so keep a mujoco name to USD path mapping
     if geom.name:
         data.geom_targets[geom.name] = geom_prim.GetPath()
-
-    # some geom are for vizualization only, but still contribute to the mass of the body
-    if geom.contype == 0 and geom.conaffinity == 0:
-        if data.spec.compiler.inertiafromgeom != mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE and (
-            geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1)
-        ):
-            if not np.isnan(geom.mass) or geom.density > 0.0:
-                collider_enabled = False
-            else:
-                is_collider = False
-        else:
-            is_collider = False
 
     if not is_collider:
         # this is a purely visual geom, so we skip physics authoring

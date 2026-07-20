@@ -1,0 +1,38 @@
+<mujoco model="inferred_inertia">
+    <worldbody>
+        <!-- several geoms contribute mass, so the inferred inertial is authored on the body -->
+        <body name="multi_geom" pos="1 0 0">
+            <geom type="box" size="0.1 0.05 0.02" pos="0.1 0 0" euler="0 0 30" mass="0.5"/>
+            <geom type="sphere" size="0.05" pos="-0.1 0 0.05"/>
+            <geom type="box" size="0.02 0.02 0.02" pos="0 0.1 0" mass="0"/>
+            <!-- nested unnamed body resolved positionally in the compiled model -->
+            <body pos="0 0 0.4">
+                <geom type="sphere" size="0.04" mass="0.2"/>
+                <geom type="sphere" size="0.04" pos="0 0 0.1" mass="0.3"/>
+            </body>
+        </body>
+
+        <!-- a massless collider (density="0") authors no geom-level mass properties,
+             so the body-level inertial is required to reproduce the MuJoCo mass -->
+        <body name="massless_collider" pos="5 0 0">
+            <geom type="box" size="0.1 0.1 0.1" mass="0.5"/>
+            <geom type="sphere" size="0.05" pos="0 0 0.25" density="0"/>
+        </body>
+
+        <!-- a single geom contributes mass, so the geom-level properties are sufficient -->
+        <body name="single_geom" pos="2 0 0">
+            <geom type="box" size="0.1 0.1 0.1"/>
+        </body>
+
+        <!-- unnamed body with an inferred inertial from several geoms -->
+        <body pos="3 0 0">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <geom type="sphere" size="0.05" pos="0 0 0.2"/>
+        </body>
+
+        <!-- unnamed body with a single geom -->
+        <body pos="4 0 0">
+            <geom type="box" size="0.1 0.1 0.1"/>
+        </body>
+    </worldbody>
+</mujoco>
