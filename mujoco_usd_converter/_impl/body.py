@@ -90,6 +90,11 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
             # so we leave them free to be recomputed from geometry.
             body_id = get_model_body_id(body, data)
             mass = float(data.model.body_mass[body_id]) if body_id is not None else 0.0
+            # A compiled mass of 0 is never baked: authored physics:mass = 0 is the
+            # schema fallback value, so readers honoring MassAPI value semantics
+            # (e.g. Newton since newton-physics/newton#3418) treat it as unspecified
+            # and recompute from geometry, while older readers zero the mass out --
+            # the same authored value would mean different things to different readers.
             if mass > 0.0:
                 mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
                 mass_api.CreateMassAttr().Set(mass)

@@ -223,6 +223,16 @@ class TestInferredInertia(ConverterTestCase):
         self.assertBodyMassMatchesModel(prim, self.mj_model.body("massless_collider").id)
         self.assertAlmostEqual(UsdPhysics.MassAPI(prim).GetMassAttr().Get(), 0.5, places=6)
 
+    def test_zero_compiled_mass_body_is_not_baked(self):
+        # a multi-collider body whose compiled mass is 0 must not get a body-level
+        # MassAPI: authored physics:mass = 0 is the schema fallback value, which
+        # value-semantics readers (Newton since newton-physics/newton#3418) treat as
+        # unspecified while older readers zero the mass out
+        self.assertEqual(self.mj_model.body("zero_mass_colliders").mass[0], 0.0)
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/inferred_inertia/Geometry/zero_mass_colliders")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
 
 class TestCompilerOverrides(ConverterTestCase):
     """Compiler settings that mutate the spec during compilation must not affect conversion"""

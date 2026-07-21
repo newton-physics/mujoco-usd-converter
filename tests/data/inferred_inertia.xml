@@ -34,5 +34,14 @@
         <body pos="4 0 0">
             <geom type="box" size="0.1 0.1 0.1"/>
         </body>
+
+        <!-- every collider is massless, so the compiled body mass is 0: the body-level
+             bake must be skipped, because an authored physics:mass = 0 is the schema
+             fallback value -- readers honoring MassAPI value semantics treat it as
+             unspecified (recomputing from geometry) while others zero the mass out -->
+        <body name="zero_mass_colliders" pos="6 0 0">
+            <geom type="box" size="0.1 0.1 0.1" mass="0"/>
+            <geom type="sphere" size="0.05" pos="0 0 0.25" density="0"/>
+        </body>
     </worldbody>
 </mujoco>
