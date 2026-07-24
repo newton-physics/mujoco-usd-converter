@@ -17,6 +17,7 @@
 
 ## Fixes
 
+- Author mass XOR density on collision geoms, never both. Per MJCF docs: "If [mass] is specified, the density attribute is ignored." Previously, geoms with explicit mass also had a back-computed density authored, which could mislead downstream mass aggregation.
 - Aligned converter output with MuJoCo 3.10 USD decoder expectations
 - Bodies with fixed child bodies are now considered articulation roots
 

@@ -124,8 +124,8 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
     def test_visual_with_density(self):
@@ -174,8 +174,8 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 10.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_explicit_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/explicit_density")
@@ -186,12 +186,19 @@ class TestGeom(ConverterTestCase):
         self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
 
     def test_mass_and_density(self):
+        """When MJCF specifies both mass and density, only mass is authored in USD.
+
+        Per MJCF docs: 'If [mass] is specified, the density attribute is ignored.'
+        The density value in the compiled spec is either the authored density
+        (ignored by MuJoCo) or back-computed — either way it's not an independent
+        opinion and should not be emitted."""
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/mass_and_density")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 15.0)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 4000)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_shell_inertia(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/shell_inertia")
@@ -382,8 +389,8 @@ class TestGeomInertiaFromGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 10.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_explicit_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/explicit_density")
