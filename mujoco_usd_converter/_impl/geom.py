@@ -349,8 +349,11 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
     if not np.isnan(geom.mass):
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateMassAttr().Set(geom.mass)
-
-    if geom.density > 0.0:
+    elif geom.density > 0.0:
+        # Only author density when mass is unspecified. Per MJCF docs:
+        # "If [mass] is specified, the density attribute is ignored."
+        # When mass IS specified, MuJoCo back-computes density from mass,
+        # so geom.density is non-zero but not an independent opinion.
         geom_mass: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(geom_over)
         geom_mass.CreateDensityAttr().Set(geom.density)
 
