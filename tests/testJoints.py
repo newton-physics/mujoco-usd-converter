@@ -60,17 +60,15 @@ class TestJoints(ConverterTestCase):
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         self.assertIsValidUsd(stage)
 
-        radians_per_degree = math.pi / 180.0
-
         hinge: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body1/hinge_joint")
         self.assertTrue(hinge.IsValid())
-        self.assertAlmostEqual(hinge.GetAttribute("newton:damping").Get(), 0.1 * radians_per_degree, places=6)
+        self.assertAlmostEqual(hinge.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
         # the MJC attribute retains the authored per-radian value
         self.assertAlmostEqual(hinge.GetAttribute("mjc:damping").Get(), 0.1)
 
         ball: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body2/ball_joint")
         self.assertTrue(ball.IsValid())
-        self.assertAlmostEqual(ball.GetAttribute("newton:damping").Get(), 0.1 * radians_per_degree, places=6)
+        self.assertAlmostEqual(ball.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
         self.assertAlmostEqual(ball.GetAttribute("mjc:damping").Get(), 0.1)
 
         slide: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body3/slide_joint")
