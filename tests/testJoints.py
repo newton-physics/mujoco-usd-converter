@@ -52,6 +52,30 @@ class TestJoints(ConverterTestCase):
             joint = add_joint(f"invalid_joint_{index}", mujoco.mjtJoint.mjJNT_SLIDE, solref_limit)
             self.assertEqual(get_newton_limit_stiffness_damping(joint), (None, None))
 
+    def test_newton_damping_is_per_degree(self):
+        # MuJoCo authors joint damping per radian, but NewtonJointAPI authors it per degree,
+        # so angular DOFs must be scaled while linear DOFs pass through unchanged.
+        model = pathlib.Path("./tests/data/joint_damping.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
+        # the MJC attribute retains the authored per-radian value
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:damping").Get(), 0.1)
+
+        ball: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body2/ball_joint")
+        self.assertTrue(ball.IsValid())
+        self.assertAlmostEqual(ball.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
+        self.assertAlmostEqual(ball.GetAttribute("mjc:damping").Get(), 0.1)
+
+        slide: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body3/slide_joint")
+        self.assertTrue(slide.IsValid())
+        self.assertAlmostEqual(slide.GetAttribute("newton:damping").Get(), 0.1)
+        self.assertAlmostEqual(slide.GetAttribute("mjc:damping").Get(), 0.1)
+
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
@@ -517,7 +541,8 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(custom_joint.GetAttribute("newton:armature").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("newton:armature").Get(), 0.1)
         self.assertTrue(custom_joint.GetAttribute("newton:damping").HasAuthoredValue())
-        self.assertAlmostEqual(custom_joint.GetAttribute("newton:damping").Get(), 0.5)
+        # custom_joint is a hinge, so the per-radian MJC damping is authored per degree in Newton
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:damping").Get(), 0.5 * math.pi / 180.0, places=6)
         self.assertTrue(custom_joint.GetAttribute("newton:friction").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("newton:friction").Get(), 0.2)
         self.assertFalse(custom_joint.GetAttribute("newton:velocityLimit").HasAuthoredValue())
