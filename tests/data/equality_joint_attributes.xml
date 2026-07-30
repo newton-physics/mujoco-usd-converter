@@ -39,7 +39,7 @@
            joint2="slide1"
            solimp="0.9 0.95 0.001 0.5 2"
            solref="0.02 1"
-           polycoef="0 1 0 0 0"/>
+           polycoef="0.25 1 0 0 0"/>
     <!-- Disabled joint equality: active="false" → physics:jointEnabled authored and false -->
     <joint name="disabled_joint_eq"
            joint1="hinge2"

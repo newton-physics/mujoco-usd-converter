@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import mujoco
+import numpy as np
 import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom, Vt
 
@@ -169,10 +170,19 @@ def convert_equality(
             Tf.Warn(f"Joint '{equality.name2}' not found for equality '{equality.name}'")
             return equality_prim, False
 
+        # NewtonMimicAPI authors coef0 in the follower joint's position units, which is
+        # degrees for an angular joint. MuJoCo's polycoef[0] is always radians -- unlike
+        # joint ranges it is not affected by compiler.degree -- so convert on joint type
+        # alone. coef1 is dimensionless in both.
+        coef0 = equality.data[0]
+        follower = data.spec.joint(equality.name1)
+        if follower is not None and follower.type in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_BALL):
+            coef0 = np.degrees(coef0)
+
         # Apply the NewtonMimicAPI schema
         joint_prim.ApplyAPI("NewtonMimicAPI")
         set_schema_attribute(joint_prim, "newton:mimicEnabled", equality.active)
-        set_schema_attribute(joint_prim, "newton:mimicCoef0", equality.data[0])
+        set_schema_attribute(joint_prim, "newton:mimicCoef0", coef0)
         set_schema_attribute(joint_prim, "newton:mimicCoef1", equality.data[1])
         joint_prim.GetRelationship("newton:mimicJoint").SetTargets([target_joint_path])
 

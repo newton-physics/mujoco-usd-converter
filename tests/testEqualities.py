@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
+import math
 import pathlib
 
 import usdex.test
@@ -332,7 +333,9 @@ class TestEqualities(ConverterTestCase):
 
         # Check NewtonMimicAPI attributes
         self.assertTrue(custom_joint.HasAPI("NewtonMimicAPI"))
-        self.assertAlmostEqual(custom_joint.GetAttribute("newton:mimicCoef0").Get(), 0.5)
+        # polycoef[0] is radians; NewtonMimicAPI defines coef0 in the follower's position
+        # units, so a hinge follower is authored in degrees.
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:mimicCoef0").Get(), math.degrees(0.5), places=4)
         self.assertAlmostEqual(custom_joint.GetAttribute("newton:mimicCoef1").Get(), 1.5)
         targets = custom_joint.GetRelationship("newton:mimicJoint").GetTargets()
         self.assertEqual(len(targets), 1)
@@ -371,7 +374,8 @@ class TestEqualities(ConverterTestCase):
 
         # Check NewtonMimicAPI attributes
         self.assertTrue(default_joint.HasAPI("NewtonMimicAPI"))
-        self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef0").Get(), 0.0)
+        # A slide follower carries distance units, so polycoef[0] passes through unscaled.
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef0").Get(), 0.25, places=6)
         self.assertAlmostEqual(default_joint.GetAttribute("newton:mimicCoef1").Get(), 1.0)
         targets = default_joint.GetRelationship("newton:mimicJoint").GetTargets()
         self.assertEqual(len(targets), 1)
@@ -381,7 +385,14 @@ class TestEqualities(ConverterTestCase):
         self.assertAlmostEqual(default_joint.GetAttribute("newton:limitDamping").Get(), 100)
 
         # Check that only required relationships and Newton joint values whose schema defaults differ are authored.
-        authored_properties = ["newton:mimicJoint", "newton:limitStiffness", "newton:limitDamping"]
+        # mimicCoef0 is authored here because the fixture gives the slide follower a
+        # non-zero offset; a zero offset would match the schema default and be skipped.
+        authored_properties = [
+            "newton:mimicJoint",
+            "newton:mimicCoef0",
+            "newton:limitStiffness",
+            "newton:limitDamping",
+        ]
         for property in default_joint.GetPropertiesInNamespace("newton"):
             if property.GetName() in authored_properties:
                 self.assertTrue(self.__has_authored_value(property), f"Property {property.GetName()} is not authored")
