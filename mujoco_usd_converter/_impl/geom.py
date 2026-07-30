@@ -139,11 +139,10 @@ def get_mesh_fitting(geom: mujoco.MjsGeom, data: ConversionData) -> tuple[Gf.Vec
     if not hasattr(geom, "meshname") or not geom.meshname:
         return None, None, None
 
-    if data.model is None:
-        try:
-            data.model = data.spec.compile()
-        except Exception as e:
-            Tf.RaiseRuntimeError(f"Failed to compile model: {e}")
+    try:
+        data.get_model()
+    except Exception as e:
+        Tf.RaiseRuntimeError(f"Failed to compile model: {e}")
 
     geom_id = get_model_geom_id(geom, data)
     if geom_id is None:
