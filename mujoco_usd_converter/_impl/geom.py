@@ -123,7 +123,10 @@ def get_model_geom_id(geom: mujoco.MjsGeom, data: ConversionData) -> int:
     # If no geom name is specified, the target geom is searched for within the parent body.
     parent_body = geom.parent
     if not parent_body.name:
-        Tf.Warn(f"Parent body name not found (geom id: {geom.id})")
+        # MjsGeom.id is only assigned by compiling the spec in place, which the converter avoids.
+        # A geom's position in the spec is the id the compiler assigns it, so report that instead.
+        geom_index = next((i for i, g in enumerate(data.spec.geoms) if g is geom), None)
+        Tf.Warn(f"Parent body name not found (geom id: {geom_index})")
         return None
 
     for i in range(data.model.ngeom):

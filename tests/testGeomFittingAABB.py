@@ -17,7 +17,7 @@ class TestGeomFittingAABB(ConverterTestCase):
         with usdex.test.ScopedDiagnosticChecker(
             self,
             [
-                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Parent body name not found.*"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, r"Parent body name not found \(geom id: 1\)"),
                 (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Unsupported or unknown geom type mjtGeom.mjGEOM_ELLIPSOID for geom 'ellipsoid'"),
             ],
             level=usdex.core.DiagnosticsLevel.eWarning,
