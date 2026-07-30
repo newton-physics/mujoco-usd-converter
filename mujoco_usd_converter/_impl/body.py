@@ -4,7 +4,7 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
 from .geom import convert_geom, get_geom_name
@@ -18,6 +18,68 @@ __all__ = ["convert_bodies"]
 def convert_bodies(data: ConversionData):
     geo_scope = data.content[Tokens.Geometry].GetDefaultPrim().GetChild(Tokens.Geometry).GetPrim()
     convert_body(parent=geo_scope, name=data.spec.modelname, body=data.spec.worldbody, data=data)
+
+
+def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
+    """Whether this body's mass depends on a geom that USD cannot accumulate mass from.
+
+    MuJoCo infers body mass from every geom in ``inertiagrouprange``, including non-colliding
+    ones. USD accumulates only from enabled colliders, so such a body needs explicit mass.
+
+    Bodies whose mass comes solely from colliders are left alone: their mass is described as
+    the source expressed it, and baking would override an author's implicit intent.
+    """
+    if data.spec.compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
+        return False
+    lower, upper = data.spec.compiler.inertiagrouprange
+    for geom in body.geoms:
+        if geom.contype != 0 or geom.conaffinity != 0:
+            continue  # a collider; USD accumulates its mass
+        if not lower <= geom.group <= upper:
+            continue  # MuJoCo does not count it either
+        if not np.isnan(geom.mass):
+            if geom.mass > 0.0:
+                return True
+        elif geom.density > 0.0:
+            return True
+    return False
+
+
+def _compiled_body(body: mujoco.MjsBody, data: ConversionData) -> mujoco.MjsBody | None:
+    """Return ``body`` as compiled by MuJoCo, without disturbing the spec being converted.
+
+    Compilation is what assigns body ids, so the lookup goes by position in the spec, which
+    the compiled copy preserves.
+    """
+    try:
+        model = data.get_model()
+    except Exception as e:
+        Tf.Warn(f"Unable to compile the model to bake mass for body '{body.name}': {e}")
+        return None
+
+    index = next((i for i, b in enumerate(data.spec.bodies) if b is body), None)
+    if index is None or index >= model.nbody:
+        Tf.Warn(f"Unable to locate body '{body.name}' in the compiled model; mass not baked.")
+        return None
+    return model.body(index)
+
+
+def bake_body_mass(body: mujoco.MjsBody, body_over: Usd.Prim, data: ConversionData) -> None:
+    """Author MuJoCo's compiled mass, centre of mass and inertia on the body prim.
+
+    See :func:`requires_mass_bake` for when a body needs this.
+    """
+    compiled = _compiled_body(body, data)
+    if compiled is None:
+        return
+
+    mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
+    mass_api.CreateMassAttr().Set(float(compiled.mass[0]))
+    mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(compiled.ipos))
+    inertia = convert_vec3d(compiled.inertia)
+    if inertia != Gf.Vec3f(0, 0, 0):
+        mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(compiled.iquat).GetNormalized())
+        mass_api.CreateDiagonalInertiaAttr().Set(inertia)
 
 
 def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: ConversionData) -> UsdGeom.Xform:
@@ -79,6 +141,8 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
                 if not np.isnan(body.fullinertia[0]):
                     body_over.ApplyAPI("NewtonMassAPI")
                     set_schema_attribute(body_over, "newton:inertia", Vt.DoubleArray.FromNumpy(body.fullinertia))
+        elif requires_mass_bake(body, data):
+            bake_body_mass(body, body_over, data)
 
         convert_joints(parent=body_over, body=body, data=data)
 

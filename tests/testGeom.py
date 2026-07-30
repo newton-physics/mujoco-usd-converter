@@ -87,8 +87,8 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(visual_prim.GetAttribute("mjc:group").Get(), 1)
 
         guide_prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_visual")
-        self.assertFalse(guide_prim.HasAPI("MjcImageableAPI"))
-        self.assertTrue(guide_prim.HasAPI("MjcCollisionAPI"))
+        self.assertTrue(guide_prim.HasAPI("MjcImageableAPI"))
+        self.assertFalse(guide_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(guide_prim.GetAttribute("mjc:group").Get(), 3)
 
         guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_mesh_collider")
@@ -116,48 +116,27 @@ class TestGeom(ConverterTestCase):
         self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
-    def test_visual_with_mass(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_mass")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
-        # Density is NOT authored when mass is specified (mass XOR density)
-        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+    def test_visual_geoms_are_not_colliders(self):
+        """A geom that collides with nothing is authored as pure visual, whatever mass it carries.
 
-    def test_visual_with_density(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_density")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 2000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
-
-    def test_visual_in_range_no_mass(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_in_range_no_mass")
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
-
-    def test_guide_visual(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_visual")
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+        MuJoCo lets such a geom contribute to its body's mass. USD has no way to express that
+        -- a disabled collider contributes nothing (OpenUSD PR 4164) and mass on a prim that is
+        neither body nor collider is never accumulated -- so the mass moves to the body and the
+        geom is left as plain geometry.
+        """
+        for name, purpose in (
+            ("visual_with_mass", UsdGeom.Tokens.default_),
+            ("visual_with_density", UsdGeom.Tokens.default_),
+            ("visual_in_range_no_mass", UsdGeom.Tokens.default_),
+            ("guide_visual", UsdGeom.Tokens.guide),
+        ):
+            with self.subTest(geom=name):
+                prim: Usd.Prim = self.stage.GetPrimAtPath(f"/geoms/Geometry/geom_body/{name}")
+                self.assertTrue(prim.IsValid())
+                self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+                self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
+                self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+                self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), purpose)
 
     def test_mesh_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_mesh_collider")

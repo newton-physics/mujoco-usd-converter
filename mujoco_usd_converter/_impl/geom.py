@@ -278,23 +278,14 @@ def bind_material(geom_prim: Usd.Prim, name: str, data: ConversionData):
 def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionData):
     # most geom are colliders
     is_collider = True
-    collider_enabled = True
 
     # Tendons target non-collision geoms by name, so keep a mujoco name to USD path mapping
     if geom.name:
         data.geom_targets[geom.name] = geom_prim.GetPath()
 
-    # some geom are for vizualization only, but still contribute to the mass of the body
+    # exclude visual geom from physics; any mass they carry is baked onto the body instead
     if geom.contype == 0 and geom.conaffinity == 0:
-        if data.spec.compiler.inertiafromgeom != mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE and (
-            geom.group in range(data.spec.compiler.inertiagrouprange[0], data.spec.compiler.inertiagrouprange[1] + 1)
-        ):
-            if not np.isnan(geom.mass) or geom.density > 0.0:
-                collider_enabled = False
-            else:
-                is_collider = False
-        else:
-            is_collider = False
+        is_collider = False
 
     if not is_collider:
         # this is a purely visual geom, so we skip physics authoring
@@ -305,9 +296,7 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
 
     geom_over: Usd.Prim = data.content[Tokens.Physics].OverridePrim(geom_prim.GetPrim().GetPath())
 
-    collider: UsdPhysics.CollisionAPI = UsdPhysics.CollisionAPI.Apply(geom_over)
-    if not collider_enabled:
-        collider.CreateCollisionEnabledAttr().Set(False)
+    UsdPhysics.CollisionAPI.Apply(geom_over)
 
     geom_over.ApplyAPI("NewtonCollisionAPI")
     geom_over.ApplyAPI("MjcCollisionAPI")

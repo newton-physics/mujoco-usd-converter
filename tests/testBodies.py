@@ -126,6 +126,37 @@ class TestBodies(ConverterTestCase):
         self.assertTrue(gravcomp_prim.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertAlmostEqual(gravcomp_prim.GetAttribute("mjc:body:gravcomp").Get(), 0.2)
 
+    def test_mass_baked_when_a_visual_provides_it(self):
+        """A body whose mass depends on a non-colliding geom carries explicit mass properties.
+
+        MuJoCo infers body mass from every geom in ``inertiagrouprange``, including geoms that
+        collide with nothing. USD accumulates mass only from enabled colliders, so that
+        contribution would be lost; the compiled values are authored on the body instead.
+        """
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_visual")
+        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+        mass_api = UsdPhysics.MassAPI(prim)
+        # 3.0 from the visual geom plus 1.0 from the collider.
+        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 4.0, places=5)
+        self.assertTrue(mass_api.GetDiagonalInertiaAttr().HasAuthoredValue())
+
+        # The visual itself is plain geometry: no collider, no mass.
+        visual = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_visual/geom_0")
+        if visual.IsValid():
+            self.assertFalse(visual.HasAPI(UsdPhysics.CollisionAPI))
+            self.assertFalse(visual.HasAPI(UsdPhysics.MassAPI))
+
+    def test_mass_not_baked_when_only_colliders_provide_it(self):
+        """A body whose mass comes solely from colliders is left to USD accumulation.
+
+        The colliders carry the authored mass, so a reader can aggregate it. Baking here would
+        replace the source's per-geom description with a compiled number and override the
+        author's intent to leave the mass implicit.
+        """
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_colliders")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
     def test_zero_inertia(self):
         zero_inertia_prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/zero_inertia")
         self.assertTrue(zero_inertia_prim.HasAPI(UsdPhysics.RigidBodyAPI))
