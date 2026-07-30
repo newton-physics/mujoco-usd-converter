@@ -389,7 +389,15 @@ def create_physics_material(physics_materials: Usd.Prim, geom: mujoco.MjsGeom, d
     ke, kd = solref_to_stiffness_damping(geom.solref)
 
     name = data.name_cache.getPrimName(physics_materials, "PhysicsMaterial")
-    material: UsdShade.Material = usdex.core.definePhysicsMaterial(physics_materials, name, dynamicFriction=sliding_friction)
+    # MuJoCo has a single sliding friction coefficient, applied whether a contact is stuck or
+    # slipping, so both UsdPhysics coefficients take it. Leaving physics:staticFriction unauthored
+    # would not leave it unspecified: its schema fallback is 0.0, which no MuJoCo model means.
+    material: UsdShade.Material = usdex.core.definePhysicsMaterial(
+        physics_materials,
+        name,
+        dynamicFriction=sliding_friction,
+        staticFriction=sliding_friction,
+    )
 
     material.GetPrim().ApplyAPI("NewtonMaterialAPI")
     set_schema_attribute(material.GetPrim(), "newton:torsionalFriction", torsional_friction)
