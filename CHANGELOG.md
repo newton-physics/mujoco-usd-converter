@@ -1,3 +1,28 @@
+# 0.4.1
+
+## Fixes
+
+- Fixed inaccurate density authoring when only mass was specified
+- Fixed inaccurate mass authoring for visuals
+  - Visual geoms within `inertiagrouprange` contribute to body mass in MuJoCo, and were previously authored as disabled colliders so USD would accumulate that mass
+    - Per AOUSD Physics WG, a disabled collider should not contribute mass to its body. It is a bug in OpenUSD implementation that should not be exploited
+  - Such geoms are now authored as purely visual, with MuJoCo's compiled mass, center of mass, and inertia authored on the owning body via `UsdPhysics.MassAPI`
+  - Bodies whose mass comes solely from true colliders are left as-is, matching the authored intent of the MJCF
+    - Per UsdPhysics docs, when no explicit body mass is specified, engines must accumulate implicit mass of the body using collider mass & volume
+- Fixed `newton:damping` authoring to be in degrees for angular joints
+- Fixed `newton:mimicCoef0` authoring to be in degrees for angular joints
+  - MJCF authors joint equality constraints in the joint's position units (radians for hinge)
+  - `NewtonMimicAPI` documents `coef0` in degrees, so this needs to be converted
+    - Slide followers were already correct as were `coef1`, which is dimensionless.
+  - Important: Newton 1.4 and older fail to handle the degrees-to-radians conversion for `coef0` when loading USD assets
+    - This is fixed in Newton 1.5 and newer
+- Fixed material friction to author both static & dynamic friction from `geom/friction[0]`
+  - While MuJoCo only has one value for the sliding friction bounding tangential force in the friction cone, it
+    should apply whether a contact is stuck or slipping; in USD the equates to both `physics:staticFriction` and `physics:dynamicFriction`
+- Fixed accidental `MjSpec` mutation caused by model compilation
+  - We now copy the MjSpec before compilation to ensure the original spec remains immutable
+- Fixed the reported geom `id` in mesh fitting warning diagnostic messages
+
 # 0.4.0
 
 ## Features
