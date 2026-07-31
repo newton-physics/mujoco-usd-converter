@@ -60,6 +60,7 @@ class TestPhysicsMaterials(ConverterTestCase):
             set(phys_mat_1.GetPrim().GetAuthoredPropertyNames()),
             {
                 "physics:dynamicFriction",
+                "physics:staticFriction",
                 "newton:rollingFriction",
                 "newton:torsionalFriction",
                 "newton:contactStiffness",
@@ -67,6 +68,8 @@ class TestPhysicsMaterials(ConverterTestCase):
             },
         )
         self.assertAlmostEqual(phys_mat_1.GetDynamicFrictionAttr().Get(), 0.8)
+        # MuJoCo's single sliding coefficient applies stuck or slipping, so both USD coefficients take it
+        self.assertAlmostEqual(phys_mat_1.GetStaticFrictionAttr().Get(), 0.8)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:torsionalFriction").Get(), 0.1)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:rollingFriction").Get(), 0.05)
         self.assertAlmostEqual(phys_mat_1.GetPrim().GetAttribute("newton:contactStiffness").Get(), 2500.0)
@@ -92,6 +95,9 @@ class TestPhysicsMaterials(ConverterTestCase):
         self.assertTrue(default_friction_material_prim.HasAPI("PhysicsMaterialAPI"))
         self.assertFalse(default_friction_material_prim.GetAttribute("dynamicFriction").HasAuthoredValue())
         self.assertAlmostEqual(default_friction_material_prim.GetAttribute("physics:dynamicFriction").Get(), 1.0)
+        # authored rather than left to the 0.0 schema fallback, which would mean frictionless from rest
+        self.assertTrue(default_friction_material_prim.GetAttribute("physics:staticFriction").HasAuthoredValue())
+        self.assertAlmostEqual(default_friction_material_prim.GetAttribute("physics:staticFriction").Get(), 1.0)
 
         # Assert direct-mode solref (both negative) produces correct ke/kd
         direct_prim = stage.GetPrimAtPath("/physics_materials/Geometry/direct_solref")
