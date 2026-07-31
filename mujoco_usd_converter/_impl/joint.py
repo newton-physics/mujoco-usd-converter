@@ -67,11 +67,12 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint, limits[0] is not None and limits[1] is not None)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited: bool):
     prim.ApplyAPI("MjcJointAPI")
+    prim.ApplyAPI("NewtonJointAPI")
 
     limited_token = mj_limited_to_token(joint.actfrclimited)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
@@ -91,6 +92,44 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:springdamper", list(joint.springdamper))
     set_schema_attribute(prim, "mjc:springref", joint.springref)
     set_schema_attribute(prim, "mjc:stiffness", joint.stiffness[0])
+
+    set_schema_attribute(prim, "newton:armature", joint.armature)
+    set_schema_attribute(prim, "newton:damping", to_newton_angular_gain(joint, joint.damping[0]))
+    set_schema_attribute(prim, "newton:friction", joint.frictionloss)
+    if is_joint_limited:
+        limit_stiffness, limit_damping = get_newton_limit_stiffness_damping(joint)
+        if limit_stiffness is not None:
+            set_schema_attribute(prim, "newton:limitStiffness", limit_stiffness)
+        if limit_damping is not None:
+            set_schema_attribute(prim, "newton:limitDamping", limit_damping)
+
+
+def to_newton_angular_gain(joint: mujoco.MjsJoint, value: float) -> float:
+    """Convert a MuJoCo per-radian gain to the per-degree convention used by NewtonJointAPI.
+
+    MuJoCo authors angular gains (damping, stiffness, limit gains) per radian, while the
+    NewtonJointAPI attributes are per degree. Linear DOFs are unaffected.
+    """
+    if joint.type in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_BALL):
+        return value * (np.pi / 180.0)
+    return value
+
+
+def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint) -> tuple[float | None, float | None]:
+    timeconst = joint.solref_limit[0]
+    dampratio = joint.solref_limit[1]
+
+    if timeconst < 0.0 and dampratio < 0.0:
+        stiffness = -timeconst
+        damping = -dampratio
+    else:
+        if timeconst <= 0.0 or dampratio <= 0.0:
+            return None, None
+        stiffness = 1.0 / (timeconst * timeconst * dampratio * dampratio)
+        damping = 2.0 / timeconst
+
+    # NewtonJointAPI angular limit stiffness/damping are authored per degree.
+    return to_newton_angular_gain(joint, stiffness), to_newton_angular_gain(joint, damping)
 
 
 def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:

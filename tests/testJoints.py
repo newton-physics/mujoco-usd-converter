@@ -1,14 +1,80 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
+import math
 import pathlib
 
+import mujoco
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
+from mujoco_usd_converter._impl.joint import get_newton_limit_stiffness_damping
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestJoints(ConverterTestCase):
+
+    def test_newton_limit_stiffness_damping_from_solreflimit(self):
+        spec = mujoco.MjSpec()
+        body = spec.worldbody.add_body(name="limit_gain_test_body")
+
+        def add_joint(name, joint_type, solref_limit):
+            joint = body.add_joint(name=name, type=joint_type)
+            joint.solref_limit = solref_limit
+            return joint
+
+        # Standard positive solref mode:
+        #   stiffness = 1 / (timeconst^2 * dampratio^2)
+        #   damping = 2 / timeconst
+        linear_joint = add_joint("linear_joint", mujoco.mjtJoint.mjJNT_SLIDE, [0.04, 0.5])
+        stiffness, damping = get_newton_limit_stiffness_damping(linear_joint)
+        self.assertAlmostEqual(stiffness, 2500.0)
+        self.assertAlmostEqual(damping, 50.0)
+
+        # Hinge/ball limit gains are authored in USD's per-degree angular units.
+        hinge_joint = add_joint("hinge_joint", mujoco.mjtJoint.mjJNT_HINGE, [0.04, 0.5])
+        stiffness, damping = get_newton_limit_stiffness_damping(hinge_joint)
+        self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
+        self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
+
+        ball_joint = add_joint("ball_joint", mujoco.mjtJoint.mjJNT_BALL, [0.04, 0.5])
+        stiffness, damping = get_newton_limit_stiffness_damping(ball_joint)
+        self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
+        self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
+
+        # Direct negative solref mode encodes (-stiffness, -damping).
+        direct_joint = add_joint("direct_joint", mujoco.mjtJoint.mjJNT_SLIDE, [-12.0, -3.0])
+        stiffness, damping = get_newton_limit_stiffness_damping(direct_joint)
+        self.assertAlmostEqual(stiffness, 12.0)
+        self.assertAlmostEqual(damping, 3.0)
+
+        # Invalid mixed-sign or zero values are not converted.
+        for index, solref_limit in enumerate(([0.0, 1.0], [0.04, 0.0], [-12.0, 3.0], [12.0, -3.0])):
+            joint = add_joint(f"invalid_joint_{index}", mujoco.mjtJoint.mjJNT_SLIDE, solref_limit)
+            self.assertEqual(get_newton_limit_stiffness_damping(joint), (None, None))
+
+    def test_newton_damping_is_per_degree(self):
+        # MuJoCo authors joint damping per radian, but NewtonJointAPI authors it per degree,
+        # so angular DOFs must be scaled while linear DOFs pass through unchanged.
+        model = pathlib.Path("./tests/data/joint_damping.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
+        # the MJC attribute retains the authored per-radian value
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:damping").Get(), 0.1)
+
+        ball: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body2/ball_joint")
+        self.assertTrue(ball.IsValid())
+        self.assertAlmostEqual(ball.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
+        self.assertAlmostEqual(ball.GetAttribute("mjc:damping").Get(), 0.1)
+
+        slide: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body3/slide_joint")
+        self.assertTrue(slide.IsValid())
+        self.assertAlmostEqual(slide.GetAttribute("newton:damping").Get(), 0.1)
+        self.assertAlmostEqual(slide.GetAttribute("mjc:damping").Get(), 0.1)
 
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
@@ -290,8 +356,10 @@ class TestJoints(ConverterTestCase):
         )
         self.assertRotationsAlmostEqual(fixed_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
 
-        # A free floating body has no joint in USD
+        # A free floating body has no joint to world, but it is an articulation root
+        # because its child body is connected by an implicit fixed joint.
         body3_prim = stage.GetPrimAtPath("/fixed_vs_free_joints/Geometry/body3")
+        self.assertTrue(body3_prim.HasAPI(UsdPhysics.ArticulationRootAPI))
         for child in body3_prim.GetChildren():
             self.assertFalse(child.IsA(UsdPhysics.Joint))
 
@@ -302,6 +370,29 @@ class TestJoints(ConverterTestCase):
         fixed_joint = UsdPhysics.FixedJoint(joint_prim)
         self.assertEqual(fixed_joint.GetBody0Rel().GetTargets(), [body3_prim.GetPath()])
         self.assertEqual(fixed_joint.GetBody1Rel().GetTargets(), [body4_prim.GetPath()])
+
+    def test_mjcf_articulation_roots_add_mobility(self):
+        model = pathlib.Path("./tests/data/stacked_joints.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        stacked_root = stage.GetPrimAtPath("/stacked_joints/Geometry/stacked_root")
+        self.assertTrue(stacked_root.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(stacked_root.HasAPI("NewtonArticulationRootAPI"))
+        self.assertTrue(stacked_root.GetAttribute("newton:jointsAddMobility").HasAuthoredValue())
+        self.assertTrue(stacked_root.GetAttribute("newton:jointsAddMobility").Get())
+
+        hinge_x = stage.GetPrimAtPath("/stacked_joints/Geometry/stacked_root/stacked_child/hinge_x")
+        hinge_y = stage.GetPrimAtPath("/stacked_joints/Geometry/stacked_root/stacked_child/hinge_y")
+        self.assertTrue(hinge_x.IsA(UsdPhysics.RevoluteJoint))
+        self.assertTrue(hinge_y.IsA(UsdPhysics.RevoluteJoint))
+
+        single_root = stage.GetPrimAtPath("/stacked_joints/Geometry/single_root")
+        self.assertTrue(single_root.HasAPI(UsdPhysics.ArticulationRootAPI))
+        self.assertTrue(single_root.HasAPI("NewtonArticulationRootAPI"))
+        self.assertTrue(single_root.GetAttribute("newton:jointsAddMobility").HasAuthoredValue())
+        self.assertTrue(single_root.GetAttribute("newton:jointsAddMobility").Get())
 
     def test_joint_group(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
@@ -358,6 +449,29 @@ class TestJoints(ConverterTestCase):
         self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
 
+        # Direct-mode solreflimit encodes stiffness and damping directly, then
+        # angular joints are authored in the per-degree units expected by USD.
+        direct_limit_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body5/body6/direct_limit_joint"))
+        self.assertTrue(direct_limit_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertAlmostEqual(direct_limit_joint.GetLowerLimitAttr().Get(), -20)
+        self.assertAlmostEqual(direct_limit_joint.GetUpperLimitAttr().Get(), 20)
+        direct_limit_prim = direct_limit_joint.GetPrim()
+        self.assertTrue(direct_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertAlmostEqual(direct_limit_prim.GetAttribute("newton:limitStiffness").Get(), 12 * math.pi / 180.0)
+        self.assertTrue(direct_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
+        self.assertAlmostEqual(direct_limit_prim.GetAttribute("newton:limitDamping").Get(), 3 * math.pi / 180.0)
+
+        # Prismatic joints use the raw linear stiffness/damping conversion.
+        linear_limit_joint = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body7/body8/linear_limit_joint"))
+        self.assertTrue(linear_limit_joint.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertAlmostEqual(linear_limit_joint.GetLowerLimitAttr().Get(), -0.2)
+        self.assertAlmostEqual(linear_limit_joint.GetUpperLimitAttr().Get(), 0.4)
+        linear_limit_prim = linear_limit_joint.GetPrim()
+        self.assertTrue(linear_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertAlmostEqual(linear_limit_prim.GetAttribute("newton:limitStiffness").Get(), 2500)
+        self.assertTrue(linear_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
+        self.assertAlmostEqual(linear_limit_prim.GetAttribute("newton:limitDamping").Get(), 50)
+
     def test_mjc_schema(self):
         # Test that all joint attributes are authored correctly
         model = pathlib.Path("./tests/data/joint_attributes.xml")
@@ -370,6 +484,7 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(custom_joint.IsValid())
         self.assertTrue(custom_joint.IsA(UsdPhysics.RevoluteJoint))
         self.assertTrue(custom_joint.HasAPI("MjcJointAPI"))
+        self.assertTrue(custom_joint.HasAPI("NewtonJointAPI"))
 
         # Check that all MJC properties are authored
         for property in custom_joint.GetPropertiesInNamespace("mjc"):
@@ -423,12 +538,25 @@ class TestJoints(ConverterTestCase):
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:springref").Get(), 0.2)
         self.assertTrue(custom_joint.GetAttribute("mjc:stiffness").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:stiffness").Get(), 100)
+        self.assertTrue(custom_joint.GetAttribute("newton:armature").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:armature").Get(), 0.1)
+        self.assertTrue(custom_joint.GetAttribute("newton:damping").HasAuthoredValue())
+        # custom_joint is a hinge, so the per-radian MJC damping is authored per degree in Newton
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:damping").Get(), 0.5 * math.pi / 180.0, places=6)
+        self.assertTrue(custom_joint.GetAttribute("newton:friction").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:friction").Get(), 0.2)
+        self.assertFalse(custom_joint.GetAttribute("newton:velocityLimit").HasAuthoredValue())
+        self.assertTrue(custom_joint.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:limitStiffness").Get(), 40000 * math.pi / 180.0, places=4)
+        self.assertTrue(custom_joint.GetAttribute("newton:limitDamping").HasAuthoredValue())
+        self.assertAlmostEqual(custom_joint.GetAttribute("newton:limitDamping").Get(), 200 * math.pi / 180.0, places=4)
 
         # A joint with explicitly authored default values in MJC does not need to author any values in USD
         default_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body2/default_joint")
         self.assertTrue(default_joint.IsValid())
         self.assertTrue(default_joint.IsA(UsdPhysics.PrismaticJoint))
         self.assertTrue(default_joint.HasAPI("MjcJointAPI"))
+        self.assertTrue(default_joint.HasAPI("NewtonJointAPI"))
         self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrclimited").HasAuthoredValue())
         self.assertEqual(default_joint.GetAttribute("mjc:actuatorfrclimited").Get(), "auto")
         self.assertFalse(default_joint.GetAttribute("mjc:actuatorfrcrange:min").HasAuthoredValue())
@@ -451,6 +579,15 @@ class TestJoints(ConverterTestCase):
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:springref").Get(), 0.0)
         self.assertFalse(default_joint.GetAttribute("mjc:stiffness").HasAuthoredValue())
         self.assertAlmostEqual(default_joint.GetAttribute("mjc:stiffness").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("newton:armature").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:armature").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("newton:damping").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:damping").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("newton:friction").HasAuthoredValue())
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:friction").Get(), 0)
+        self.assertFalse(default_joint.GetAttribute("newton:velocityLimit").HasAuthoredValue())
+        self.assertFalse(default_joint.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertFalse(default_joint.GetAttribute("newton:limitDamping").HasAuthoredValue())
 
     def test_joint_to_worldbody(self):
         model = pathlib.Path("./tests/data/simple_actuator.xml")

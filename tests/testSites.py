@@ -32,6 +32,7 @@ class TestSites(ConverterTestCase):
         self.assertTrue(Gf.IsClose(usdex.core.getLocalTransform(site).GetScale(), Gf.Vec3d(0.1, 0.2, 0.3), 1e-6))
         self.assertEqual(box.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
         self.assertTrue(site.GetPrim().HasAPI("MjcSiteAPI"))
+        self.assertTrue(site.GetPrim().HasAPI("NewtonSiteAPI"))
         self.assertEqual(site.GetAttribute("mjc:group").Get(), 0)
 
         world_site: Usd.Prim = stage.GetPrimAtPath("/sites/Geometry/worldsite")
@@ -41,6 +42,7 @@ class TestSites(ConverterTestCase):
         self.assertEqual(world_sphere.GetRadiusAttr().Get(), 0.005)
         self.assertEqual(world_sphere.GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
         self.assertTrue(world_site.GetPrim().HasAPI("MjcSiteAPI"))
+        self.assertTrue(world_site.GetPrim().HasAPI("NewtonSiteAPI"))
         self.assertEqual(world_site.GetAttribute("mjc:group").Get(), 1)
 
     def test_sites_in_physics_layer(self):
@@ -77,6 +79,8 @@ class TestSites(ConverterTestCase):
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/body/site")
         self.assertTrue(site_over.HasAPI("MjcSiteAPI"))
+        self.assertTrue(site_over.HasAPI("NewtonSiteAPI"))
 
         world_site_over: Usd.Prim = physics_stage.GetPrimAtPath("/sites/Geometry/worldsite")
         self.assertTrue(world_site_over.HasAPI("MjcSiteAPI"))
+        self.assertTrue(world_site_over.HasAPI("NewtonSiteAPI"))

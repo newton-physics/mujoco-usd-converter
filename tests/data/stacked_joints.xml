@@ -1,0 +1,22 @@
+<mujoco model="stacked_joints">
+  <worldbody>
+    <body name="stacked_root" pos="0 0 1">
+      <freejoint/>
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <body name="stacked_child" pos="0 0 0.2">
+        <joint name="hinge_x" type="hinge" axis="1 0 0" range="-45 45"/>
+        <joint name="hinge_y" type="hinge" axis="0 1 0" range="-30 30"/>
+        <geom type="box" size="0.05 0.05 0.05"/>
+      </body>
+    </body>
+
+    <body name="single_root" pos="1 0 1">
+      <freejoint/>
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <body name="single_child" pos="0 0 0.2">
+        <joint name="single_hinge" type="hinge" axis="0 0 1" range="-45 45"/>
+        <geom type="box" size="0.05 0.05 0.05"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

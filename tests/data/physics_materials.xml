@@ -15,5 +15,14 @@
 
         <!-- Case 4: Geom with default friction and no visual material. -->
         <geom name="default_friction" type="sphere" size="0.1" pos="3 0 0"/>
+
+        <!-- Case 5: Geom with direct-mode solref (both values negative → direct spring/damper). -->
+        <geom name="direct_solref" type="box" size="0.1 0.1 0.1" pos="4 0 0" solref="-500 -50"/>
+
+        <!-- Case 6: Geom with invalid solref (timeconst = 0 → uses engine defaults). -->
+        <geom name="invalid_solref" type="box" size="0.1 0.1 0.1" pos="5 0 0" friction="0.3 0.01 0.001" solref="0 1"/>
+
+        <!-- Case 7: Matching invalid solref should reuse Case 6's physics material. -->
+        <geom name="invalid_solref_duplicate" type="box" size="0.1 0.1 0.1" pos="6 0 0" friction="0.3 0.01 0.001" solref="0 1"/>
     </worldbody>
 </mujoco>

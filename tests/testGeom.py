@@ -87,8 +87,8 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(visual_prim.GetAttribute("mjc:group").Get(), 1)
 
         guide_prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_visual")
-        self.assertFalse(guide_prim.HasAPI("MjcImageableAPI"))
-        self.assertTrue(guide_prim.HasAPI("MjcCollisionAPI"))
+        self.assertTrue(guide_prim.HasAPI("MjcImageableAPI"))
+        self.assertFalse(guide_prim.HasAPI("MjcCollisionAPI"))
         self.assertEqual(guide_prim.GetAttribute("mjc:group").Get(), 3)
 
         guide_mesh_collider_prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_mesh_collider")
@@ -116,48 +116,27 @@ class TestGeom(ConverterTestCase):
         self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
         self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
 
-    def test_visual_with_mass(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_mass")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 5.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
+    def test_visual_geoms_are_not_colliders(self):
+        """A geom that collides with nothing is authored as pure visual, whatever mass it carries.
 
-    def test_visual_with_density(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_with_density")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 2000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
-
-    def test_visual_in_range_no_mass(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/visual_in_range_no_mass")
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.default_)
-
-    def test_guide_visual(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_visual")
-        collider_api = UsdPhysics.CollisionAPI(prim)
-        self.assertFalse(collider_api.GetCollisionEnabledAttr().Get())
-        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
-        mass_api = UsdPhysics.MassAPI(prim)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000)
-        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
-        self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), UsdGeom.Tokens.guide)
+        MuJoCo lets such a geom contribute to its body's mass. USD has no way to express that
+        -- a disabled collider contributes nothing (OpenUSD PR 4164) and mass on a prim that is
+        neither body nor collider is never accumulated -- so the mass moves to the body and the
+        geom is left as plain geometry.
+        """
+        for name, purpose in (
+            ("visual_with_mass", UsdGeom.Tokens.default_),
+            ("visual_with_density", UsdGeom.Tokens.default_),
+            ("visual_in_range_no_mass", UsdGeom.Tokens.default_),
+            ("guide_visual", UsdGeom.Tokens.guide),
+        ):
+            with self.subTest(geom=name):
+                prim: Usd.Prim = self.stage.GetPrimAtPath(f"/geoms/Geometry/geom_body/{name}")
+                self.assertTrue(prim.IsValid())
+                self.assertFalse(prim.HasAPI(UsdPhysics.CollisionAPI))
+                self.assertFalse(prim.HasAPI("NewtonCollisionAPI"))
+                self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+                self.assertEqual(UsdGeom.Imageable(prim).GetPurposeAttr().Get(), purpose)
 
     def test_mesh_collider(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_mesh_collider")
@@ -174,8 +153,8 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 10.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_explicit_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/explicit_density")
@@ -186,12 +165,19 @@ class TestGeom(ConverterTestCase):
         self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
 
     def test_mass_and_density(self):
+        """When MJCF specifies both mass and density, only mass is authored in USD.
+
+        Per MJCF docs: 'If [mass] is specified, the density attribute is ignored.'
+        The density value in the compiled spec is either the authored density
+        (ignored by MuJoCo) or back-computed — either way it's not an independent
+        opinion and should not be emitted."""
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/mass_and_density")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 15.0)
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 4000)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_shell_inertia(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/shell_inertia")
@@ -199,6 +185,9 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
         self.assertTrue(prim.GetAttribute("mjc:shellinertia").Get())
+        self.assertTrue(prim.HasAPI("NewtonMassAPI"))
+        self.assertTrue(prim.GetAttribute("newton:massModel").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
 
     def test_mjc_mesh_collision_schema(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/all_mesh_collision_properties")
@@ -215,15 +204,25 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "convex")
 
-        # Check that mjc:maxhullvert attribute is authored and has the correct value
-        self.assertTrue(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), 100)
+        # Check that deprecated mjc:maxhullvert is not authored
+        self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
 
-        # Check that all MJC properties are authored
+        # Check that all non-deprecated MJC properties are authored
+        deprecated_replacements = {
+            "mjc:gap": "newton:contactGap",
+            "mjc:margin": "newton:contactMargin",
+            "mjc:maxhullvert": "newton:maxHullVertices",
+        }
         for property in prim.GetPropertiesInNamespace("mjc"):
             # skip shellinertia as it is not applicable to mesh colliders
             if property.GetName() == "mjc:shellinertia":
                 self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+            elif property.GetName() in deprecated_replacements:
+                self.assertFalse(
+                    property.HasAuthoredValue(),
+                    f"{property.GetName()} is deprecated; use {deprecated_replacements[property.GetName()]}",
+                )
             else:
                 self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
@@ -246,8 +245,10 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
         self.assertTrue(prim.GetAttribute("mjc:condim").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 4)
-        self.assertTrue(prim.GetAttribute("mjc:gap").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.02)
+        self.assertFalse(prim.GetAttribute("mjc:gap").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.0)
+        self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.02)
 
         # Check default collision properties do not apply the schema
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/default_mesh_collision_properties")
@@ -264,6 +265,9 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "shell")
+        self.assertTrue(prim.HasAPI("NewtonMassAPI"))
+        self.assertTrue(prim.GetAttribute("newton:massModel").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
         self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
         self.assertFalse(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
@@ -285,7 +289,7 @@ class TestGeom(ConverterTestCase):
 
         # Check that newton:contactMargin is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactMargin").HasAuthoredValue())
-        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.01)
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.03)
 
         # Check that newton:contactGap is authored with the correct value
         self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
@@ -295,10 +299,14 @@ class TestGeom(ConverterTestCase):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/default_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
+        self.assertFalse(prim.HasAPI("NewtonMassAPI"))
 
-        # Check that no MJC properties are authored
+        # Check that no MJC properties are authored (except solref, which is always authored for roundtrip fidelity)
         for property in prim.GetPropertiesInNamespace("mjc"):
-            self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+            if property.GetName() == "mjc:solref":
+                self.assertTrue(property.HasAuthoredValue(), "mjc:solref must always be authored")
+            else:
+                self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
 
         # Check that all MJC properties have default values
         self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 3)
@@ -316,17 +324,31 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
 
-        # Check that all MJC properties are authored
+        # Check that all non-deprecated MJC properties are authored.
+        deprecated_replacements = {
+            "mjc:gap": "newton:contactGap",
+            "mjc:margin": "newton:contactMargin",
+        }
         for property in prim.GetPropertiesInNamespace("mjc"):
-            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+            if property.GetName() in deprecated_replacements:
+                self.assertFalse(
+                    property.HasAuthoredValue(),
+                    f"{property.GetName()} is deprecated; use {deprecated_replacements[property.GetName()]}",
+                )
+            else:
+                self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
         # Check that all MJC properties have the correct values
         self.assertEqual(prim.GetAttribute("mjc:condim").Get(), 4)
-        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.02)
+        self.assertEqual(prim.GetAttribute("mjc:gap").Get(), 0.0)
         self.assertEqual(prim.GetAttribute("mjc:group").Get(), 1)
-        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.03)
+        self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.0)
         self.assertEqual(prim.GetAttribute("mjc:priority").Get(), 2)
         self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), True)
+        self.assertTrue(prim.HasAPI("NewtonMassAPI"))
+        self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.02)
+        self.assertAlmostEqual(prim.GetAttribute("newton:contactMargin").Get(), 0.03)
         self.assertEqual(prim.GetAttribute("mjc:solimp").Get(), [0.95, 0.99, 0.001, 0.5, 2.0])
         self.assertEqual(prim.GetAttribute("mjc:solmix").Get(), 0.9)
         self.assertEqual(prim.GetAttribute("mjc:solref").Get(), [0.05, 1.0])
@@ -346,8 +368,8 @@ class TestGeomInertiaFromGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
         mass_api = UsdPhysics.MassAPI(prim)
         self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 10.0)
-        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
-        self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 1000.0)
+        # Density is NOT authored when mass is specified (mass XOR density)
+        self.assertFalse(mass_api.GetDensityAttr().HasAuthoredValue())
 
     def test_explicit_density(self):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/explicit_density")

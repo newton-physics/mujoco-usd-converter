@@ -285,7 +285,7 @@ class TestAssetStructure(ConverterTestCase):
         physics_material: Usd.Prim = physics_scope.GetChild("PhysicsMaterial")
         self.assertEqual(physics_material.GetSpecifier(), Sdf.SpecifierDef)
         self.assertTrue(physics_material.IsA(UsdShade.Material))
-        self.assertEqual(physics_material.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "NewtonMaterialAPI", "MjcMaterialAPI"])
+        self.assertEqual(physics_material.GetAppliedSchemas(), [UsdPhysics.Tokens.PhysicsMaterialAPI, "NewtonMaterialAPI"])
         # physics materials are not references (visual materials are references)
         prim_specs: list[Sdf.PrimSpec] = physics_material.GetPrimStack()
         self.assertEqual(len(prim_specs), 1)

@@ -1,0 +1,19 @@
+<mujoco model="joint_damping">
+  <compiler angle="radian"/>
+  <worldbody>
+    <body name="body1" pos="0 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="hinge_joint" type="hinge" axis="1 0 0" damping="0.1"/>
+    </body>
+
+    <body name="body2" pos="0 1 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="ball_joint" type="ball" damping="0.1"/>
+    </body>
+
+    <body name="body3" pos="0 2 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="slide_joint" type="slide" axis="0 1 0" damping="0.1"/>
+    </body>
+  </worldbody>
+</mujoco>

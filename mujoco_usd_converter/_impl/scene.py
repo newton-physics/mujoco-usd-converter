@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import usdex.core
-from pxr import Gf, Tf, Usd, UsdPhysics, Vt
+from pxr import Gf, Usd, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
 from .numpy import convert_vec3d
@@ -53,10 +53,10 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:flag:eulerdamp", not is_disabled(1 << 15, data))
     set_schema_attribute(scene_prim, "mjc:flag:filterparent", not is_disabled(1 << 10, data))
     set_schema_attribute(scene_prim, "mjc:flag:frictionloss", not is_disabled(1 << 2, data))
-    set_schema_attribute(scene_prim, "mjc:flag:gravity", gravity_enabled)
     set_schema_attribute(scene_prim, "mjc:flag:island", not is_disabled(1 << 18, data))
     set_schema_attribute(scene_prim, "mjc:flag:limit", not is_disabled(1 << 3, data))
     set_schema_attribute(scene_prim, "mjc:flag:midphase", not is_disabled(1 << 14, data))
+    set_schema_attribute(scene_prim, "mjc:flag:multiccd", not is_disabled(1 << 19, data))
     set_schema_attribute(scene_prim, "mjc:flag:nativeccd", not is_disabled(1 << 17, data))
     set_schema_attribute(scene_prim, "mjc:flag:refsafe", not is_disabled(1 << 12, data))
     set_schema_attribute(scene_prim, "mjc:flag:sensor", not is_disabled(1 << 13, data))
@@ -67,16 +67,6 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:flag:energy", is_enabled(1 << 1, data))
     set_schema_attribute(scene_prim, "mjc:flag:fwdinv", is_enabled(1 << 2, data))
     set_schema_attribute(scene_prim, "mjc:flag:invdiscrete", is_enabled(1 << 3, data))
-
-    # multiccd should be enabled by default, but the schema was not changed to reflect this
-    # We set it to the data spec value regardless of the schema default
-    # If the default schema value is ever changed to enable multiccd, remove the workaround and use set_schema_attribute
-    attr = scene_prim.GetAttribute("mjc:flag:multiccd")
-    default = attr.Get()
-    if default:
-        Tf.Warn("mjc:flag:multiccd default value is fixed, revert the workaround for the incorrect schema default")
-    attr.Set(is_enabled(1 << 4, data))
-
     set_schema_attribute(scene_prim, "mjc:flag:override", is_enabled(1 << 0, data))
 
     actuator_groups = [i for i in range(31) if data.spec.option.disableactuator & (1 << i)]
@@ -88,7 +78,6 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:density", data.spec.option.density)
     set_schema_attribute(scene_prim, "mjc:option:impratio", data.spec.option.impratio)
     set_schema_attribute(scene_prim, "mjc:option:integrator", get_integrator_token(data.spec.option.integrator))
-    set_schema_attribute(scene_prim, "mjc:option:iterations", data.spec.option.iterations)
     set_schema_attribute(scene_prim, "mjc:option:jacobian", get_jacobian_token(data.spec.option.jacobian))
     set_schema_attribute(scene_prim, "mjc:option:ls_iterations", data.spec.option.ls_iterations)
     set_schema_attribute(scene_prim, "mjc:option:ls_tolerance", data.spec.option.ls_tolerance)
@@ -102,7 +91,6 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:sdf_initpoints", data.spec.option.sdf_initpoints)
     set_schema_attribute(scene_prim, "mjc:option:sdf_iterations", data.spec.option.sdf_iterations)
     set_schema_attribute(scene_prim, "mjc:option:solver", get_solver_token(data.spec.option.solver))
-    set_schema_attribute(scene_prim, "mjc:option:timestep", timestep)
     set_schema_attribute(scene_prim, "mjc:option:tolerance", data.spec.option.tolerance)
     set_schema_attribute(scene_prim, "mjc:option:viscosity", data.spec.option.viscosity)
     set_schema_attribute(scene_prim, "mjc:option:wind", convert_vec3d(data.spec.option.wind))

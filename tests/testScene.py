@@ -43,9 +43,20 @@ class TestScene(ConverterTestCase):
         self.assertTrue(scene.GetAttribute("newton:gravityEnabled").HasAuthoredValue())
         self.assertEqual(scene.GetAttribute("newton:gravityEnabled").Get(), False)
 
-        # Check that all MJC properties are authored
+        # Check that all non-deprecated MJC properties are authored
+        deprecated_replacements = {
+            "mjc:flag:gravity": "newton:gravityEnabled",
+            "mjc:option:iterations": "newton:maxSolverIterations",
+            "mjc:option:timestep": "newton:timeStepsPerSecond",
+        }
         for property in scene.GetPropertiesInNamespace("mjc"):
-            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+            if property.GetName() in deprecated_replacements:
+                self.assertFalse(
+                    property.HasAuthoredValue(),
+                    f"{property.GetName()} is deprecated; use {deprecated_replacements[property.GetName()]}",
+                )
+            else:
+                self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
         # Test all flag attributes have been authored and have expected values
         # Disable flags (defaults to enabled=1, we set them to disabled=0)
@@ -60,7 +71,6 @@ class TestScene(ConverterTestCase):
             "mjc:flag:eulerdamp",
             "mjc:flag:filterparent",
             "mjc:flag:frictionloss",
-            "mjc:flag:gravity",
             "mjc:flag:island",
             "mjc:flag:limit",
             "mjc:flag:midphase",
@@ -75,6 +85,9 @@ class TestScene(ConverterTestCase):
         for attr_name in flag_attrs:
             attr: Usd.Attribute = scene.GetAttribute(attr_name)
             self.assertEqual(attr.Get(), False, f"Attribute {attr_name} should be False")
+
+        self.assertFalse(scene.GetAttribute("mjc:flag:gravity").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("mjc:flag:gravity").Get(), True)
 
         # Enable flags (defaults to disabled=0, we set them to enabled=1)
         enable_flag_attrs = [
@@ -97,7 +110,8 @@ class TestScene(ConverterTestCase):
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:impratio").Get(), 0.5)
         self.assertEqual(scene.GetAttribute("mjc:option:integrator").Get(), "rk4")
         self.assertEqual(scene.GetAttribute("mjc:option:jacobian").Get(), "sparse")
-        self.assertEqual(scene.GetAttribute("mjc:option:iterations").Get(), 200)
+        self.assertFalse(scene.GetAttribute("mjc:option:iterations").HasAuthoredValue())
+        self.assertEqual(scene.GetAttribute("mjc:option:iterations").Get(), 100)
         self.assertEqual(scene.GetAttribute("mjc:option:ls_iterations").Get(), 100)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:ls_tolerance").Get(), 0.02)
         self.assertTrue(Gf.IsClose(scene.GetAttribute("mjc:option:magnetic").Get(), Gf.Vec3d(0.1, 0.2, 0.3), 1e-6))
@@ -110,7 +124,8 @@ class TestScene(ConverterTestCase):
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_initpoints").Get(), 60)
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_iterations").Get(), 20)
         self.assertEqual(scene.GetAttribute("mjc:option:solver").Get(), "cg")
-        self.assertAlmostEqual(scene.GetAttribute("mjc:option:timestep").Get(), 0.01)
+        self.assertFalse(scene.GetAttribute("mjc:option:timestep").HasAuthoredValue())
+        self.assertAlmostEqual(scene.GetAttribute("mjc:option:timestep").Get(), 0.002)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:tolerance").Get(), 1e-6)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:viscosity").Get(), 0.1)
         self.assertTrue(Gf.IsClose(scene.GetAttribute("mjc:option:wind").Get(), Gf.Vec3d(1, 2, 3), 1e-6))
@@ -157,16 +172,8 @@ class TestScene(ConverterTestCase):
         self.assertTrue(physics_scene.GetGravityMagnitudeAttr().HasAuthoredValue())
         self.assertAlmostEqual(physics_scene.GetGravityMagnitudeAttr().Get(), 9.81, 5)
 
-        # Check that only MJC properties without a default value are authored
-        # Some properties are overridden by the converter to match the data spec (remove this when the schema is updated)
-        overridden_properties = [
-            "mjc:flag:multiccd",
-        ]
         for property in scene.GetPropertiesInNamespace("mjc"):
-            if property.GetName() in overridden_properties:
-                self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} should be authored")
-            else:
-                self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
+            self.assertFalse(property.HasAuthoredValue(), f"Property {property.GetName()} should not be authored")
 
         # Test that default values are not authored but still available via schema defaults
         # Most flag attributes should not be authored since they match schema defaults
@@ -195,9 +202,7 @@ class TestScene(ConverterTestCase):
 
         for attr_name in default_enabled_flags:
             attr: Usd.Attribute = scene.GetAttribute(attr_name)
-            # Some properties are overridden by the converter to match the data spec (remove this when the schema is updated)
-            if attr_name not in overridden_properties:
-                self.assertEqual(attr.Get(), True, f"Default attribute {attr_name} should still return True via schema default")
+            self.assertEqual(attr.Get(), True, f"Default attribute {attr_name} should still return True via schema default")
 
         default_disabled_flags = [
             "mjc:flag:energy",
@@ -232,6 +237,7 @@ class TestScene(ConverterTestCase):
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_initpoints").Get(), 40)
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_iterations").Get(), 10)
         self.assertEqual(scene.GetAttribute("mjc:option:solver").Get(), "newton")
+        self.assertFalse(scene.GetAttribute("mjc:option:timestep").HasAuthoredValue())
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:timestep").Get(), 0.002)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:tolerance").Get(), 1e-8)
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:viscosity").Get(), 0)

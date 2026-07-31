@@ -1,0 +1,12 @@
+<mujoco model="mass_bake_child">
+    <worldbody>
+        <!-- mass comes from a non-colliding geom, which USD cannot accumulate: the body is baked -->
+        <body name="visual_mass">
+            <geom type="box" size="0.1 0.1 0.1" contype="0" conaffinity="0" mass="5.0"/>
+            <geom type="box" size="0.1 0.1 0.1" contype="1" conaffinity="1" mass="1.0"/>
+            <body name="nested" pos="0 0 0.5">
+                <geom type="sphere" size="0.05" mass="0.25"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>
