@@ -381,8 +381,11 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(targets), 1)
         self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
         self.assertTrue(default_joint.GetAttribute("newton:mimicEnabled").Get())
-        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitStiffness").Get(), 2500)
-        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitDamping").Get(), 100)
+        # The limit gains are lifted out of MuJoCo's normalized space into the effort
+        # space NewtonJointAPI defines, so they carry the constraint's effective inertia.
+        slide0_scale = self.limitForceScale(model, "slide0")
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitStiffness").Get(), 2500 / slide0_scale)
+        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitDamping").Get(), 100 / slide0_scale)
 
         # Check that only required relationships and Newton joint values whose schema defaults differ are authored.
         # mimicCoef0 is authored here because the fixture gives the slide follower a

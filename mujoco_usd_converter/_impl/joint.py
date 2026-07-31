@@ -67,10 +67,10 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint, limits[0] is not None and limits[1] is not None)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint, limits[0] is not None and limits[1] is not None, data)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited: bool):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited: bool, data: ConversionData):
     prim.ApplyAPI("MjcJointAPI")
     prim.ApplyAPI("NewtonJointAPI")
 
@@ -97,7 +97,7 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, is_joint_limited
     set_schema_attribute(prim, "newton:damping", to_newton_angular_gain(joint, joint.damping[0]))
     set_schema_attribute(prim, "newton:friction", joint.frictionloss)
     if is_joint_limited:
-        limit_stiffness, limit_damping = get_newton_limit_stiffness_damping(joint)
+        limit_stiffness, limit_damping = get_newton_limit_stiffness_damping(joint, get_limit_force_scale(joint, data))
         if limit_stiffness is not None:
             set_schema_attribute(prim, "newton:limitStiffness", limit_stiffness)
         if limit_damping is not None:
@@ -115,7 +115,45 @@ def to_newton_angular_gain(joint: mujoco.MjsJoint, value: float) -> float:
     return value
 
 
-def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint) -> tuple[float | None, float | None]:
+def get_limit_force_scale(joint: mujoco.MjsJoint, data: ConversionData) -> float:
+    """Compute the factor relating a normalized limit gain to its effort-space equivalent.
+
+    MuJoCo's `solreflimit` describes the limit constraint in normalized (acceleration)
+    units, so the effort it produces depends on the constraint's effective inertia.
+    `NewtonJointAPI` instead defines `effort = limitStiffness * penetration`, so the two
+    differ by that inertia, which MuJoCo exposes as the DOF's `invweight0` narrowed by the
+    impedance width `solimp[1]`.
+
+    Returns 1.0 when the joint has no compiled counterpart, or when MuJoCo itself would
+    not narrow the constraint, matching how the values are consumed downstream.
+    """
+    model = data.get_model()
+    joint_id = _get_compiled_joint_id(joint, data)
+    if joint_id < 0:
+        return 1.0
+    invweight = float(model.dof_invweight0[model.jnt_dofadr[joint_id]])
+    dmax = float(model.jnt_solimp[joint_id][1])
+    if invweight > 0.0 and dmax < 1.0:
+        return invweight * (1.0 - dmax)
+    return 1.0
+
+
+def _get_compiled_joint_id(joint: mujoco.MjsJoint, data: ConversionData) -> int:
+    """Resolve a spec joint's id in the compiled model.
+
+    `MjsJoint.id` stays unset because conversion compiles a copy of the spec, so named
+    joints resolve through the model while unnamed ones fall back to their position in
+    the spec, which the compiler preserves.
+    """
+    if joint.name:
+        return mujoco.mj_name2id(data.get_model(), mujoco.mjtObj.mjOBJ_JOINT, joint.name)
+    try:
+        return list(data.spec.joints).index(joint)
+    except ValueError:
+        return -1
+
+
+def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint, force_scale: float) -> tuple[float | None, float | None]:
     timeconst = joint.solref_limit[0]
     dampratio = joint.solref_limit[1]
 
@@ -127,6 +165,11 @@ def get_newton_limit_stiffness_damping(joint: mujoco.MjsJoint) -> tuple[float | 
             return None, None
         stiffness = 1.0 / (timeconst * timeconst * dampratio * dampratio)
         damping = 2.0 / timeconst
+
+    # Both gains are normalized by the constraint's effective inertia, so undo that to
+    # reach the effort space NewtonJointAPI defines. See get_limit_force_scale.
+    stiffness /= force_scale
+    damping /= force_scale
 
     # NewtonJointAPI angular limit stiffness/damping are authored per degree.
     return to_newton_angular_gain(joint, stiffness), to_newton_angular_gain(joint, damping)

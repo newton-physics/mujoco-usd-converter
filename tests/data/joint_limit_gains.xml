@@ -1,0 +1,14 @@
+<mujoco model="joint_limit_gains">
+  <compiler angle="radian"/>
+  <worldbody>
+    <body name="body1" pos="0 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="hinge_joint" type="hinge" axis="1 0 0" range="-0.5 0.5" limited="true" solreflimit="0.02 1"/>
+    </body>
+
+    <body name="body2" pos="0 1 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="slide_joint" type="slide" axis="0 1 0" range="-0.5 0.5" limited="true" solreflimit="0.04 0.5"/>
+    </body>
+  </worldbody>
+</mujoco>
