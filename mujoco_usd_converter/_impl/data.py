@@ -36,3 +36,13 @@ class ConversionData:
     name_cache: usdex.core.NameCache
     scene: bool
     comment: str
+
+    def get_model(self) -> mujoco.MjModel:
+        """Compile the spec on demand, caching the result. Raises if compilation fails.
+
+        A copy is compiled because ``MjSpec.compile()`` mutates the spec it is called on,
+        and conversion reads from the spec throughout.
+        """
+        if self.model is None:
+            self.model = self.spec.copy().compile()
+        return self.model

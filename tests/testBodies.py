@@ -4,9 +4,13 @@ import pathlib
 
 import mujoco
 import numpy as np
-from pxr import Gf, Sdf, Usd, UsdPhysics
+import usdex.core
+import usdex.test
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom, UsdPhysics
 
 import mujoco_usd_converter
+from mujoco_usd_converter._impl.body import bake_body_mass, get_model_body_id
+from mujoco_usd_converter._impl.data import ConversionData
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
@@ -125,6 +129,119 @@ class TestBodies(ConverterTestCase):
         gravcomp_prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/gravity_compensated")
         self.assertTrue(gravcomp_prim.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertAlmostEqual(gravcomp_prim.GetAttribute("mjc:body:gravcomp").Get(), 0.2)
+
+    def test_mass_baked_when_a_visual_provides_it(self):
+        """A body whose mass depends on a non-colliding geom carries explicit mass properties.
+
+        MuJoCo infers body mass from every geom in ``inertiagrouprange``, including geoms that
+        collide with nothing. USD accumulates mass only from enabled colliders, so that
+        contribution would be lost; the compiled values are authored on the body instead.
+        """
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_visual")
+        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+        mass_api = UsdPhysics.MassAPI(prim)
+        # 3.0 from the visual geom plus 1.0 from the collider.
+        self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 4.0, places=5)
+        self.assertTrue(mass_api.GetDiagonalInertiaAttr().HasAuthoredValue())
+
+        # The visual itself is plain geometry: no collider, no mass.
+        visual = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_visual/geom_0")
+        if visual.IsValid():
+            self.assertFalse(visual.HasAPI(UsdPhysics.CollisionAPI))
+            self.assertFalse(visual.HasAPI(UsdPhysics.MassAPI))
+
+    def test_mass_not_baked_when_only_colliders_provide_it(self):
+        """A body whose mass comes solely from colliders is left to USD accumulation.
+
+        The colliders carry the authored mass, so a reader can aggregate it. Baking here would
+        replace the source's per-geom description with a compiled number and override the
+        author's intent to leave the mass implicit.
+        """
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/mass_from_colliders")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
+    def test_mass_baked_onto_the_right_body_through_attach(self):
+        """Bake each body's own mass when attaching has shifted the compiled body ids.
+
+        Attaching splices the attached subtree into the body tree, so a body after the attach
+        point no longer compiles to the id its authored position among its siblings suggests.
+        Every body in the fixture carries a distinct mass, so a lookup that misidentified the
+        compiled body would bake a wrong number rather than fail outright.
+        """
+        model = pathlib.Path("./tests/data/mass_bake_attach.xml")
+        # a directory of its own, so this asset does not overwrite the payload of the one in setUp
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # 5.0 from the attached body's visual geom plus 1.0 from its collider
+        attached: Usd.Prim = stage.GetPrimAtPath("/mass_bake_attach/Geometry/before/attached_visual_mass")
+        self.assertTrue(attached.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(attached).GetMassAttr().Get(), 6.0, places=5)
+
+        # 9.0 from a visual geom plus 1.0 from a collider, two ids further along than authored
+        after: Usd.Prim = stage.GetPrimAtPath("/mass_bake_attach/Geometry/after")
+        self.assertTrue(after.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(after).GetMassAttr().Get(), 10.0, places=5)
+
+        for path in ("before", "before/attached_visual_mass/attached_nested"):
+            prim: Usd.Prim = stage.GetPrimAtPath(f"/mass_bake_attach/Geometry/{path}")
+            self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+            self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
+    def test_mass_not_baked_when_the_model_cannot_compile(self):
+        """Warn and carry on when a body needs its mass baked but the model will not compile.
+
+        Baking reads compiled values, which not every parsable MJCF can produce. Nothing else in
+        the conversion depends on them, so the asset is still written, without mass properties.
+        """
+        model = pathlib.Path("./tests/data/mass_bake_uncompilable.xml")
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Unable to compile the model to bake mass for body 'uncompilable'.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+        prim: Usd.Prim = stage.GetPrimAtPath("/mass_bake_uncompilable/Geometry/uncompilable")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
+    def test_mass_not_baked_for_a_body_outside_the_converted_spec(self):
+        """Warn rather than bake when the spec being converted does not contain the body.
+
+        The lookup is positional, so a body it cannot place has to be reported rather than
+        resolved to whichever body happens to occupy that position.
+        """
+        spec = mujoco.MjSpec.from_string("<mujoco><worldbody><body name='a'/></worldbody></mujoco>")
+        other = mujoco.MjSpec.from_string("<mujoco><worldbody><body name='b'/></worldbody></mujoco>")
+        data = ConversionData(
+            spec=spec,
+            model=None,
+            content={},
+            libraries={},
+            references={},
+            geom_targets={},
+            name_cache=usdex.core.NameCache(),
+            scene=False,
+            comment="",
+        )
+        compiled = data.get_model()
+        self.assertEqual(get_model_body_id(spec.body("a"), compiled, data), 1)
+        self.assertIsNone(get_model_body_id(other.body("b"), compiled, data))
+
+        stage: Usd.Stage = Usd.Stage.CreateInMemory()
+        prim: Usd.Prim = UsdGeom.Xform.Define(stage, "/body").GetPrim()
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Unable to locate body 'b' in the compiled model.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            bake_body_mass(other.body("b"), prim, data)
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
 
     def test_zero_inertia(self):
         zero_inertia_prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/zero_inertia")

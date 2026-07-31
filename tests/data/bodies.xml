@@ -49,6 +49,16 @@
             <geom type="box" size="0.1 0.1 0.1"/>
         </body>
 
+        <!-- mass comes from a non-colliding geom, which USD cannot accumulate: the body is baked -->
+        <body name="mass_from_visual" pos="6 0 0">
+            <geom type="box" size="0.1 0.1 0.1" contype="0" conaffinity="0" mass="3.0"/>
+            <geom type="box" size="0.1 0.1 0.1" contype="1" conaffinity="1" mass="1.0"/>
+        </body>
+        <!-- mass comes solely from colliders, so it is left to USD accumulation -->
+        <body name="mass_from_colliders" pos="7 0 0">
+            <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+            <geom type="box" size="0.1 0.1 0.1" pos="0.5 0 0" mass="1.0"/>
+        </body>
         <body name="zero_inertia" pos="5 0 0">
             <inertial pos="0.1 0.2 0.3" mass="2" diaginertia="0 0 0"/>
             <geom type="box" size="0.1 0.1 0.1"/>
