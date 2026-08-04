@@ -1,3 +1,9 @@
+# 0.4.2
+
+## Fixes
+
+- Fixed inaccurate joint limit gains derived from solreflimit
+
 # 0.4.1
 
 ## Fixes
