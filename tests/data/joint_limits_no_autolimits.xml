@@ -19,7 +19,7 @@
             </body>
         </body>
 
-        <!-- Direct-mode solreflimit should author Newton limit gains. -->
+        <!-- Direct-mode solreflimit, which encodes (-stiffness, -damping). -->
         <body name="body5">
             <geom type="box" size="0.1 0.1 0.1"/>
             <body name="body6">
@@ -28,7 +28,7 @@
             </body>
         </body>
 
-        <!-- Linear joints should not use angular per-degree scaling. -->
+        <!-- Standard-mode solreflimit, which encodes (timeconst, dampratio). -->
         <body name="body7">
             <geom type="box" size="0.1 0.1 0.1"/>
             <body name="body8">
