@@ -3,54 +3,13 @@
 import math
 import pathlib
 
-import mujoco
 from pxr import Gf, Sdf, Usd, UsdPhysics
 
 import mujoco_usd_converter
-from mujoco_usd_converter._impl.joint import get_newton_limit_stiffness_damping
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestJoints(ConverterTestCase):
-
-    def test_newton_limit_stiffness_damping_from_solreflimit(self):
-        spec = mujoco.MjSpec()
-        body = spec.worldbody.add_body(name="limit_gain_test_body")
-
-        def add_joint(name, joint_type, solref_limit):
-            joint = body.add_joint(name=name, type=joint_type)
-            joint.solref_limit = solref_limit
-            return joint
-
-        # Standard positive solref mode:
-        #   stiffness = 1 / (timeconst^2 * dampratio^2)
-        #   damping = 2 / timeconst
-        linear_joint = add_joint("linear_joint", mujoco.mjtJoint.mjJNT_SLIDE, [0.04, 0.5])
-        stiffness, damping = get_newton_limit_stiffness_damping(linear_joint)
-        self.assertAlmostEqual(stiffness, 2500.0)
-        self.assertAlmostEqual(damping, 50.0)
-
-        # Hinge/ball limit gains are authored in USD's per-degree angular units.
-        hinge_joint = add_joint("hinge_joint", mujoco.mjtJoint.mjJNT_HINGE, [0.04, 0.5])
-        stiffness, damping = get_newton_limit_stiffness_damping(hinge_joint)
-        self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
-        self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
-
-        ball_joint = add_joint("ball_joint", mujoco.mjtJoint.mjJNT_BALL, [0.04, 0.5])
-        stiffness, damping = get_newton_limit_stiffness_damping(ball_joint)
-        self.assertAlmostEqual(stiffness, 2500.0 * math.pi / 180.0)
-        self.assertAlmostEqual(damping, 50.0 * math.pi / 180.0)
-
-        # Direct negative solref mode encodes (-stiffness, -damping).
-        direct_joint = add_joint("direct_joint", mujoco.mjtJoint.mjJNT_SLIDE, [-12.0, -3.0])
-        stiffness, damping = get_newton_limit_stiffness_damping(direct_joint)
-        self.assertAlmostEqual(stiffness, 12.0)
-        self.assertAlmostEqual(damping, 3.0)
-
-        # Invalid mixed-sign or zero values are not converted.
-        for index, solref_limit in enumerate(([0.0, 1.0], [0.04, 0.0], [-12.0, 3.0], [12.0, -3.0])):
-            joint = add_joint(f"invalid_joint_{index}", mujoco.mjtJoint.mjJNT_SLIDE, solref_limit)
-            self.assertEqual(get_newton_limit_stiffness_damping(joint), (None, None))
 
     def test_newton_damping_is_per_degree(self):
         # MuJoCo authors joint damping per radian, but NewtonJointAPI authors it per degree,
@@ -449,28 +408,40 @@ class TestJoints(ConverterTestCase):
         self.assertFalse(unlimited_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(unlimited_joint.GetUpperLimitAttr().HasAuthoredValue())
 
-        # Direct-mode solreflimit encodes stiffness and damping directly, then
-        # angular joints are authored in the per-degree units expected by USD.
+        # A limit constraint is carried by mjc:solreflimit alone. The Newton-generic gains
+        # are effort per unit penetration, which MJCF does not express, so they stay
+        # unauthored and fall back to the schema sentinel. See newton-physics/newton#3762.
         direct_limit_joint = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body5/body6/direct_limit_joint"))
         self.assertTrue(direct_limit_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertAlmostEqual(direct_limit_joint.GetLowerLimitAttr().Get(), -20)
         self.assertAlmostEqual(direct_limit_joint.GetUpperLimitAttr().Get(), 20)
         direct_limit_prim = direct_limit_joint.GetPrim()
-        self.assertTrue(direct_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
-        self.assertAlmostEqual(direct_limit_prim.GetAttribute("newton:limitStiffness").Get(), 12 * math.pi / 180.0)
-        self.assertTrue(direct_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
-        self.assertAlmostEqual(direct_limit_prim.GetAttribute("newton:limitDamping").Get(), 3 * math.pi / 180.0)
+        # Direct-mode solreflimit encodes (-stiffness, -damping) and round trips verbatim.
+        self.assertTrue(direct_limit_prim.GetAttribute("mjc:solreflimit").HasAuthoredValue())
+        actual_solreflimit = direct_limit_prim.GetAttribute("mjc:solreflimit").Get()
+        for i, expected in enumerate((-12.0, -3.0)):
+            self.assertAlmostEqual(actual_solreflimit[i], expected, places=5)
+        self.assertFalse(direct_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertFalse(direct_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
 
-        # Prismatic joints use the raw linear stiffness/damping conversion.
         linear_limit_joint = UsdPhysics.PrismaticJoint(stage.GetPrimAtPath("/joint_limits_no_autolimits/Geometry/body7/body8/linear_limit_joint"))
         self.assertTrue(linear_limit_joint.GetLowerLimitAttr().HasAuthoredValue())
         self.assertAlmostEqual(linear_limit_joint.GetLowerLimitAttr().Get(), -0.2)
         self.assertAlmostEqual(linear_limit_joint.GetUpperLimitAttr().Get(), 0.4)
         linear_limit_prim = linear_limit_joint.GetPrim()
-        self.assertTrue(linear_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
-        self.assertAlmostEqual(linear_limit_prim.GetAttribute("newton:limitStiffness").Get(), 2500)
-        self.assertTrue(linear_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
-        self.assertAlmostEqual(linear_limit_prim.GetAttribute("newton:limitDamping").Get(), 50)
+        self.assertTrue(linear_limit_prim.GetAttribute("mjc:solreflimit").HasAuthoredValue())
+        actual_solreflimit = linear_limit_prim.GetAttribute("mjc:solreflimit").Get()
+        for i, expected in enumerate((0.04, 0.5)):
+            self.assertAlmostEqual(actual_solreflimit[i], expected, places=5)
+        self.assertFalse(linear_limit_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertFalse(linear_limit_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
+
+        # A limited joint that leaves solreflimit at the MuJoCo default authors neither
+        # representation, so both fall back to their schema defaults.
+        limited_prim = limited_joint.GetPrim()
+        self.assertFalse(limited_prim.GetAttribute("mjc:solreflimit").HasAuthoredValue())
+        self.assertFalse(limited_prim.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertFalse(limited_prim.GetAttribute("newton:limitDamping").HasAuthoredValue())
 
     def test_mjc_schema(self):
         # Test that all joint attributes are authored correctly
@@ -546,10 +517,10 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(custom_joint.GetAttribute("newton:friction").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("newton:friction").Get(), 0.2)
         self.assertFalse(custom_joint.GetAttribute("newton:velocityLimit").HasAuthoredValue())
-        self.assertTrue(custom_joint.GetAttribute("newton:limitStiffness").HasAuthoredValue())
-        self.assertAlmostEqual(custom_joint.GetAttribute("newton:limitStiffness").Get(), 40000 * math.pi / 180.0, places=4)
-        self.assertTrue(custom_joint.GetAttribute("newton:limitDamping").HasAuthoredValue())
-        self.assertAlmostEqual(custom_joint.GetAttribute("newton:limitDamping").Get(), 200 * math.pi / 180.0, places=4)
+        # The custom solreflimit above is the only representation of the limit constraint;
+        # the Newton-generic gains are not derived from it.
+        self.assertFalse(custom_joint.GetAttribute("newton:limitStiffness").HasAuthoredValue())
+        self.assertFalse(custom_joint.GetAttribute("newton:limitDamping").HasAuthoredValue())
 
         # A joint with explicitly authored default values in MJC does not need to author any values in USD
         default_joint: Usd.Prim = stage.GetPrimAtPath("/joint_attributes/Geometry/body2/default_joint")

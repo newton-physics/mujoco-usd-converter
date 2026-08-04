@@ -381,17 +381,16 @@ class TestEqualities(ConverterTestCase):
         self.assertEqual(len(targets), 1)
         self.assertEqual("/equality_joint_attributes/Geometry/body2/body3/slide1", str(targets[0]))
         self.assertTrue(default_joint.GetAttribute("newton:mimicEnabled").Get())
-        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitStiffness").Get(), 2500)
-        self.assertAlmostEqual(default_joint.GetAttribute("newton:limitDamping").Get(), 100)
 
         # Check that only required relationships and Newton joint values whose schema defaults differ are authored.
         # mimicCoef0 is authored here because the fixture gives the slide follower a
         # non-zero offset; a zero offset would match the schema default and be skipped.
+        # The limit gains stay unauthored even though this joint is limited: the fixture
+        # leaves solreflimit at the MuJoCo default, so there is nothing non-default to say
+        # about the limit in either representation.
         authored_properties = [
             "newton:mimicJoint",
             "newton:mimicCoef0",
-            "newton:limitStiffness",
-            "newton:limitDamping",
         ]
         for property in default_joint.GetPropertiesInNamespace("newton"):
             if property.GetName() in authored_properties:
