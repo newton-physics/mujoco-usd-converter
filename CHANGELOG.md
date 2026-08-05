@@ -1,3 +1,9 @@
+# 0.5.0
+
+## Dependencies
+
+- Locked `mujoco` to `>=3.11.0,<3.12` to avoid breaking changes in 3.12.x
+
 # 0.4.2
 
 ## Fixes
