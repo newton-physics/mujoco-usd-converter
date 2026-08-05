@@ -87,7 +87,9 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
 
 def convert_texture(texture: mujoco.MjsTexture, data: ConversionData) -> Sdf.AssetPath:
-    if texture.builtin:
+    # Compare explicitly rather than testing truthiness: mujoco 3.11 returns an mjtBuiltin
+    # enum member here rather than an int, and every member is truthy, including mjBUILTIN_NONE.
+    if texture.builtin != mujoco.mjtBuiltin.mjBUILTIN_NONE:
         Tf.Warn(f"Unsupported builtin texture type {mujoco.mjtBuiltin(texture.builtin)} for texture '{texture.name}'")
         return Sdf.AssetPath()
     elif texture.type == mujoco.mjtTexture.mjTEXTURE_2D:
