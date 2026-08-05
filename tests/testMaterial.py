@@ -125,3 +125,53 @@ class TestMaterial(ConverterTestCase):
         self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.3, 0.8, 0.9), 1e-6))
         emissive_color = self._get_input_value(shader, "emissiveColor")
         self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.2), diffuse_color, 1e-6))
+
+
+class TestBuiltinTexture(ConverterTestCase):
+    """Only procedural builtin textures are skipped; file backed textures in the same model still convert."""
+
+    def setUp(self):
+        super().setUp()
+        model_path = pathlib.Path("./tests/data/builtin_textures.xml")
+        self.model_name = model_path.stem
+        self.output_dir = pathlib.Path(self.tmpDir())
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*Unsupported builtin texture type.*gradient_texture")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, self.output_dir)
+        self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(self.stage)
+
+    def _get_shader(self, material_name: str) -> UsdShade.Shader:
+        material_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/{material_name}")
+        self.assertTrue(material_prim)
+        return usdex.core.computeEffectivePreviewSurfaceShader(UsdShade.Material(material_prim))
+
+    def _get_input_value(self, shader: UsdShade.Shader, input_name: str):
+        return UsdShade.Utils.GetValueProducingAttributes(shader.GetInput(input_name))[0].Get()
+
+    def _get_diffuse_source_prim(self, material_name: str) -> Usd.Prim:
+        # Every preview material connects diffuseColor to its material interface, so the
+        # texture is identified by the connected source being a UsdUVTexture reader.
+        shader = self._get_shader(material_name)
+        connected_source = shader.GetInput("diffuseColor").GetConnectedSource()
+        self.assertTrue(connected_source)
+        return connected_source[0].GetPrim()
+
+    def test_builtin_texture_is_skipped(self):
+        source_prim = self._get_diffuse_source_prim("Gradient")
+        self.assertEqual(str(source_prim.GetPath()), f"/{self.model_name}/Materials/Gradient")
+        self.assertEqual(source_prim.GetTypeName(), "Material")
+        self.assertFalse(self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/Gradient/DiffuseTexture"))
+
+    def test_file_texture_still_converts(self):
+        source = UsdShade.Shader(self._get_diffuse_source_prim("Grid"))
+        self.assertEqual(source.GetShaderId(), "UsdUVTexture")
+        self.assertEqual(self._get_input_value(source, "file").path, "./Textures/grid.png")
+        self.assertTrue((self.output_dir / "Payload" / "Textures" / "grid.png").exists())
+
+    def test_only_the_file_texture_is_copied(self):
+        textures = sorted(path.name for path in (self.output_dir / "Payload" / "Textures").iterdir())
+        self.assertEqual(textures, ["grid.png"])
