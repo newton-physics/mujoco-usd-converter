@@ -23,8 +23,11 @@ jobs:
       - name: Bootstrap
         uses: ./.github/actions/bootstrap
 
-      - name: Run benchmarks
-        run: uv run --group dev poe benchmark
+      - name: Run benchmarks for all repositories
+        run: |
+          # Run benchmarks for all repositories in a single command
+          echo "Running benchmarks for all repositories:"
+          uv run --group dev poe benchmark --all
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
