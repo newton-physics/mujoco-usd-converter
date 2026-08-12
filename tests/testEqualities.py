@@ -249,8 +249,9 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(joint_weld_nested_bodies.GetJointEnabledAttr().Get())
 
     def test_joint_equality_joint_enabled(self):
-        # XML active="true" (default) - joint enabled, attr should not be authored when default
-        # XML active="false" - joint disabled, physics:jointEnabled must be authored and false
+        # A joint equality is authored onto the follower joint, which exists independently of
+        # the constraint, so physics:jointEnabled stays the joint's own gate and is never
+        # authored from equality.active. newton:mimicEnabled carries the active state.
         model = pathlib.Path("./tests/data/equality_joint_attributes.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
@@ -270,16 +271,17 @@ class TestEqualities(ConverterTestCase):
         self.assertTrue(default_joint_prim.HasAPI("NewtonMimicAPI"))
         self.assertTrue(default_joint_prim.GetAttribute("newton:mimicEnabled").Get())
 
-        # Disabled joint equality: attr must be authored and false (hinge2 has disabled_joint_eq)
+        # Inactive joint equality (hinge2 has disabled_joint_eq): the constraint is off, but the
+        # follower joint is untouched, so physics:jointEnabled is left at its default.
         disabled_joint_prim: Usd.Prim = stage.GetPrimAtPath("/equality_joint_attributes/Geometry/body4/hinge2")
         self.assertTrue(disabled_joint_prim.IsValid())
         disabled_joint = UsdPhysics.RevoluteJoint(disabled_joint_prim)
         disabled_joint_enabled_attr = disabled_joint.GetJointEnabledAttr()
-        self.assertTrue(
+        self.assertFalse(
             self.__has_authored_value(disabled_joint_enabled_attr),
-            "physics:jointEnabled should be authored when joint equality is inactive",
+            "physics:jointEnabled should not be authored from an inactive joint equality",
         )
-        self.assertFalse(disabled_joint_enabled_attr.Get(), "Disabled joint equality should have jointEnabled false")
+        self.assertTrue(disabled_joint_enabled_attr.Get(), "The follower joint itself stays enabled")
 
         self.assertTrue(disabled_joint_prim.HasAPI("NewtonMimicAPI"))
         self.assertFalse(disabled_joint_prim.GetAttribute("newton:mimicEnabled").Get())
