@@ -192,13 +192,8 @@ def convert_equality(
         set_schema_attribute(joint_prim, "mjc:coef2", equality.data[2])
         set_schema_attribute(joint_prim, "mjc:coef3", equality.data[3])
         set_schema_attribute(joint_prim, "mjc:coef4", equality.data[4])
-        # Deliberately no physics:jointEnabled here, unlike the weld and connect branches
-        # above. Those author it on a prim created for the equality, so it describes the
-        # equality; this branch borrows the follower joint, where it is that joint's own
-        # gate. The follower is an ordinary DOF that outlives the constraint -- MuJoCo's
-        # eq_active is per-equality and runtime-settable -- so newton:mimicEnabled carries
-        # the active state on its own. See google-deepmind/mujoco#3472 for the decoder
-        # side, which reads only physics:jointEnabled today.
+        # No physics:jointEnabled here: this branch borrows the follower joint, where the
+        # attribute gates the joint itself. newton:mimicEnabled above carries the equality.
 
         return joint_prim, False
 
