@@ -3,6 +3,7 @@
 import math
 import pathlib
 
+import usd_validation_nvidia
 import usdex.test
 from pxr import Gf, Sdf, Tf, Usd, UsdPhysics
 
@@ -11,6 +12,16 @@ from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestEqualities(ConverterTestCase):
+    def setUp(self):
+        super().setUp()
+        self.defaultValidationIssuePredicates = [
+            # OpenUSD 26.08 validation does not resolve site targets to their owning rigid bodies, as UsdPhysics parsing does.
+            # Retargeting the joints to bodies would lose MuJoCo's site connect semantics in its USD decoder.
+            usd_validation_nvidia.IssuePredicates.And(
+                usd_validation_nvidia.IssuePredicates.IsRule(usd_validation_nvidia.PhysicsJointChecker),
+                usd_validation_nvidia.IssuePredicates.ContainsMessage("body relationship pointing to a prim with an enabled RigidBodyAPI"),
+            ),
+        ]
 
     def __has_authored_value(self, property: Usd.Property) -> bool:
         if hasattr(property, "HasAuthoredValue"):

@@ -66,7 +66,7 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
         texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
-        if texture_path and not usdex.core.addDiffuseTextureToPreviewMaterial(material_prim, texture_path):
+        if texture_path and not usdex.core.addColorTextureToPreviewMaterial(material_prim, texture_path):
             Tf.Warn(f"Failed to add diffuse texture to material prim '{material_prim.GetPrim().GetPath()}'")
     elif any(material.textures):
         # FUTURE: secondary texture layers

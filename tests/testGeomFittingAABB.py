@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-import omni.asset_validator
+import usd_validation_nvidia
 import usdex.core
 from pxr import Gf, Sdf, Tf, Usd, UsdGeom
 
@@ -25,7 +25,7 @@ class TestGeomFittingAABB(ConverterTestCase):
             asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
         # the test data contains unwelded meshes, so we disable the weld checker
-        self.validationEngine.disable_rule(omni.asset_validator.WeldChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.WeldChecker)
         self.assertIsValidUsd(self.stage)
 
     def test_geom_fitting_unsupported(self):

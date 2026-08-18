@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-import omni.asset_validator
+import usd_validation_nvidia
 import usdex.core
 import usdex.test
 from pxr import Kind, Sdf, Tf, Usd, UsdGeom, UsdPhysics, UsdShade
@@ -185,7 +185,7 @@ class TestAssetStructure(ConverterTestCase):
         self.assertTrue(materials_layer_path.exists(), msg=f"Materials layer not found at {materials_layer_path}")
         materials_stage: Usd.Stage = Usd.Stage.Open(materials_layer_path.as_posix())
         # overrides are expected in the material layer
-        self.validationEngine.disable_rule(omni.asset_validator.DanglingOverPrimChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.DanglingOverPrimChecker)
         self.assertIsValidUsd(materials_stage)
 
         # Test stage metrics
@@ -241,14 +241,19 @@ class TestAssetStructure(ConverterTestCase):
         self.assertTrue(physics_layer_path.exists(), msg=f"Physics layer not found at {physics_layer_path}")
         physics_stage: Usd.Stage = Usd.Stage.Open(physics_layer_path.as_posix())
         # overrides are expected in the physics layer and the cause untyped parent prims as well
-        self.validationEngine.disable_rule(omni.asset_validator.DanglingOverPrimChecker)
-        self.validationEngine.disable_rule(omni.asset_validator.TypeChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.DanglingOverPrimChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.TypeChecker)
         self.assertIsValidUsd(
             physics_stage,
             issuePredicates=[
                 *self.defaultValidationIssuePredicates,
                 # this RigidBodyAPI is applied as an untyped override in this layer
-                omni.asset_validator.IssuePredicates.ContainsMessage("Rigid body API has to be applied to an xformable prim"),
+                usd_validation_nvidia.IssuePredicates.ContainsMessage("Rigid body API has to be applied to a xformable prim"),
+                # joint body targets are untyped overrides here, they only resolve to Xformable prims in the composed asset
+                usd_validation_nvidia.IssuePredicates.And(
+                    usd_validation_nvidia.IssuePredicates.IsRule(usd_validation_nvidia.PhysicsJointChecker),
+                    usd_validation_nvidia.IssuePredicates.ContainsMessage("body relationship must point to an Xformable prim"),
+                ),
             ],
         )
         self.assertEqual(UsdPhysics.GetStageKilogramsPerUnit(physics_stage), UsdPhysics.MassUnits.kilograms)

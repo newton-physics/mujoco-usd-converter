@@ -4,7 +4,7 @@ import pathlib
 
 import mujoco
 import numpy as np
-import omni.asset_validator
+import usd_validation_nvidia
 import usdex.core
 from pxr import Gf, Sdf, Usd, UsdGeom
 
@@ -16,7 +16,7 @@ class TestMeshRefPose(ConverterTestCase):
     def setUp(self):
         super().setUp()
         # the test data contains unwelded meshes, so we disable the weld checker
-        self.validationEngine.disable_rule(omni.asset_validator.WeldChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.WeldChecker)
 
     def __convert(self, model_path: pathlib.Path) -> Usd.Stage:
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model_path, pathlib.Path(self.tmpDir()) / model_path.stem)
