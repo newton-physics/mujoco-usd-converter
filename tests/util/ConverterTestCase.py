@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import omni.asset_validator
+import usd_validation_nvidia
 import usdex.core
 import usdex.test
 from pxr import UsdGeom
@@ -15,5 +15,5 @@ class ConverterTestCase(usdex.test.TestCase):
     def setUp(self):
         super().setUp()
         # All conversion results should be valid atomic assets
-        self.validationEngine.enable_rule(omni.asset_validator.AnchoredAssetPathsChecker)
-        self.validationEngine.enable_rule(omni.asset_validator.SupportedFileTypesChecker)
+        self.validationEngine.enable_rule(usd_validation_nvidia.AnchoredAssetPathsChecker)
+        self.validationEngine.enable_rule(usd_validation_nvidia.SupportedFileTypesChecker)

@@ -131,8 +131,8 @@ class TestEqualities(ConverterTestCase):
         body1_targets = site_weld_joint.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_weld_attributes/Geometry/body4/site4", str(body0_targets[0]))
-        self.assertEqual("/equality_weld_attributes/Geometry/body5/site5", str(body1_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body4", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_attributes/Geometry/body5", str(body1_targets[0]))
         self.assertTrue(site_weld_joint.GetExcludeFromArticulationAttr().Get())
 
     def test_weld_missing_body2(self):
@@ -203,9 +203,11 @@ class TestEqualities(ConverterTestCase):
         body1_targets = joint_weld_sites.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_weld_with_sites/Geometry/box1/box1_site", str(body0_targets[0]))
-        self.assertEqual("/equality_weld_with_sites/Geometry/box2/box2_site", str(body1_targets[0]))
-        self.assertTrue(Gf.IsClose(joint_weld_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        # a site is not a rigid body, so the joint targets the body that owns each site and
+        # carries the site pose within that body as the joint's local frame
+        self.assertEqual("/equality_weld_with_sites/Geometry/box1", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_with_sites/Geometry/box2", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0.5, 0, 0), 1e-5))
         self.assertTrue(Gf.IsClose(joint_weld_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
         self.assertRotationsAlmostEqual(joint_weld_sites.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertRotationsAlmostEqual(joint_weld_sites.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
@@ -218,10 +220,12 @@ class TestEqualities(ConverterTestCase):
         body1_targets = joint_weld_sites_separated.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_weld_with_sites/Geometry/box3/box3_site", str(body0_targets[0]))
-        self.assertEqual("/equality_weld_with_sites/Geometry/box4/box4_site", str(body1_targets[0]))
-        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        # the sites start apart and the weld is what pulls them together, so each local frame is
+        # the site's own pose in its body rather than an offset that preserves the separation
+        self.assertEqual("/equality_weld_with_sites/Geometry/box3", str(body0_targets[0]))
+        self.assertEqual("/equality_weld_with_sites/Geometry/box4", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos0Attr().Get(), Gf.Vec3f(0.4, 0, 0.3), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_weld_sites_separated.GetLocalPos1Attr().Get(), Gf.Vec3f(-0.1, 0, -0.3), 1e-5))
         self.assertRotationsAlmostEqual(joint_weld_sites_separated.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertRotationsAlmostEqual(joint_weld_sites_separated.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_weld_sites_separated.GetJointEnabledAttr().Get())
@@ -488,8 +492,11 @@ class TestEqualities(ConverterTestCase):
         body1_targets = site_connect_joint.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_connect_attributes/Geometry/body4/site4", str(body0_targets[0]))
-        self.assertEqual("/equality_connect_attributes/Geometry/body5/site5", str(body1_targets[0]))
+        # the joint targets the bodies owning site4 and site5, with each site's pose as the local frame
+        self.assertEqual("/equality_connect_attributes/Geometry/body4", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_attributes/Geometry/body5", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(site_connect_joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0.05, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(site_connect_joint.GetLocalPos1Attr().Get(), Gf.Vec3f(-0.05, 0, 0), 1e-5))
         self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot0Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertRotationsAlmostEqual(site_connect_joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertTrue(site_connect_joint.GetExcludeFromArticulationAttr().Get())
@@ -605,8 +612,8 @@ class TestEqualities(ConverterTestCase):
         sites: Usd.Prim = stage.GetPrimAtPath("/equality_connect/Physics/sites")
         self.assertTrue(sites.IsValid())
         joint_sites = UsdPhysics.SphericalJoint(sites)
-        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos0Attr().Get(), Gf.Vec3f(1.45, -0.1, 0.5), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_sites.GetLocalPos1Attr().Get(), Gf.Vec3f(1.15, -0.1, 0.2), 1e-5))
         self.assertRotationsAlmostEqual(joint_sites.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertRotationsAlmostEqual(joint_sites.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
 
@@ -625,11 +632,12 @@ class TestEqualities(ConverterTestCase):
         body1_targets = joint_connect_site.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_connect_vs_weld/Geometry/a1", str(body0_targets[0]))
-        self.assertEqual("/equality_connect_vs_weld/Geometry/a/a2", str(body1_targets[0]))
-        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        # site a1 belongs to the worldbody, so it resolves to the default prim carrying a1's own pose
+        self.assertEqual("/equality_connect_vs_weld", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld/Geometry/a", str(body1_targets[0]))
+        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos0Attr().Get(), Gf.Vec3f(-2, 0, 0), 1e-5))
+        self.assertTrue(Gf.IsClose(joint_connect_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, -0.70710678, 0, 0))
         self.assertRotationsAlmostEqual(joint_connect_site.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_connect_site.GetJointEnabledAttr().Get())
 
@@ -640,11 +648,13 @@ class TestEqualities(ConverterTestCase):
         body1_targets = joint_weld_site.GetBody1Rel().GetTargets()
         self.assertEqual(len(body0_targets), 1)
         self.assertEqual(len(body1_targets), 1)
-        self.assertEqual("/equality_connect_vs_weld/Geometry/b1", str(body0_targets[0]))
-        self.assertEqual("/equality_connect_vs_weld/Geometry/b/b2", str(body1_targets[0]))
+        # the same constraint as weld_body below, with the rotation on the opposite side of the
+        # joint because targeting b1's owning worldbody swaps which body is body0
+        self.assertEqual("/equality_connect_vs_weld", str(body0_targets[0]))
+        self.assertEqual("/equality_connect_vs_weld/Geometry/b", str(body1_targets[0]))
         self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0, 0), 1e-5))
-        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf.GetIdentity())
+        self.assertTrue(Gf.IsClose(joint_weld_site.GetLocalPos1Attr().Get(), Gf.Vec3f(0, -1, 0), 1e-5))
+        self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot0Attr().Get(), Gf.Quatf(0.70710678, -0.70710678, 0, 0))
         self.assertRotationsAlmostEqual(joint_weld_site.GetLocalRot1Attr().Get(), Gf.Quatf.GetIdentity())
         self.assertTrue(joint_weld_site.GetJointEnabledAttr().Get())
 

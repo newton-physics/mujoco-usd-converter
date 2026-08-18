@@ -1,7 +1,7 @@
 <mujoco model="actuator_edge_cases">
   <worldbody>
     <body name="base" pos="0 0 1">
-      <geom name="base_geom" type="plane" size="0 0 0.05" rgba="0.5 0.5 0.5 1"/>
+      <geom name="base_geom" type="box" size="0.5 0.5 0.05" rgba="0.5 0.5 0.5 1"/>
 
       <!-- Body with unnamed actuator -->
       <body name="box1" pos="0 0 0.2">

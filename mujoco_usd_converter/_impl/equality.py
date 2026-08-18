@@ -4,7 +4,7 @@
 import mujoco
 import numpy as np
 import usdex.core
-from pxr import Gf, Tf, Usd, UsdGeom, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
 from .numpy import convert_quatd, convert_vec3d
@@ -70,6 +70,58 @@ def get_joint_prims_and_anchor(equality: mujoco.MjsEquality, data: ConversionDat
     return body0, body1, anchor
 
 
+def resolve_site_body(site_prim: Usd.Prim, data: ConversionData, xform_cache: UsdGeom.XformCache) -> tuple[Usd.Prim, Gf.Vec3d, Gf.Quatd]:
+    """Resolve a site to the body that owns it, along with the site's pose in that body's frame.
+
+    UsdPhysics expects a joint's body relationships to target rigid bodies, and a site is a guide
+    Gprim which never carries one. Targeting the owning body and folding the site pose into the
+    joint's local frame describes the same constraint in terms a consumer can read directly.
+
+    A site on the worldbody resolves to the default prim, matching how an omitted body2 is handled.
+    """
+    default_prim = site_prim.GetStage().GetDefaultPrim()
+    body_paths = {prim.GetPath() for prim in data.references[Tokens.PhysicsBodies].values()}
+
+    body_prim = default_prim
+    ancestor = site_prim.GetParent()
+    while ancestor and not ancestor.IsPseudoRoot() and ancestor != default_prim:
+        if ancestor.GetPath() in body_paths:
+            body_prim = ancestor
+            break
+        ancestor = ancestor.GetParent()
+
+    relative = xform_cache.GetLocalToWorldTransform(body_prim).GetInverse() * xform_cache.GetLocalToWorldTransform(site_prim)
+    # a site's scale is how large it draws as a guide, not part of the frame it marks, and leaving
+    # it in the matrix would denormalize the extracted rotation
+    relative = relative.RemoveScaleShear()
+    return body_prim, Gf.Vec3d(relative.ExtractTranslation()), Gf.Quatd(relative.ExtractRotationQuat())
+
+
+def resolve_site_bodies(
+    site0: Usd.Prim,
+    site1: Usd.Prim,
+    data: ConversionData,
+    xform_cache: UsdGeom.XformCache,
+) -> tuple[Usd.Prim, Usd.Prim, tuple[Gf.Vec3d, Gf.Quatd, Gf.Vec3d, Gf.Quatd]]:
+    body0, pos0, rot0 = resolve_site_body(site0, data, xform_cache)
+    body1, pos1, rot1 = resolve_site_body(site1, data, xform_cache)
+    return body0, body1, (pos0, rot0, pos1, rot1)
+
+
+def set_site_joint_frames(joint_prim: UsdPhysics.Joint, frames: tuple[Gf.Vec3d, Gf.Quatd, Gf.Vec3d, Gf.Quatd]) -> None:
+    """Author each side of the joint at its site's pose within the owning body.
+
+    These are set explicitly rather than derived from a :class:`usdex.core.JointFrame`, which aligns
+    the second body to the first using their current world poses. MuJoCo pulls separated sites
+    together, so deriving the offsets would preserve the separation instead of constraining it away.
+    """
+    pos0, rot0, pos1, rot1 = frames
+    joint_prim.GetLocalPos0Attr().Set(Gf.Vec3f(pos0))
+    joint_prim.GetLocalRot0Attr().Set(Gf.Quatf(rot0))
+    joint_prim.GetLocalPos1Attr().Set(Gf.Vec3f(pos1))
+    joint_prim.GetLocalRot1Attr().Set(Gf.Quatf(rot1))
+
+
 def convert_equality(
     parent: Usd.Prim,
     name: str,
@@ -84,6 +136,7 @@ def convert_equality(
         if not body0 or not body1:
             return equality_prim, False
 
+        site_frames = None
         if equality.objtype == mujoco.mjtObj.mjOBJ_BODY:
             # relpose specifies the relative pose of body2 relative to body1
             relpose_pos = convert_vec3d(equality.data[3:6])
@@ -93,8 +146,10 @@ def convert_equality(
                 relpose_quat = convert_quatd(relpose_quat_data)
             else:
                 ignore_relpose = True
+        else:
+            body0, body1, site_frames = resolve_site_bodies(body0, body1, data, xform_cache)
 
-        # Create a fixed joint between the two bodies or sites
+        # Create a fixed joint between the two bodies
         equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.World, Gf.Vec3d(0, 0, 0), Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsFixedJoint(equality_prim, body0, body1, frame)
@@ -116,11 +171,7 @@ def convert_equality(
             joint_prim.GetLocalPos1Attr().Set(anchor)
             joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
         else:
-            # Since sites are meant to snap together with no offset, there should be no localPos0 or localPos1
-            joint_prim.GetLocalPos0Attr().Set(Gf.Vec3f(0, 0, 0))
-            joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
-            joint_prim.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
-            joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
+            set_site_joint_frames(joint_prim, site_frames)
 
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)
@@ -137,16 +188,16 @@ def convert_equality(
 
         equality_prim = parent.GetStage().DefinePrim(parent.GetPath().AppendChild(name))
 
-        # Create a spherical joint between the two bodies or sites
+        site_frames = None
+        if equality.objtype == mujoco.mjtObj.mjOBJ_SITE:
+            body0, body1, site_frames = resolve_site_bodies(body0, body1, data, xform_cache)
+
+        # Create a spherical joint between the two bodies
         # anchor is in body0's frame for connect equalities
         frame = usdex.core.JointFrame(usdex.core.JointFrame.Space.Body0, anchor, Gf.Quatd.GetIdentity())
         joint_prim = usdex.core.definePhysicsSphericalJoint(equality_prim, body0, body1, frame, Gf.Vec3f(1.0, 0.0, 0.0))
-        # Since sites are meant to snap together with no offset, there should be no localPos0 or localPos1
-        if equality.objtype == mujoco.mjtObj.mjOBJ_SITE:
-            joint_prim.GetLocalPos0Attr().Set(Gf.Vec3f(0, 0, 0))
-            joint_prim.GetLocalPos1Attr().Set(Gf.Vec3f(0, 0, 0))
-            joint_prim.GetLocalRot0Attr().Set(Gf.Quatf.GetIdentity())
-            joint_prim.GetLocalRot1Attr().Set(Gf.Quatf.GetIdentity())
+        if site_frames:
+            set_site_joint_frames(joint_prim, site_frames)
 
         joint_prim.GetExcludeFromArticulationAttr().Set(True)
         set_schema_attribute(equality_prim, "physics:jointEnabled", equality.active)

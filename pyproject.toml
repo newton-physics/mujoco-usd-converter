@@ -5,10 +5,10 @@ description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "Newton Developers"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "mujoco>=3.11.0,<3.12",
-    "usd-exchange>=2.2.2", # locked to USD 25.05
+    "usd-exchange>=3.0.0rc3", # locked to USD 26.08
     "newton-usd-schemas>=0.4.0",
     "numpy-stl>=3.2",
     "tinyobjloader>=2.0.0rc13",

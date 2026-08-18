@@ -128,15 +128,3 @@ uv run mujoco_usd_converter --help
 # In activated venv
 mujoco_usd_converter --help
 ```
-
-## Changing OpenUSD or MuJoCo Runtimes
-
-By default the mujoco-usd-converter uses OpenUSD v25.05 & OpenUSD Exchange compiled for this same flavor. OpenUSD Exchange SDK can be compiled for many flavors of OpenUSD and Python. You can switch to a different flavor of OpenUSD by changing the `usd-exchange` version metadata within the the pyproject.toml or sdist.
-
-The converter also uses MuJoCo 3.4.1, which contains the newest MjcPhysics schemas & newest features required for USD interop in MuJoCo. You may update the pyproject.toml or sdist to a newer version of MuJoCo as needed, but you cannot use an older version.
-
-### Requesting new Build Flavors
-
-If none of the existing USD flavors meet the requirements of your runtime, you have two options:
-1. Build [OpenUSD Exchange SDK](https://github.com/NVIDIA-Omniverse/usd-exchange) from source as and when you need to & manage the build artifacts yourself
-2. Submit an Feature Request to add a new flavor to our matrix
