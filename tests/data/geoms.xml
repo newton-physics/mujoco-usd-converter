@@ -11,13 +11,13 @@
         <mesh name="box_mesh_collision_default" file="assets/box.obj" inertia="legacy" maxhullvert="-1"/>
     </asset>
     <worldbody>
+        <geom type="plane" size="10 10 0.1"/>
         <body name="geom_body">
             <!-- Basics -->
             <geom type="sphere" size="0.1"/>
             <geom type="cylinder" size="0.1 0.2"/>
             <geom type="box" size="0.1 0.1 0.1"/>
             <geom type="capsule" size="0.1 0.2"/>
-            <geom type="plane" size="10 10 0.1"/>
             <geom type="mesh" mesh="box_mesh"/>
             <!-- Physics -->
             <geom name="default_collider" type="sphere" size="0.1" contype="1" conaffinity="1"/>
