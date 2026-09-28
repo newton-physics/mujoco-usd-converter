@@ -1,8 +1,9 @@
-# Unreleased
+# 0.6.0
 
 ## Dependencies
 
-- Updated `mujoco` to `>=3.12.0,<3.13` and `newton-usd-schemas` to `>=0.5.0` to align with Newton 1.6
+- Updated to `newton-usd-schemas>=0.5.0`
+- Locked `mujoco` to `>=3.12.0,<3.13` to align with Newton 1.6 and avoid breaking changes in 3.13.x
 
 # 0.5.0
 
