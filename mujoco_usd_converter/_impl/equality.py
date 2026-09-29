@@ -192,7 +192,8 @@ def convert_equality(
         set_schema_attribute(joint_prim, "mjc:coef2", equality.data[2])
         set_schema_attribute(joint_prim, "mjc:coef3", equality.data[3])
         set_schema_attribute(joint_prim, "mjc:coef4", equality.data[4])
-        set_schema_attribute(joint_prim, "physics:jointEnabled", equality.active)
+        # No physics:jointEnabled here: this branch borrows the follower joint, where the
+        # attribute gates the joint itself. newton:mimicEnabled above carries the equality.
 
         return joint_prim, False
 
