@@ -34,6 +34,47 @@ class TestJoints(ConverterTestCase):
         self.assertAlmostEqual(slide.GetAttribute("newton:damping").Get(), 0.1)
         self.assertFalse(slide.GetAttribute("mjc:damping").HasAuthoredValue())
 
+    def test_radian_ref_with_scene(self):
+        # the PhysicsScene declares mjc:compiler:angle = "radian", so the angles stay in radians
+        model = pathlib.Path("./tests/data/joint_ref_radian.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), 0.4)
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), 0.3)
+
+    def test_radian_ref_without_scene(self):
+        # nothing declares mjc:compiler:angle, so hinge angles use its default of degrees
+        model = pathlib.Path("./tests/data/joint_ref_radian.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), math.degrees(0.4))
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), math.degrees(0.3))
+
+        slide: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body2/slide_joint")
+        self.assertTrue(slide.IsValid())
+        self.assertAlmostEqual(slide.GetAttribute("mjc:ref").Get(), 0.1)
+        self.assertAlmostEqual(slide.GetAttribute("mjc:springref").Get(), 0.2)
+
+    def test_attached_radian_ref_without_scene(self):
+        # an attached model keeps its own compiler, so its radian angles are converted inside a degree model
+        model = pathlib.Path("./tests/data/joint_ref_attach.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_attach/Geometry/mount/attached_body1/attached_hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), math.degrees(0.4))
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), math.degrees(0.3))
+
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())

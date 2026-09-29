@@ -67,10 +67,10 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint, data)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, data: ConversionData):
     prim.ApplyAPI("MjcJointAPI")
     prim.ApplyAPI("NewtonJointAPI")
 
@@ -81,13 +81,13 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:actuatorgravcomp", bool(joint.actgravcomp))
     set_schema_attribute(prim, "mjc:group", joint.group)
     set_schema_attribute(prim, "mjc:margin", joint.margin)
-    set_schema_attribute(prim, "mjc:ref", joint.ref)
+    set_schema_attribute(prim, "mjc:ref", to_mjc_angle(joint, joint.ref, data))
     set_schema_attribute(prim, "mjc:solimpfriction", list(joint.solimp_friction))
     set_schema_attribute(prim, "mjc:solimplimit", list(joint.solimp_limit))
     set_schema_attribute(prim, "mjc:solreffriction", list(joint.solref_friction))
     set_schema_attribute(prim, "mjc:solreflimit", list(joint.solref_limit))
     set_schema_attribute(prim, "mjc:springdamper", list(joint.springdamper))
-    set_schema_attribute(prim, "mjc:springref", joint.springref)
+    set_schema_attribute(prim, "mjc:springref", to_mjc_angle(joint, joint.springref, data))
     set_schema_attribute(prim, "mjc:stiffness", joint.stiffness[0])
 
     set_schema_attribute(prim, "newton:armature", joint.armature)
@@ -100,6 +100,16 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     # inertia at qpos0, so the asset would bake a configuration-dependent value into a
     # static attribute. mjc:solreflimit above carries the source values exactly and is
     # authoritative for SolverMuJoCo. See newton-physics/newton#3762.
+
+
+def to_mjc_angle(joint: mujoco.MjsJoint, value: float, data: ConversionData) -> float:
+    """Convert a hinge angle to the units of mjc:compiler:angle.
+
+    Without a PhysicsScene that attribute is not authored, so its default of degrees applies.
+    """
+    if joint.type == mujoco.mjtJoint.mjJNT_HINGE and not data.scene and not joint.compiler.degree:
+        return np.degrees(value)
+    return value
 
 
 def to_newton_angular_gain(joint: mujoco.MjsJoint, value: float) -> float:
