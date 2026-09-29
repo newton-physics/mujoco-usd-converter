@@ -183,8 +183,8 @@ class TestGeom(ConverterTestCase):
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/shell_inertia")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI("MjcCollisionAPI"))
-        self.assertTrue(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
-        self.assertTrue(prim.GetAttribute("mjc:shellinertia").Get())
+        self.assertFalse(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
+        self.assertFalse(prim.GetAttribute("mjc:shellinertia").Get())
         self.assertTrue(prim.HasAPI("NewtonMassAPI"))
         self.assertTrue(prim.GetAttribute("newton:massModel").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
@@ -212,6 +212,7 @@ class TestGeom(ConverterTestCase):
         deprecated_replacements = {
             "mjc:gap": "newton:contactGap",
             "mjc:margin": "newton:contactMargin",
+            "mjc:shellinertia": "newton:massModel",
             "mjc:maxhullvert": "newton:maxHullVertices",
         }
         for property in prim.GetPropertiesInNamespace("mjc"):
@@ -328,6 +329,7 @@ class TestGeom(ConverterTestCase):
         deprecated_replacements = {
             "mjc:gap": "newton:contactGap",
             "mjc:margin": "newton:contactMargin",
+            "mjc:shellinertia": "newton:massModel",
         }
         for property in prim.GetPropertiesInNamespace("mjc"):
             if property.GetName() in deprecated_replacements:
@@ -344,7 +346,7 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(prim.GetAttribute("mjc:group").Get(), 1)
         self.assertEqual(prim.GetAttribute("mjc:margin").Get(), 0.0)
         self.assertEqual(prim.GetAttribute("mjc:priority").Get(), 2)
-        self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), True)
+        self.assertEqual(prim.GetAttribute("mjc:shellinertia").Get(), False)
         self.assertTrue(prim.HasAPI("NewtonMassAPI"))
         self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
         self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.02)

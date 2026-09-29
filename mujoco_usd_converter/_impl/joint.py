@@ -79,9 +79,9 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     set_schema_attribute(prim, "mjc:actuatorfrcrange:min", joint.actfrcrange[0])
     set_schema_attribute(prim, "mjc:actuatorfrcrange:max", joint.actfrcrange[1])
     set_schema_attribute(prim, "mjc:actuatorgravcomp", bool(joint.actgravcomp))
-    set_schema_attribute(prim, "mjc:armature", joint.armature)
+    # MuJoCo 3.12 reads Newton angular damping without converting per-degree to per-radian units.
+    # Retain the per-radian MJC alias until a decoder with the unit fix is required.
     set_schema_attribute(prim, "mjc:damping", joint.damping[0])
-    set_schema_attribute(prim, "mjc:frictionloss", joint.frictionloss)
     set_schema_attribute(prim, "mjc:group", joint.group)
     set_schema_attribute(prim, "mjc:margin", joint.margin)
     set_schema_attribute(prim, "mjc:ref", joint.ref)

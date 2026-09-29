@@ -1,3 +1,12 @@
+# 0.6.1
+
+## Fixes
+
+- Stopped authoring deprecated `mjc:armature`, `mjc:frictionloss`, and `mjc:shellinertia` aliases
+  - Their existing Newton equivalents preserve joint armature, joint friction, and primitive shell inertia in MuJoCo 3.12
+- Retained `mjc:damping` until MuJoCo's USD decoder correctly converts angular `newton:damping` from per-degree to per-radian units
+  - `newton:damping` continues to use the units required by `NewtonJointAPI`
+
 # 0.6.0
 
 ## Dependencies
