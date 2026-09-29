@@ -23,16 +23,19 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(hinge.IsValid())
         self.assertAlmostEqual(hinge.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
         # the MJC attribute retains the authored per-radian value
+        self.assertTrue(hinge.GetAttribute("mjc:damping").HasAuthoredValue())
         self.assertAlmostEqual(hinge.GetAttribute("mjc:damping").Get(), 0.1)
 
         ball: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body2/ball_joint")
         self.assertTrue(ball.IsValid())
         self.assertAlmostEqual(ball.GetAttribute("newton:damping").Get(), 0.1 * math.pi / 180.0, places=6)
+        self.assertTrue(ball.GetAttribute("mjc:damping").HasAuthoredValue())
         self.assertAlmostEqual(ball.GetAttribute("mjc:damping").Get(), 0.1)
 
         slide: Usd.Prim = stage.GetPrimAtPath("/joint_damping/Geometry/body3/slide_joint")
         self.assertTrue(slide.IsValid())
         self.assertAlmostEqual(slide.GetAttribute("newton:damping").Get(), 0.1)
+        self.assertTrue(slide.GetAttribute("mjc:damping").HasAuthoredValue())
         self.assertAlmostEqual(slide.GetAttribute("mjc:damping").Get(), 0.1)
 
     def test_hinge_joints(self):
@@ -457,9 +460,16 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(custom_joint.HasAPI("MjcJointAPI"))
         self.assertTrue(custom_joint.HasAPI("NewtonJointAPI"))
 
-        # Check that all MJC properties are authored
+        # Deprecated aliases stay unauthored; damping is retained for MuJoCo 3.12.
+        deprecated_replacements = {"mjc:armature": "newton:armature", "mjc:frictionloss": "newton:friction"}
         for property in custom_joint.GetPropertiesInNamespace("mjc"):
-            self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
+            if property.GetName() in deprecated_replacements:
+                self.assertFalse(
+                    property.HasAuthoredValue(),
+                    f"{property.GetName()} is deprecated; use {deprecated_replacements[property.GetName()]}",
+                )
+            else:
+                self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
         # Check that all attributes are authored correctly
         self.assertTrue(custom_joint.GetAttribute("mjc:actuatorfrclimited").HasAuthoredValue())
@@ -470,12 +480,10 @@ class TestJoints(ConverterTestCase):
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:actuatorfrcrange:max").Get(), 10)
         self.assertTrue(custom_joint.GetAttribute("mjc:actuatorgravcomp").HasAuthoredValue())
         self.assertEqual(custom_joint.GetAttribute("mjc:actuatorgravcomp").Get(), True)
-        self.assertTrue(custom_joint.GetAttribute("mjc:armature").HasAuthoredValue())
-        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:armature").Get(), 0.1)
+        self.assertFalse(custom_joint.GetAttribute("mjc:armature").HasAuthoredValue())
         self.assertTrue(custom_joint.GetAttribute("mjc:damping").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:damping").Get(), 0.5)
-        self.assertTrue(custom_joint.GetAttribute("mjc:frictionloss").HasAuthoredValue())
-        self.assertAlmostEqual(custom_joint.GetAttribute("mjc:frictionloss").Get(), 0.2)
+        self.assertFalse(custom_joint.GetAttribute("mjc:frictionloss").HasAuthoredValue())
         self.assertTrue(custom_joint.GetAttribute("mjc:margin").HasAuthoredValue())
         self.assertAlmostEqual(custom_joint.GetAttribute("mjc:margin").Get(), 0.01)
         self.assertTrue(custom_joint.GetAttribute("mjc:ref").HasAuthoredValue())

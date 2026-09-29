@@ -332,7 +332,6 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
         if maxhullvert := get_maxhullvert(geom, data):
             set_schema_attribute(geom_over, "newton:maxHullVertices", maxhullvert)
     else:
-        set_schema_attribute(geom_over, "mjc:shellinertia", bool(geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL))
         if geom.typeinertia == mujoco.mjtGeomInertia.mjINERTIA_SHELL:
             geom_over.ApplyAPI("NewtonMassAPI")
             set_schema_attribute(geom_over, "newton:massModel", "shell")
