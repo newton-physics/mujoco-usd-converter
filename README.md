@@ -21,7 +21,7 @@ This project is part of [Newton](https://github.com/newton-physics), a [Linux Fo
 
 ## Menagerie Benchmarks
 
-We run regular benchmarks on the [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie). See the latest results [here](./benchmarks.md).
+We run regular benchmarks on [MuJoCo](https://github.com/google-deepmind/mujoco/tree/main/model) and the [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie). See the latest results [here](./benchmarks.md).
 
 ## Implementation Details & Dependencies
 
