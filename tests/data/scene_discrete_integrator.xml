@@ -1,0 +1,9 @@
+<mujoco model="scene_discrete_integrator">
+  <option integrator="discrete"/>
+
+  <worldbody>
+    <body>
+      <geom type="box" size="0.1 0.1 0.1"/>
+    </body>
+  </worldbody>
+</mujoco>

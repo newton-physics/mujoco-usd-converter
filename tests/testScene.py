@@ -3,7 +3,9 @@
 
 import pathlib
 
-from pxr import Gf, Sdf, Usd, UsdPhysics
+import usdex.core
+import usdex.test
+from pxr import Gf, Sdf, Tf, Usd, UsdPhysics
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -258,6 +260,25 @@ class TestScene(ConverterTestCase):
         self.assertEqual(scene.GetAttribute("mjc:compiler:saveInertial").Get(), False)
         self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:setTotalMass").Get(), -1)
         self.assertEqual(scene.GetAttribute("mjc:compiler:useThread").Get(), True)
+
+    def test_scene_discrete_integrator(self):
+        model = pathlib.Path("./tests/data/scene_discrete_integrator.xml")
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*'discrete' integrator is not supported by the MjcPhysics schema.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
+        self.assertTrue(scene.HasAPI("MjcSceneAPI"))
+
+        # Authored outside the schema's allowedTokens to preserve the source intent
+        integrator: Usd.Attribute = scene.GetAttribute("mjc:option:integrator")
+        self.assertTrue(integrator.HasAuthoredValue())
+        self.assertEqual(integrator.Get(), "discrete")
 
     def test_scene_disabled(self):
         model = pathlib.Path("./tests/data/scene_attributes.xml")

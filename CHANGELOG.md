@@ -1,5 +1,11 @@
 # Unreleased
 
+## Fixes
+
+- Fixed conversion failure for models using MuJoCo's `discrete` integrator
+  - `mjc:option:integrator = "discrete"` is authored to preserve the source intent, though it is not yet an allowed token in the MjcPhysics schema
+  - MuJoCo's USD decoder ignores this token, so a warning is emitted
+
 ## Dependencies
 
 - Updated `mujoco` to `>=3.15.0,<3.16` to align with Newton 1.7
