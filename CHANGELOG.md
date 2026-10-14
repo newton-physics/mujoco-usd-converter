@@ -1,3 +1,10 @@
+# Unreleased
+
+## Dependencies
+
+- Updated `mujoco` to `>=3.15.0,<3.16` to align with Newton 1.7
+  - MuJoCo 3.14 corrected the tendon `actuatorfrclimited` default to `auto`, so tendons that omit it no longer author `mjc:actuatorfrclimited = "false"`
+
 # 0.6.1
 
 ## Fixes
