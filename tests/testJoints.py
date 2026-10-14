@@ -460,7 +460,7 @@ class TestJoints(ConverterTestCase):
         self.assertTrue(custom_joint.HasAPI("MjcJointAPI"))
         self.assertTrue(custom_joint.HasAPI("NewtonJointAPI"))
 
-        # Deprecated aliases stay unauthored; damping is retained for MuJoCo 3.12.
+        # Deprecated aliases stay unauthored; damping is retained for MuJoCo 3.15.
         deprecated_replacements = {"mjc:armature": "newton:armature", "mjc:frictionloss": "newton:friction"}
         for property in custom_joint.GetPropertiesInNamespace("mjc"):
             if property.GetName() in deprecated_replacements:

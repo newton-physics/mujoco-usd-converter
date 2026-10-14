@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import usdex.core
-from pxr import Gf, Usd, UsdPhysics, Vt
+from pxr import Gf, Tf, Usd, UsdPhysics, Vt
 
 from .data import ConversionData, Tokens
 from .numpy import convert_vec3d
@@ -68,7 +68,6 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:flag:fwdinv", is_enabled(1 << 2, data))
     set_schema_attribute(scene_prim, "mjc:flag:invdiscrete", is_enabled(1 << 3, data))
     set_schema_attribute(scene_prim, "mjc:flag:override", is_enabled(1 << 0, data))
-
     actuator_groups = [i for i in range(31) if data.spec.option.disableactuator & (1 << i)]
     set_schema_attribute(scene_prim, "mjc:option:actuatorgroupdisable", Vt.IntArray(actuator_groups))
 
@@ -77,7 +76,10 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:option:cone", get_cone_token(data.spec.option.cone))
     set_schema_attribute(scene_prim, "mjc:option:density", data.spec.option.density)
     set_schema_attribute(scene_prim, "mjc:option:impratio", data.spec.option.impratio)
-    set_schema_attribute(scene_prim, "mjc:option:integrator", get_integrator_token(data.spec.option.integrator))
+    integrator = get_integrator_token(data.spec.option.integrator)
+    if integrator == "discrete":
+        Tf.Warn("The 'discrete' integrator is not supported by the MjcPhysics schema and will be ignored by MuJoCo's USD decoder")
+    set_schema_attribute(scene_prim, "mjc:option:integrator", integrator)
     set_schema_attribute(scene_prim, "mjc:option:jacobian", get_jacobian_token(data.spec.option.jacobian))
     set_schema_attribute(scene_prim, "mjc:option:ls_iterations", data.spec.option.ls_iterations)
     set_schema_attribute(scene_prim, "mjc:option:ls_tolerance", data.spec.option.ls_tolerance)
@@ -121,7 +123,7 @@ def is_enabled(flag_bit: int, data: ConversionData) -> bool:
 
 
 def get_integrator_token(integrator: int) -> str:
-    return {0: "euler", 1: "rk4", 2: "implicit", 3: "implicitfast"}[integrator]
+    return {0: "euler", 1: "rk4", 2: "implicit", 3: "implicitfast", 4: "discrete"}[integrator]
 
 
 def get_cone_token(cone: int) -> str:
