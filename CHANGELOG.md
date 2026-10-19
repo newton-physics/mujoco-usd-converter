@@ -9,6 +9,11 @@
 - Stopped authoring the deprecated `mjc:damping` alias
   - MuJoCo 3.16's USD decoder converts hinge `newton:damping` from per-degree to per-radian units
   - Slide damping needs no unit conversion, and MuJoCo's USD decoder does not import ball joints
+- Fixed mesh colliders with MuJoCo's default `legacy` inertia reading back as `convex` in MuJoCo 3.16
+  - MuJoCo 3.16's USD decoder infers convex inertia from the `convexHull` approximation unless `mjc:inertia` is authored
+  - `mjc:inertia` is now authored for `legacy` and `exact` mesh inertia, which have no Newton or UsdPhysics equivalent
+- Stopped authoring the deprecated `mjc:inertia` alias for `convex` and `shell` mesh inertia
+  - The `convexHull` approximation and `newton:massModel = "shell"` preserve them in MuJoCo 3.16
 
 ## Dependencies
 
