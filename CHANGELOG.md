@@ -7,6 +7,10 @@
   - MuJoCo's USD decoder and Newton don't support these types either, and would silently treat them as `fixed` gain, `none` bias, and `none` dyn
   - Actuators using them are now skipped with a warning, and the rest of the model converts
 
+## Dependencies
+
+- Updated `mujoco` to `>=3.16.0,<3.17` to align with Newton 1.8
+
 # 0.7.0
 
 ## Fixes
