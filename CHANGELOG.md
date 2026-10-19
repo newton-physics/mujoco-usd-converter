@@ -6,6 +6,9 @@
   - The MjcPhysics schema has no tokens for MuJoCo's `pid`, `dcmotor`, and `so3` gain types, `dcmotor` and `so3` bias types, or `pid` and `dcmotor` dyn types
   - MuJoCo's USD decoder and Newton don't support these types either, and would silently treat them as `fixed` gain, `none` bias, and `none` dyn
   - Actuators using them are now skipped with a warning, and the rest of the model converts
+- Stopped authoring the deprecated `mjc:damping` alias
+  - MuJoCo 3.16's USD decoder converts hinge `newton:damping` from per-degree to per-radian units
+  - Slide damping needs no unit conversion, and MuJoCo's USD decoder does not import ball joints
 
 ## Dependencies
 
