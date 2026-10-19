@@ -1,0 +1,9 @@
+<mujoco model="frames_scale">
+    <worldbody>
+        <frame name="scaled" scale="2">
+            <body name="scaledBody">
+                <geom name="scaledGeom" type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </frame>
+    </worldbody>
+</mujoco>
