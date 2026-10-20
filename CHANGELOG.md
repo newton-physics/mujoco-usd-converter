@@ -4,6 +4,7 @@
 
 - Fixed conversion failing for models with `pid`, `dcmotor`, or `orientation` actuators
   - The MjcPhysics schema has no tokens for MuJoCo's `pid`, `dcmotor`, and `so3` gain types, `dcmotor` and `so3` bias types, or `pid` and `dcmotor` dyn types
+  - MuJoCo's USD decoder and Newton don't support these types either, and would silently treat them as `fixed` gain, `none` bias, and `none` dyn
   - Actuators using them are now skipped with a warning, and the rest of the model converts
 
 # 0.7.0
