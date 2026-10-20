@@ -15,14 +15,55 @@ def convert_actuators(data: ConversionData):
     if not data.spec.actuators:
         return
 
+    actuators = [actuator for actuator in data.spec.actuators if is_supported(actuator)]
+
     # Convert each actuator to a MjcActuator prim
     physics_scope = data.content[Tokens.Physics].GetDefaultPrim().GetChild(Tokens.Physics)
-    source_names = [get_actuator_name(actuator) for actuator in data.spec.actuators]
+    source_names = [get_actuator_name(actuator) for actuator in actuators]
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
-    for actuator, source_name, safe_name in zip(data.spec.actuators, source_names, safe_names):
+    for actuator, source_name, safe_name in zip(actuators, source_names, safe_names):
         actuator_prim = convert_actuator(physics_scope, safe_name, actuator, data)
         if source_name != safe_name:
             usdex.core.setDisplayName(actuator_prim, source_name)
+
+
+def is_supported(actuator: mujoco.MjsActuator) -> bool:
+    unsupported = []
+    if convert_gain_type(actuator.gaintype) is None:
+        unsupported.append(f"gain type '{get_unsupported_gain_type(actuator.gaintype)}'")
+    if convert_bias_type(actuator.biastype) is None:
+        unsupported.append(f"bias type '{get_unsupported_bias_type(actuator.biastype)}'")
+    if convert_dyn_type(actuator.dyntype) is None:
+        unsupported.append(f"dyn type '{get_unsupported_dyn_type(actuator.dyntype)}'")
+    if unsupported:
+        Tf.Warn(f"Actuator '{get_actuator_name(actuator)}' is not converted because the MjcPhysics schema does not support: {', '.join(unsupported)}")
+    return not unsupported
+
+
+def get_unsupported_gain_type(gaintype: mujoco.mjtGain) -> str:
+    if gaintype == mujoco.mjtGain.mjGAIN_DCMOTOR:
+        return "dcmotor"
+    elif gaintype == mujoco.mjtGain.mjGAIN_SO3:
+        return "so3"
+    elif gaintype == mujoco.mjtGain.mjGAIN_PID:
+        return "pid"
+    return str(gaintype)
+
+
+def get_unsupported_bias_type(biastype: mujoco.mjtBias) -> str:
+    if biastype == mujoco.mjtBias.mjBIAS_DCMOTOR:
+        return "dcmotor"
+    elif biastype == mujoco.mjtBias.mjBIAS_SO3:
+        return "so3"
+    return str(biastype)
+
+
+def get_unsupported_dyn_type(dyntype: mujoco.mjtDyn) -> str:
+    if dyntype == mujoco.mjtDyn.mjDYN_DCMOTOR:
+        return "dcmotor"
+    elif dyntype == mujoco.mjtDyn.mjDYN_PID:
+        return "pid"
+    return str(dyntype)
 
 
 def get_actuator_name(actuator: mujoco.MjsActuator) -> str:

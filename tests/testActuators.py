@@ -181,6 +181,35 @@ class TestActuators(ConverterTestCase):
         self.assertIsValidUsd(stage)
 
 
+class TestUnsupportedActuatorTypes(ConverterTestCase):
+
+    def test_unsupported_types_are_skipped(self):
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Actuator 'pid' is not converted.*: gain type 'pid'$"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Actuator 'pid_integral' is not converted.*: gain type 'pid', dyn type 'pid'$"),
+                (
+                    Tf.TF_DIAGNOSTIC_WARNING_TYPE,
+                    "Actuator 'dcmotor' is not converted.*: gain type 'dcmotor', bias type 'dcmotor', dyn type 'dcmotor'$",
+                ),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Actuator 'orientation' is not converted.*: gain type 'so3', bias type 'so3'$"),
+                (Tf.TF_DIAGNOSTIC_WARNING_TYPE, "Actuator 'dcmotor_bias' is not converted.*: bias type 'dcmotor'$"),
+            ],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert("./tests/data/actuator_unsupported_types.xml", self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        motor = stage.GetPrimAtPath("/actuator_unsupported_types/Physics/motor")
+        self.assertTrue(motor.IsValid())
+        self.assertEqual(motor.GetTypeName(), "MjcActuator")
+
+        for name in ("pid", "pid_integral", "dcmotor", "orientation", "dcmotor_bias"):
+            self.assertFalse(stage.GetPrimAtPath(f"/actuator_unsupported_types/Physics/{name}").IsValid(), name)
+
+
 class TestActuatorEdgeCases(ConverterTestCase):
 
     def setUp(self):

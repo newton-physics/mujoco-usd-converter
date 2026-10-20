@@ -1,0 +1,26 @@
+<mujoco model="actuator_unsupported_types">
+  <worldbody>
+    <site name="reference_site"/>
+    <body name="arm" pos="0 0 1">
+      <geom name="arm_geom" type="box" size="0.1 0.1 0.1"/>
+      <joint name="arm_joint" type="hinge" axis="0 0 1"/>
+    </body>
+    <body name="free_body" pos="1 0 1">
+      <freejoint/>
+      <geom name="free_geom" type="box" size="0.1 0.1 0.1"/>
+      <site name="free_site"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Supported actuator, which still converts -->
+    <motor name="motor" joint="arm_joint"/>
+
+    <!-- The MjcPhysics schema has no tokens for these gain, bias and dyn types -->
+    <pid name="pid" joint="arm_joint" kp="10"/>
+    <pid name="pid_integral" joint="arm_joint" kp="10" ki="1"/>
+    <dcmotor name="dcmotor" joint="arm_joint" motorconst="0.1" resistance="1"/>
+    <orientation name="orientation" site="free_site" refsite="reference_site" kp="10"/>
+    <general name="dcmotor_bias" joint="arm_joint" biastype="dcmotor"/>
+  </actuator>
+</mujoco>
