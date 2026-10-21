@@ -54,7 +54,7 @@ Each PR adds its changelog entries to `CHANGELOG.md` under an `# Unreleased` hea
 
 Entries must match the voice of the existing changelog. Read the most recent releases before writing yours:
 
-- File entries under the section headings already used in this file: `## Breaking Changes`, `## Features`, `## Fixes`, `## Documentation`, `## CI/CD`, or `## Dependencies`.
+- File entries under `## Features`, `## Fixes`, `## Documentation`, `## Breaking Changes`, or `## Dependencies`.
 - Wrap MJCF element, USD schema, attribute, token, and package names in backticks.
 - Use nested bullets for consequences, caveats, and migration notes that users need. Leave implementation details to the PR description.
 
