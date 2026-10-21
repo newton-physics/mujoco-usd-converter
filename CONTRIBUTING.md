@@ -22,6 +22,8 @@ If you intend to submit a Pull Request:
 - First, ensure alignment with the Code Owners on the associated Issue, to avoid redundant work or wasted iterations.
 - Develop your changes on a well named [development branch](#development-branches) within your personal clone/mirror/fork.
 - Run all test suites locally & ensure passing results in your dev environment.
+- Add changelog entries as described in [Changelog](#changelog).
+- Fill in the [PR template](.github/PULL_REQUEST_TEMPLATE.md), including its checklist. When opening the PR with `gh pr create --body` or `--fill`, the template is not applied automatically, so copy it into the body.
 - Be prepared to sign the Newton Contributor License Agreement, see below.
 
 Please note that in some cases, we may not merge GitHub Pull Requests directly. We will take suggestions under advisement and discuss internally. We may rebase your commits to provide alignment with internal development branches.
@@ -45,6 +47,22 @@ For all development, changes are pushed into a branch in personal development fo
 We do not enforce any particular naming convention for development branches, other than avoiding the reserved branch patterns `main` and `production/*`. We recommend using legible branch names that imply the feature or fix being developed.
 
 All code changes must contain either new unittests, or updates to existing tests, and we won't merge any code changes that have failing CI pipelines or sub-standard code coverage.
+
+## Changelog
+
+Each PR adds its changelog entries to `CHANGELOG.md` under an `# Unreleased` heading at the top of the file. Create the heading if it does not exist. Do not add a version heading or bump the version; that happens during [release preparation](#release-preparation).
+
+Entries must match the voice of the existing changelog. Read the most recent releases before writing yours:
+
+- File entries under `## Features`, `## Fixes`, `## Documentation`, `## Breaking Changes`, or `## Dependencies`.
+- Wrap MJCF element, USD schema, attribute, token, and package names in backticks.
+- Use nested bullets for consequences, caveats, and migration notes that users need. Leave implementation details to the PR description.
+
+Skip the entry only for changes that fit none of those sections, such as test-only changes or internal refactors, and say so in the PR description.
+
+### Release Preparation
+
+The release preparation PR renames `# Unreleased` to the new version. Before it does, it reviews every commit merged since the previous release tag and backfills entries for changes that were missed during review. It may also reword entries in that release for a consistent voice, or merge related entries so the release reads as one coherent story. Unreleased entries are not final until the release ships.
 
 ## Developing
 
