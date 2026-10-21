@@ -1,4 +1,4 @@
-# Unreleased
+# 0.8.0
 
 ## Fixes
 
@@ -11,9 +11,8 @@
   - Slide damping needs no unit conversion, and MuJoCo's USD decoder does not import ball joints
 - Fixed mesh colliders with MuJoCo's default `legacy` inertia reading back as `convex` in MuJoCo 3.16
   - MuJoCo 3.16's USD decoder infers convex inertia from the `convexHull` approximation unless `mjc:inertia` is authored
-  - `mjc:inertia` is now authored for `legacy` and `exact` mesh inertia, which have no Newton or UsdPhysics equivalent
-- Stopped authoring the deprecated `mjc:inertia` alias for `convex` and `shell` mesh inertia
-  - The `convexHull` approximation and `newton:massModel = "shell"` preserve them in MuJoCo 3.16
+  - `mjc:inertia` is now authored for `legacy` and `exact` mesh inertia, which have no Newton or UsdPhysics equivalent, even though `legacy` is the schema default
+  - Stopped authoring the deprecated `mjc:inertia` alias for `convex` and `shell` mesh inertia, which the `convexHull` approximation and `newton:massModel = "shell"` preserve
 - Added a warning for MuJoCo 3.16's frame `scale` and `massscale` attributes, which are not supported
   - The converter reads authored values from the MjSpec, so the contents of a scaled frame are generally converted unscaled
 - Stopped disabling the follower joint of an inactive joint equality
