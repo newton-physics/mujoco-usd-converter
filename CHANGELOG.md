@@ -16,6 +16,9 @@
   - The `convexHull` approximation and `newton:massModel = "shell"` preserve them in MuJoCo 3.16
 - Added a warning for MuJoCo 3.16's frame `scale` and `massscale` attributes, which are not supported
   - The converter reads authored values from the MjSpec, so the contents of a scaled frame are generally converted unscaled
+- Stopped disabling the follower joint of an inactive joint equality
+  - A joint equality is authored onto its follower joint, where `physics:jointEnabled` disables the joint itself rather than the coupling
+  - `newton:mimicEnabled` carries the equality's active state, which Newton and MuJoCo 3.16's USD decoder both read
 
 ## Dependencies
 
