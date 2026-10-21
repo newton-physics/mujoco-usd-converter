@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-from pxr import Gf, Sdf, Usd, UsdGeom
+import usdex.core
+import usdex.test
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -34,3 +36,20 @@ class TestFrames(ConverterTestCase):
         self.assertTrue(Gf.IsClose(transform.GetTranslation(), Gf.Vec3d(pow(2, 0.5) / 2, -pow(2, 0.5) / 2, 0), 1e-6))
         self.assertRotationsAlmostEqual(transform.GetRotation(), Gf.Rotation(Gf.Vec3d(0, 0, 1), 90), 1e-4)
         self.assertTrue(Gf.IsClose(transform.GetScale(), Gf.Vec3d(0.1, 0.1, 0.4), 1e-6))
+
+    def test_frame_scale_warns(self):
+        # MuJoCo scales frame contents at compile time, which the converter does not represent
+        self.__assert_frame_scale_warns(pathlib.Path("./tests/data/frames_scale.xml"))
+
+    def test_frame_massscale_warns(self):
+        self.__assert_frame_scale_warns(pathlib.Path("./tests/data/frames_massscale.xml"))
+
+    def __assert_frame_scale_warns(self, model: pathlib.Path):
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*frame scale is not supported.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)

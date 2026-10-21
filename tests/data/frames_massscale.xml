@@ -1,0 +1,9 @@
+<mujoco model="frames_massscale">
+    <worldbody>
+        <frame name="massScaled" massscale="2">
+            <body name="massScaledBody">
+                <geom name="massScaledGeom" type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </frame>
+    </worldbody>
+</mujoco>

@@ -323,12 +323,16 @@ def apply_physics(geom_prim: Usd.Prim, geom: mujoco.MjsGeom, data: ConversionDat
         mesh_collider: UsdPhysics.MeshCollisionAPI = UsdPhysics.MeshCollisionAPI.Apply(geom_over)
         mesh_collider.CreateApproximationAttr().Set(UsdPhysics.Tokens.convexHull)
         geom_over.ApplyAPI("NewtonMeshCollisionAPI")
-        if inertia := get_inertia_token(geom, data):
+        # Convex inertia is implied by the convexHull approximation and shell by newton:massModel.
+        # Legacy and exact have no equivalent, and without mjc:inertia MuJoCo's USD decoder would
+        # infer convex, so author them even when legacy matches the schema default.
+        inertia = get_inertia_token(geom, data)
+        if inertia == "shell":
+            geom_over.ApplyAPI("NewtonMassAPI")
+            set_schema_attribute(geom_over, "newton:massModel", "shell")
+        elif inertia in ("legacy", "exact"):
             geom_over.ApplyAPI("MjcMeshCollisionAPI")
-            set_schema_attribute(geom_over, "mjc:inertia", inertia)
-            if inertia == "shell":
-                geom_over.ApplyAPI("NewtonMassAPI")
-                set_schema_attribute(geom_over, "newton:massModel", "shell")
+            geom_over.GetAttribute("mjc:inertia").Set(inertia)
         if maxhullvert := get_maxhullvert(geom, data):
             set_schema_attribute(geom_over, "newton:maxHullVertices", maxhullvert)
     else:
@@ -427,8 +431,7 @@ def get_inertia_token(geom: mujoco.MjsGeom, data: ConversionData) -> str:
     elif mesh.inertia == mujoco.mjtMeshInertia.mjMESH_INERTIA_SHELL:
         return "shell"
     else:
-        # explicitly return None for legacy to indicate it should not be applied
-        return None
+        return "legacy"
 
 
 def get_maxhullvert(geom: mujoco.MjsGeom, data: ConversionData) -> int:

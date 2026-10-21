@@ -194,26 +194,20 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
-        self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
 
         # Check that newton:maxHullVertices attribute is authored and has the correct value
         self.assertTrue(prim.GetAttribute("newton:maxHullVertices").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("newton:maxHullVertices").Get(), 100)
 
-        # Check that mjc:inertia attribute is authored and has the correct value
-        self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "convex")
-
-        # Check that deprecated mjc:maxhullvert is not authored
-        self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
+        # Convex inertia is expressed by the convexHull approximation, so the deprecated MJC schema is not applied
+        self.assertEqual(UsdPhysics.MeshCollisionAPI(prim).GetApproximationAttr().Get(), UsdPhysics.Tokens.convexHull)
+        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
 
         # Check that all non-deprecated MJC properties are authored
         deprecated_replacements = {
             "mjc:gap": "newton:contactGap",
             "mjc:margin": "newton:contactMargin",
             "mjc:shellinertia": "newton:massModel",
-            "mjc:maxhullvert": "newton:maxHullVertices",
         }
         for property in prim.GetPropertiesInNamespace("mjc"):
             # skip shellinertia as it is not applicable to mesh colliders
@@ -227,12 +221,15 @@ class TestGeom(ConverterTestCase):
             else:
                 self.assertTrue(property.HasAuthoredValue(), f"Property {property.GetName()} is not authored")
 
-        # Check that the mjc mesh collision properties are not applied when at default values
+        # MuJoCo's default legacy inertia has no Newton or UsdPhysics equivalent, so it is explicitly authored.
+        # Without it, MuJoCo's USD decoder would infer convex inertia from the convexHull approximation.
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/guide_mesh_collider")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
-        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
+        self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
+        self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
+        self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "legacy")
 
         # Check partial collision properties do apply the MjcMeshCollisionAPI schema (inertia only, no maxhullvert)
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/partial_mesh_collision_properties")
@@ -251,26 +248,26 @@ class TestGeom(ConverterTestCase):
         self.assertTrue(prim.GetAttribute("newton:contactGap").HasAuthoredValue())
         self.assertAlmostEqual(prim.GetAttribute("newton:contactGap").Get(), 0.02)
 
-        # Check default collision properties do not apply the schema
+        # Check explicitly authored default collision properties still author legacy inertia (no maxhullvert)
         prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/default_mesh_collision_properties")
-        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
-        self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
-        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
-        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
-
-        # Check shell inertia properties do apply the MjcMeshCollisionAPI schema (no maxhullvert)
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/shell_mesh_collision_properties")
         self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
         self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
         self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
         self.assertTrue(prim.HasAPI("MjcMeshCollisionAPI"))
         self.assertTrue(prim.GetAttribute("mjc:inertia").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "shell")
+        self.assertEqual(prim.GetAttribute("mjc:inertia").Get(), "legacy")
+        self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
+        self.assertFalse(prim.GetAttribute("newton:maxHullVertices").HasAuthoredValue())
+
+        # Shell inertia is expressed by newton:massModel, so the deprecated MJC schema is not applied
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/shell_mesh_collision_properties")
+        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.MeshCollisionAPI))
+        self.assertTrue(prim.HasAPI("NewtonMeshCollisionAPI"))
+        self.assertFalse(prim.HasAPI("MjcMeshCollisionAPI"))
         self.assertTrue(prim.HasAPI("NewtonMassAPI"))
         self.assertTrue(prim.GetAttribute("newton:massModel").HasAuthoredValue())
         self.assertEqual(prim.GetAttribute("newton:massModel").Get(), "shell")
-        self.assertFalse(prim.GetAttribute("mjc:maxhullvert").HasAuthoredValue())
-        self.assertEqual(prim.GetAttribute("mjc:maxhullvert").Get(), -1)
         self.assertFalse(prim.GetAttribute("mjc:shellinertia").HasAuthoredValue())
 
     def test_newton_collision_schema_defaults(self):

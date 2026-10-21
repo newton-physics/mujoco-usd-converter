@@ -6,6 +6,20 @@
   - The MjcPhysics schema has no tokens for MuJoCo's `pid`, `dcmotor`, and `so3` gain types, `dcmotor` and `so3` bias types, or `pid` and `dcmotor` dyn types
   - MuJoCo's USD decoder and Newton don't support these types either, and would silently treat them as `fixed` gain, `none` bias, and `none` dyn
   - Actuators using them are now skipped with a warning, and the rest of the model converts
+- Stopped authoring the deprecated `mjc:damping` alias
+  - MuJoCo 3.16's USD decoder converts hinge `newton:damping` from per-degree to per-radian units
+  - Slide damping needs no unit conversion, and MuJoCo's USD decoder does not import ball joints
+- Fixed mesh colliders with MuJoCo's default `legacy` inertia reading back as `convex` in MuJoCo 3.16
+  - MuJoCo 3.16's USD decoder infers convex inertia from the `convexHull` approximation unless `mjc:inertia` is authored
+  - `mjc:inertia` is now authored for `legacy` and `exact` mesh inertia, which have no Newton or UsdPhysics equivalent
+- Stopped authoring the deprecated `mjc:inertia` alias for `convex` and `shell` mesh inertia
+  - The `convexHull` approximation and `newton:massModel = "shell"` preserve them in MuJoCo 3.16
+- Added a warning for MuJoCo 3.16's frame `scale` and `massscale` attributes, which are not supported
+  - The converter reads authored values from the MjSpec, so the contents of a scaled frame are generally converted unscaled
+
+## Dependencies
+
+- Updated `mujoco` to `>=3.16.0,<3.17` to align with Newton 1.8
 
 # 0.7.0
 
