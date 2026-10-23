@@ -1,3 +1,12 @@
+# Unreleased
+
+## Fixes
+
+- Fixed meshes with `refpos` or `refquat` being offset and rotated the wrong way
+  - MuJoCo subtracts `refpos` and rotates by the inverse of `refquat` before applying `scale`, but the converter applied the forward transform
+  - Mesh geoms also applied the reference pose after the geom pose rather than before it
+  - A non-uniform `scale` after an oblique `refquat` shears the mesh, which no USD transform can represent, so in that case the reference pose is baked into the mesh points and normals
+
 # 0.8.0
 
 ## Fixes

@@ -1,0 +1,27 @@
+<mujoco model="mesh_ref_pose">
+    <compiler meshdir="assets"/>
+
+    <asset>
+        <mesh name="plain" file="complex_cube.obj" scale="0.1 0.2 0.3"/>
+        <mesh name="refPos" file="complex_cube.obj" scale="0.1 0.1 0.1" refpos="0.1 0.2 0.3"/>
+        <mesh name="refQuat" file="complex_cube.obj" scale="0.1 0.1 0.1" refquat="0.7071068 0 0 0.7071068"/>
+        <!-- rotating 90 degrees about x maps the scale onto the y and z axes, so no shear -->
+        <mesh name="refPose" file="complex_cube.obj" scale="0.1 0.2 0.3" refpos="0.1 0.2 0.3" refquat="0.7071068 0.7071068 0 0"/>
+        <!-- a non-uniform scale after an oblique rotation shears the mesh -->
+        <mesh name="sheared" file="complex_cube.obj" scale="0.1 0.2 0.3" refpos="0.1 0.2 0.3" refquat="0.9 0.3 0.1 0.2"/>
+    </asset>
+
+    <worldbody>
+        <body name="body" pos="0 0 1" quat="0.9 0.1 0.3 0.2">
+            <geom name="plainGeom" type="mesh" mesh="plain"/>
+            <geom name="refPosGeom" type="mesh" mesh="refPos"/>
+            <geom name="refQuatGeom" type="mesh" mesh="refQuat"/>
+            <geom name="refPoseGeom" type="mesh" mesh="refPose"/>
+            <geom name="shearedGeom" type="mesh" mesh="sheared"/>
+            <frame pos="0 0.1 0" quat="0.9 0 0.2 0.1">
+                <geom name="framedRefPoseGeom" type="mesh" mesh="refPose" pos="0.1 0 0" quat="0.8 0.2 0.1 0.3"/>
+                <geom name="framedShearedGeom" type="mesh" mesh="sheared" pos="0.1 0 0" euler="10 20 30"/>
+            </frame>
+        </body>
+    </worldbody>
+</mujoco>
