@@ -32,6 +32,12 @@ class TestMeshRefPose(ConverterTestCase):
     def test_world_points_match_mujoco(self):
         model_path = pathlib.Path("./tests/data/mesh_ref_pose.xml")
         stage = self.__convert(model_path)
+
+        # MuJoCo's asset cache ignores refpos and refquat, so meshes sharing a file and scale would reuse each other's vertices
+        cache = mujoco.mj_getCache()
+        self.addCleanup(mujoco.mj_setCacheCapacity, cache, mujoco.mj_getCacheCapacity(cache))
+        mujoco.mj_clearCache(cache)
+        mujoco.mj_setCacheCapacity(cache, 0)
         model = mujoco.MjModel.from_xml_path(str(model_path))
         data = mujoco.MjData(model)
         mujoco.mj_kinematics(model, data)
@@ -85,8 +91,10 @@ class TestMeshRefPose(ConverterTestCase):
 
                 normals = UsdGeom.PrimvarsAPI(mesh).GetPrimvar(UsdGeom.Tokens.normals)
                 source_normals = UsdGeom.PrimvarsAPI(source).GetPrimvar(UsdGeom.Tokens.normals)
-                np.testing.assert_allclose(np.array(normals.Get()), np.array(source_normals.Get()) @ rotation, atol=1e-6)
+                self.assertTrue(normals.IsIndexed())
+                self.assertEqual(normals.GetInterpolation(), source_normals.GetInterpolation())
                 self.assertEqual(normals.GetIndices(), source_normals.GetIndices())
+                np.testing.assert_allclose(np.array(normals.ComputeFlattened()), np.array(source_normals.ComputeFlattened()) @ rotation, atol=1e-6)
 
                 # only the scale remains, as an unrotated scale cannot shear
                 pos, _, orient, scale = usdex.core.getLocalTransformComponentsQuat(mesh.GetPrim())

@@ -1,5 +1,6 @@
 <mujoco model="mesh_ref_pose">
-    <compiler meshdir="assets"/>
+    <!-- compile meshes in order, so that MuJoCo's asset cache is consulted deterministically -->
+    <compiler meshdir="assets" usethread="false"/>
 
     <asset>
         <mesh name="plain" file="complex_cube.obj" scale="0.1 0.2 0.3"/>
