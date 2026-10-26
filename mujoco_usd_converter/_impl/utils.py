@@ -50,7 +50,7 @@ def get_fromto_vectors(geom: mujoco.MjsGeom) -> tuple[Gf.Vec3d | None, Gf.Vec3d 
 
 def set_transform(
     prim: UsdGeom.Xformable,
-    mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsMesh,
+    mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite,
     spec: mujoco.MjSpec,
 ) -> None:
     # get the current transform (including any inherited via references)
@@ -59,8 +59,6 @@ def set_transform(
 
     # check for a local frame not represented in the prim hierarchy
     frame_transform: Gf.Transform = get_frame_transform(mjc_object, spec)
-
-    local_transform: Gf.Transform = multiply_transforms_preserve_scale(frame_transform, current_transform)
 
     # fromto overrides position and orientation
     pos = None
@@ -72,25 +70,16 @@ def set_transform(
 
     # position always exists
     if pos is None:
-        if hasattr(mjc_object, "pos"):
-            pos = convert_vec3d(mjc_object.pos)
-        elif hasattr(mjc_object, "refpos"):
-            pos = convert_vec3d(mjc_object.refpos)
+        pos = convert_vec3d(mjc_object.pos)
 
     # orientation always exists
     if quat is None:
         quat = get_orientation(mjc_object, spec)
 
-    # additional scale is optional
-    scale = Gf.Vec3d(1)
-    if hasattr(mjc_object, "scale"):
-        scale = convert_vec3d(mjc_object.scale)
-
     # compute the final transform
     new_transform: Gf.Transform = Gf.Transform()
     new_transform.SetTranslation(pos)
     new_transform.SetRotation(Gf.Rotation(quat))
-    new_transform.SetScale(scale)
 
     # Special case for Cubes, which may have a scale applied already,
     # that needs to be considered part of the new transform rather than
@@ -98,10 +87,14 @@ def set_transform(
     # and neither MjsGeom nor MjsFrame have scale, so we can safely
     # transfer scale across and avoid multiplying it in the next step.
     if prim.GetPrim().IsA(UsdGeom.Cube):
-        new_transform.SetScale(local_transform.GetScale())
-        local_transform.SetScale(Gf.Vec3d(1))
+        new_transform.SetScale(current_transform.GetScale())
+        current_transform.SetScale(Gf.Vec3d(1))
 
-    final_transform: Gf.Transform = multiply_transforms_preserve_scale(new_transform, local_transform)
+    # the inherited transform (e.g. a referenced mesh's reference pose) applies first, then the object's own, then its frame
+    final_transform: Gf.Transform = multiply_transforms_preserve_scale(
+        multiply_transforms_preserve_scale(current_transform, new_transform),
+        frame_transform,
+    )
 
     # extract the translation, orientation, and scale so we can set them as components
     pos = final_transform.GetTranslation()
@@ -145,10 +138,7 @@ def get_orientation(
     if hasattr(mjc_object, "alt"):
         orient_type = mjc_object.alt.type
     if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
-        if hasattr(mjc_object, "quat"):
-            quat = convert_quatf(mjc_object.quat)
-        elif hasattr(mjc_object, "refquat"):
-            quat = convert_quatf(mjc_object.refquat)
+        quat = convert_quatf(mjc_object.quat)
     else:
         quat = Gf.Quatf(*spec.resolve_orientation(degree=spec.compiler.degree, sequence=spec.compiler.eulerseq, orientation=mjc_object.alt))
     return quat.GetNormalized()
@@ -183,11 +173,12 @@ def multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: Gf.
     be lost or corrupted in standard matrix decomposition.
 
     Args:
-        transform1: The first transform (applied second in the composition)
-        transform2: The second transform (applied first in the composition)
+        transform1: The first transform (applied first in the composition)
+        transform2: The second transform (applied second in the composition)
 
     Returns:
-        A new Gf.Transform representing transform1 * transform2 with preserved scales
+        A new Gf.Transform representing transform1 * transform2 with preserved scales.
+        Gf composes transforms so that the left operand is applied first.
     """
     # Extract scale components before matrix multiplication
     s1 = transform1.GetScale()

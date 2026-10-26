@@ -1,3 +1,14 @@
+# Unreleased
+
+## Fixes
+
+- Fixed meshes with `refpos` or `refquat` being displaced and rotated relative to MuJoCo
+  - As in MuJoCo, `refpos` and `refquat` now define the frame that the mesh file's vertices are expressed in
+  - The mesh points are authored as they appear in the mesh file, and the mesh transform moves them into the mesh frame
+  - If a non-uniform `scale` would shear the rotated mesh, which a USD transform cannot represent, the `refpos` and `refquat` are baked into the mesh points and normals, and only the `scale` is authored on the transform
+- Fixed mesh geoms with a `pos`, `quat`, or enclosing `frame` misplacing meshes that have a `refpos` or `refquat`
+  - The reference pose was applied in the parent body's frame rather than the geom's frame
+
 # 0.8.0
 
 ## Fixes

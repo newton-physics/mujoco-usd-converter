@@ -7,11 +7,10 @@ import numpy as np
 import stl
 import tinyobjloader
 import usdex.core
-from pxr import Tf, Usd, UsdGeom, Vt
+from pxr import Gf, Tf, Usd, UsdGeom, Vt
 
 from .data import ConversionData, Tokens
-from .numpy import convert_vec3f_array
-from .utils import set_transform
+from .numpy import convert_quatf, convert_vec3d, convert_vec3f, convert_vec3f_array
 
 __all__ = ["convert_meshes"]
 
@@ -64,7 +63,43 @@ def convert_mesh(prim: Usd.Prim, mesh: mujoco.MjsMesh, data: ConversionData):
             f"Mesh {mesh.name} from file {mesh_file} has unsupported content_type {mesh.content_type} or extension {mesh_file.suffix}"
         )
 
-    set_transform(mesh_prim, mesh, data.spec)
+    set_mesh_transform(mesh_prim, mesh)
+
+
+def set_mesh_transform(usd_mesh: UsdGeom.Mesh, mesh: mujoco.MjsMesh) -> None:
+    # MuJoCo maps source vertices into the mesh frame as scale * inverse(refquat) * (vertex - refpos)
+    quat = np.asarray(mesh.refquat, dtype=np.float64)
+    quat = quat / np.linalg.norm(quat)
+    rotation = np.empty(9)
+    mujoco.mju_quat2Mat(rotation, quat)
+    rotation = rotation.reshape(3, 3)
+    refpos = np.asarray(mesh.refpos, dtype=np.float64)
+    scale = np.asarray(mesh.scale, dtype=np.float64)
+
+    # A USD transform scales before it rotates, so the scale must be re-expressed along the rotated axes.
+    # When those are not aligned with the mesh axes, the combined transform has shear, which no USD transform
+    # can represent, so the reference pose is baked into the points instead and only the scale is authored.
+    rotated_scale = rotation @ np.diag(scale) @ rotation.T
+    if np.allclose(rotated_scale, np.diag(np.diag(rotated_scale)), rtol=0, atol=1e-6 * np.abs(scale).max()):
+        translation = -scale * (rotation.T @ refpos)
+        orientation = convert_quatf(quat * np.array([1.0, -1.0, -1.0, -1.0]))
+        usdex.core.setLocalTransform(usd_mesh, convert_vec3d(translation), orientation, convert_vec3f(np.diag(rotated_scale)))
+    else:
+        bake_reference_pose(usd_mesh, rotation, refpos)
+        usdex.core.setLocalTransform(usd_mesh, Gf.Vec3d(0), Gf.Quatf.GetIdentity(), convert_vec3f(scale))
+
+
+def bake_reference_pose(usd_mesh: UsdGeom.Mesh, rotation: np.ndarray, refpos: np.ndarray) -> None:
+    # row vectors multiplied by the rotation matrix are rotated by its inverse
+    points = (np.array(usd_mesh.GetPointsAttr().Get(), dtype=np.float64) - refpos) @ rotation
+    points = Vt.Vec3fArray.FromNumpy(points.astype(np.float32))
+    usd_mesh.GetPointsAttr().Set(points)
+    usd_mesh.GetExtentAttr().Set(UsdGeom.PointBased.ComputeExtent(points))
+
+    normals: UsdGeom.Primvar = UsdGeom.PrimvarsAPI(usd_mesh).GetPrimvar(UsdGeom.Tokens.normals)
+    if normals.HasAuthoredValue():
+        values = np.array(normals.Get(), dtype=np.float64) @ rotation
+        normals.Set(Vt.Vec3fArray.FromNumpy(values.astype(np.float32)))
 
 
 def convert_stl(prim: Usd.Prim, input_path: pathlib.Path) -> UsdGeom.Mesh:

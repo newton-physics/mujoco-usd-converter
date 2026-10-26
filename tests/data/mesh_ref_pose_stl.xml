@@ -1,0 +1,16 @@
+<mujoco model="mesh_ref_pose_stl">
+    <compiler meshdir="assets"/>
+
+    <asset>
+        <mesh name="plain" file="box.stl" scale="0.1 0.2 0.3"/>
+        <!-- a non-uniform scale after an oblique rotation shears the mesh -->
+        <mesh name="sheared" file="box.stl" scale="0.1 0.2 0.3" refpos="0.1 0.2 0.3" refquat="0.9 0.3 0.1 0.2"/>
+    </asset>
+
+    <worldbody>
+        <body name="body">
+            <geom name="plainGeom" type="mesh" mesh="plain"/>
+            <geom name="shearedGeom" type="mesh" mesh="sheared"/>
+        </body>
+    </worldbody>
+</mujoco>
