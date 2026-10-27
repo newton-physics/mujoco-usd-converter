@@ -28,10 +28,16 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
 
     Bodies whose mass comes solely from colliders are left alone: their mass is described as
     the source expressed it, and baking would override an author's implicit intent.
+
+    An attached model keeps its own compiler, while the PhysicsScene describes only the top
+    level model's inertia settings. A body that infers its mass with other settings is baked.
     """
-    if data.spec.compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
+    compiler = body.compiler
+    if compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
         return False
-    lower, upper = data.spec.compiler.inertiagrouprange
+    if body.geoms and has_own_inertia_settings(compiler, data.spec.compiler):
+        return True
+    lower, upper = compiler.inertiagrouprange
     for geom in body.geoms:
         if geom.contype != 0 or geom.conaffinity != 0:
             continue  # a collider; USD accumulates its mass
@@ -43,6 +49,16 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
         elif geom.density > 0.0:
             return True
     return False
+
+
+def has_own_inertia_settings(compiler: mujoco.MjsCompiler, top_level: mujoco.MjsCompiler) -> bool:
+    return (
+        compiler.inertiafromgeom != top_level.inertiafromgeom
+        or not np.array_equal(compiler.inertiagrouprange, top_level.inertiagrouprange)
+        or compiler.boundmass != top_level.boundmass
+        or compiler.boundinertia != top_level.boundinertia
+        or compiler.balanceinertia != top_level.balanceinertia
+    )
 
 
 def get_model_body_id(body: mujoco.MjsBody, model: mujoco.MjModel, data: ConversionData) -> int | None:

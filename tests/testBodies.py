@@ -190,6 +190,34 @@ class TestBodies(ConverterTestCase):
             self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
             self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
 
+    def test_mass_baked_with_the_attached_model_compiler(self):
+        """Bake attached bodies whose inertia settings differ from the top level model's.
+
+        An attached model keeps its own compiler, so its inertiagrouprange decides whether a
+        visual geom contributes mass. The PhysicsScene describes only the top level model's
+        inertia settings, so an attached body inferring its mass with others is baked even when
+        its mass comes solely from colliders.
+        """
+        model = pathlib.Path("./tests/data/mass_bake_compiler.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # the top level model excludes the visual geom in group 3
+        mount: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/mount")
+        self.assertTrue(mount.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(mount.HasAPI(UsdPhysics.MassAPI))
+
+        # 2.0 from the attached body's visual geom in group 3 plus 1.0 from its collider
+        visual: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/mount/attached_visual_mass")
+        self.assertTrue(visual.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(visual).GetMassAttr().Get(), 3.0, places=5)
+
+        # the collider's 0.1 is raised to the attached model's boundmass
+        bounded: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/second_bounded_mass")
+        self.assertTrue(bounded.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(bounded).GetMassAttr().Get(), 0.5, places=5)
+
     def test_mass_not_baked_when_the_model_cannot_compile(self):
         """Warn and carry on when a body needs its mass baked but the model will not compile.
 
