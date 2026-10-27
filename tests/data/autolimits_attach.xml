@@ -1,0 +1,16 @@
+<mujoco model="autolimits_attach">
+  <compiler autolimits="false"/>
+  <asset>
+    <model name="child" file="autolimits_attach_child.xml"/>
+  </asset>
+  <worldbody>
+    <body name="mount">
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <joint name="unlimited" type="hinge"/>
+      <attach model="child" body="body" prefix="attached_"/>
+    </body>
+  </worldbody>
+  <actuator>
+    <general name="unlimited_actuator" joint="unlimited"/>
+  </actuator>
+</mujoco>

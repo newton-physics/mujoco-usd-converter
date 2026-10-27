@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
+from collections.abc import Sequence
 from typing import Any
 
 import mujoco
@@ -8,6 +9,7 @@ import usdex.core
 from pxr import Gf, Tf, Usd, UsdGeom
 
 from .._version import __version__
+from .data import ConversionData
 from .numpy import convert_quatf, convert_vec3d
 
 __all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]
@@ -210,10 +212,19 @@ def multiply_transforms_preserve_scale(transform1: Gf.Transform, transform2: Gf.
     return result
 
 
-def mj_limited_to_token(limited_val: mujoco.mjtLimited) -> str:
+def mj_limited_to_token(
+    limited_val: mujoco.mjtLimited,
+    value_range: Sequence[float],
+    mjc_object: mujoco.MjsJoint | mujoco.MjsTendon | mujoco.MjsActuator,
+    data: ConversionData,
+) -> str:
     if limited_val == mujoco.mjtLimited.mjLIMITED_FALSE:
         return "false"
     elif limited_val == mujoco.mjtLimited.mjLIMITED_TRUE:
         return "true"
-    else:
-        return "auto"
+    # An attached model keeps its own compiler, so it may allow an auto limit with a range
+    # that mjc:compiler:autoLimits rejects. Resolve it as MuJoCo does instead.
+    scene_autolimits = data.spec.compiler.autolimits if data.scene else True
+    if mjc_object.compiler.autolimits and not scene_autolimits:
+        return "true" if value_range[0] < value_range[1] else "false"
+    return "auto"

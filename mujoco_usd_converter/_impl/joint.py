@@ -74,7 +74,7 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, data: Conversion
     prim.ApplyAPI("MjcJointAPI")
     prim.ApplyAPI("NewtonJointAPI")
 
-    limited_token = mj_limited_to_token(joint.actfrclimited)
+    limited_token = mj_limited_to_token(joint.actfrclimited, joint.actfrcrange, joint, data)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
     set_schema_attribute(prim, "mjc:actuatorfrcrange:min", joint.actfrcrange[0])
     set_schema_attribute(prim, "mjc:actuatorfrcrange:max", joint.actfrcrange[1])
@@ -132,7 +132,7 @@ def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
         return True
     elif joint.limited == mujoco.mjtLimited.mjLIMITED_FALSE:
         return False
-    elif data.spec.compiler.autolimits and joint.range[0] != joint.range[1]:
+    elif joint.compiler.autolimits and joint.range[0] != joint.range[1]:
         return True
     return False
 

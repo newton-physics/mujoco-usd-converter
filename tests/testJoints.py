@@ -109,6 +109,32 @@ class TestJoints(ConverterTestCase):
                 self.assertAlmostEqual(revolute.GetLowerLimitAttr().Get(), -45.0)
                 self.assertAlmostEqual(revolute.GetUpperLimitAttr().Get(), 45.0)
 
+    def test_attached_autolimits(self):
+        # the attached model keeps its own autolimits, so its auto limits with a range are limited inside a model without autolimits
+        model = pathlib.Path("./tests/data/autolimits_attach.xml")
+        for scene in (True, False):
+            with self.subTest(scene=scene):
+                asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=scene).convert(model, self.tmpDir())
+                stage: Usd.Stage = Usd.Stage.Open(asset.path)
+                self.assertIsValidUsd(stage)
+                prims = {prim.GetName(): prim for prim in stage.Traverse()}
+
+                hinge = UsdPhysics.RevoluteJoint(prims["attached_hinge"])
+                self.assertAlmostEqual(hinge.GetLowerLimitAttr().Get(), -30.0)
+                self.assertAlmostEqual(hinge.GetUpperLimitAttr().Get(), 30.0)
+                unlimited = UsdPhysics.RevoluteJoint(prims["unlimited"])
+                self.assertFalse(unlimited.GetLowerLimitAttr().HasAuthoredValue())
+                self.assertFalse(unlimited.GetUpperLimitAttr().HasAuthoredValue())
+
+                # with a PhysicsScene, mjc:compiler:autoLimits = false would reject the auto limits, so they are resolved
+                expected = "true" if scene else "auto"
+                self.assertEqual(prims["attached_hinge"].GetAttribute("mjc:actuatorfrclimited").Get(), expected)
+                self.assertEqual(prims["attached_tendon"].GetAttribute("mjc:limited").Get(), expected)
+                self.assertEqual(prims["attached_tendon"].GetAttribute("mjc:actuatorfrclimited").Get(), expected)
+                for attr in ("mjc:ctrlLimited", "mjc:forceLimited", "mjc:actLimited"):
+                    self.assertEqual(prims["attached_actuator"].GetAttribute(attr).Get(), expected)
+                    self.assertEqual(prims["unlimited_actuator"].GetAttribute(attr).Get(), "auto")
+
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())

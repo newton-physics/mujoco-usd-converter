@@ -1,0 +1,16 @@
+<mujoco model="autolimits_attach_child">
+  <worldbody>
+    <body name="body">
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <joint name="hinge" type="hinge" range="-30 30" actuatorfrcrange="-5 5"/>
+    </body>
+  </worldbody>
+  <tendon>
+    <fixed name="tendon" range="-1 1" actuatorfrcrange="-2 2">
+      <joint joint="hinge" coef="1"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <general name="actuator" joint="hinge" dyntype="integrator" ctrlrange="-1 1" forcerange="-3 3" actrange="-4 4"/>
+  </actuator>
+</mujoco>

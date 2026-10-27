@@ -17,6 +17,9 @@
   - `ref` and `springref` are now converted to the units of `mjc:compiler:angle`, and joint limits are converted to degrees based on the joint's own compiler
 - Fixed `euler`, `axisangle`, `xyaxes`, and `zaxis` orientations of attached models with a different `<compiler angle>` or `eulerseq` than the top level model
   - They are now resolved with the attached model's own compiler, as MuJoCo does
+- Fixed limits of attached models with `autolimits="true"` inside a model with `autolimits="false"`
+  - Joint limits with a `range` but no `limited` were dropped, since `autolimits` was read from the top level model
+  - The PhysicsScene's `mjc:compiler:autoLimits = false` makes MuJoCo reject `auto` limits that have a range, so for attached models that allow them the joint, tendon, and actuator `limited` attributes are now authored as `true` or `false`
 
 # 0.8.0
 
