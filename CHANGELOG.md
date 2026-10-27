@@ -15,6 +15,8 @@
 - Fixed hinge angles of attached models with a different `<compiler angle>` than the top level model
   - An attached model keeps its own compiler, so its joint `ref`, `springref`, and `range` were authored in the wrong units
   - `ref` and `springref` are now converted to the units of `mjc:compiler:angle`, and joint limits are converted to degrees based on the joint's own compiler
+- Fixed `euler`, `axisangle`, `xyaxes`, and `zaxis` orientations of attached models with a different `<compiler angle>` or `eulerseq` than the top level model
+  - They are now resolved with the attached model's own compiler, as MuJoCo does
 
 # 0.8.0
 

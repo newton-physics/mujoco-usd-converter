@@ -1,0 +1,12 @@
+<mujoco model="orientation_attach_child">
+  <compiler angle="radian" eulerseq="zyx"/>
+  <worldbody>
+    <body name="body" euler="0.3 0.5 0.7">
+      <geom name="axisangle_geom" type="box" size="0.1 0.2 0.3" axisangle="1 1 0 0.6"/>
+      <site name="euler_site" type="box" size="0.05 0.1 0.15" euler="0.2 0.4 0.6"/>
+      <frame euler="0.4 0.8 1.2">
+        <geom name="framed_geom" type="box" size="0.1 0.2 0.3" pos="0.1 0 0"/>
+      </frame>
+    </body>
+  </worldbody>
+</mujoco>

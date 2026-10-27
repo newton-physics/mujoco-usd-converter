@@ -140,7 +140,9 @@ def get_orientation(
     if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
         quat = convert_quatf(mjc_object.quat)
     else:
-        quat = Gf.Quatf(*spec.resolve_orientation(degree=spec.compiler.degree, sequence=spec.compiler.eulerseq, orientation=mjc_object.alt))
+        # an attached model keeps its own compiler, so its angle units and euler sequence may differ from the spec's
+        compiler = mjc_object.compiler
+        quat = Gf.Quatf(*spec.resolve_orientation(degree=compiler.degree, sequence=compiler.eulerseq, orientation=mjc_object.alt))
     return quat.GetNormalized()
 
 
