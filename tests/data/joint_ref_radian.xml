@@ -3,7 +3,7 @@
   <worldbody>
     <body name="body1" pos="0 0 0.5">
       <geom type="box" size="0.05 0.05 0.5"/>
-      <joint name="hinge_joint" type="hinge" axis="1 0 0" ref="0.4" springref="0.3" stiffness="2"/>
+      <joint name="hinge_joint" type="hinge" axis="1 0 0" range="-1 1" ref="0.4" springref="0.3" stiffness="2"/>
     </body>
 
     <body name="body2" pos="0 1 0.5">

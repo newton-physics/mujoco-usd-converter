@@ -1,0 +1,12 @@
+<mujoco model="joint_ref_attach_radian">
+  <compiler angle="radian"/>
+  <asset>
+    <model name="degree_model" file="joint_attributes.xml"/>
+  </asset>
+  <worldbody>
+    <body name="mount">
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <attach model="degree_model" body="body1" prefix="attached_"/>
+    </body>
+  </worldbody>
+</mujoco>

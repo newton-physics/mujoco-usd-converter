@@ -8,6 +8,13 @@
   - If a non-uniform `scale` would shear the rotated mesh, which a USD transform cannot represent, the `refpos` and `refquat` are baked into the mesh points and normals, and only the `scale` is authored on the transform
 - Fixed mesh geoms with a `pos`, `quat`, or enclosing `frame` misplacing meshes that have a `refpos` or `refquat`
   - The reference pose was applied in the parent body's frame rather than the geom's frame
+- Fixed hinge `mjc:ref` and `mjc:springref` of `angle="radian"` models being read as degrees when converting without a physics scene
+  - These attributes use the units of `mjc:compiler:angle`, which is only authored on the PhysicsScene, so without one its default of `degree` applies
+  - Without a PhysicsScene, hinge `ref` and `springref` are now authored in degrees
+  - Newton 1.7 and MuJoCo's USD decoder read them this way, while earlier Newton releases read them as radians regardless of `mjc:compiler:angle`
+- Fixed hinge angles of attached models with a different `<compiler angle>` than the top level model
+  - An attached model keeps its own compiler, so its joint `ref`, `springref`, and `range` were authored in the wrong units
+  - `ref` and `springref` are now converted to the units of `mjc:compiler:angle`, and joint limits are converted to degrees based on the joint's own compiler
 
 # 0.8.0
 

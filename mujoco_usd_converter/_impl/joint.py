@@ -103,13 +103,17 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, data: Conversion
 
 
 def to_mjc_angle(joint: mujoco.MjsJoint, value: float, data: ConversionData) -> float:
-    """Convert a hinge angle to the units of mjc:compiler:angle.
+    """Convert a hinge angle from the joint's compiler units to the units of mjc:compiler:angle.
 
-    Without a PhysicsScene that attribute is not authored, so its default of degrees applies.
+    The PhysicsScene declares the units of the top level model, or without a PhysicsScene the schema
+    default of degrees applies. An attached model keeps its own compiler, so its units may differ.
     """
-    if joint.type == mujoco.mjtJoint.mjJNT_HINGE and not data.scene and not joint.compiler.degree:
-        return np.degrees(value)
-    return value
+    if joint.type != mujoco.mjtJoint.mjJNT_HINGE:
+        return value
+    scene_degree = data.spec.compiler.degree if data.scene else True
+    if joint.compiler.degree == scene_degree:
+        return value
+    return np.degrees(value) if scene_degree else np.radians(value)
 
 
 def to_newton_angular_gain(joint: mujoco.MjsJoint, value: float) -> float:
@@ -136,7 +140,7 @@ def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
 def get_limits(joint: mujoco.MjsJoint, data: ConversionData) -> tuple[float, float]:
     if not is_limited(joint, data):
         return [None, None]
-    if joint.type == mujoco.mjtJoint.mjJNT_SLIDE or data.spec.compiler.degree:
+    if joint.type == mujoco.mjtJoint.mjJNT_SLIDE or joint.compiler.degree:
         return joint.range
     # for all other joint types, we need to convert the limits to degrees
     return [np.degrees(joint.range[0]), np.degrees(joint.range[1])]
