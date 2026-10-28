@@ -11,7 +11,7 @@
 
 ## Dependencies
 
-- Updated `mujoco` to `>=3.17.0,<3.18` to align with Newton 1.8
+- Updated `mujoco` to `>=3.16.0,<3.18` to align with Newton 1.8
 
 # 0.8.0
 
