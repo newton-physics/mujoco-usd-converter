@@ -489,6 +489,13 @@ class TestJoints(ConverterTestCase):
         self.assertFalse(auto_unlimited_same_range.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(auto_unlimited_same_range.GetUpperLimitAttr().HasAuthoredValue())
 
+        # Auto-limited joint with a reversed range should be unlimited, as MuJoCo compiles it
+        auto_unlimited_reversed_range = UsdPhysics.RevoluteJoint(
+            stage.GetPrimAtPath("/joint_limits/Geometry/body9/body10/auto_unlimited_reversed_range")
+        )
+        self.assertFalse(auto_unlimited_reversed_range.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(auto_unlimited_reversed_range.GetUpperLimitAttr().HasAuthoredValue())
+
     def test_no_autolimits(self):
         # Test with autolimits="false"
         model = pathlib.Path("./tests/data/joint_limits_no_autolimits.xml")

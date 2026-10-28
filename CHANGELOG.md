@@ -20,6 +20,8 @@
 - Fixed limits of attached models with `autolimits="true"` inside a model with `autolimits="false"`
   - Joint limits with a `range` but no `limited` were dropped, since `autolimits` was read from the top level model
   - The PhysicsScene's `mjc:compiler:autoLimits = false` makes MuJoCo reject `auto` limits that have a range, so for attached models that allow them the joint, tendon, and actuator `limited` attributes are now authored as `true` or `false`
+- Fixed joints with `limited="auto"` and a reversed `range` being authored with reversed limits
+  - As in MuJoCo, an `auto` limit is only active when the lower bound of its `range` is less than the upper bound
 - Fixed the mass of attached bodies whose model has different inertia compiler settings than the top level model
   - Whether a non-colliding geom contributes mass was decided with the top level `inertiafromgeom` and `inertiagrouprange` rather than the attached model's own
   - The PhysicsScene describes only the top level model's `inertiaFromGeom`, `inertiaGroupRange`, `boundMass`, `boundInertia`, and `balanceInertia`, so attached bodies with geoms that use other values now have MuJoCo's compiled mass properties authored

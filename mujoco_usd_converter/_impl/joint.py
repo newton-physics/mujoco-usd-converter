@@ -132,7 +132,7 @@ def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
         return True
     elif joint.limited == mujoco.mjtLimited.mjLIMITED_FALSE:
         return False
-    elif joint.compiler.autolimits and joint.range[0] != joint.range[1]:
+    elif joint.compiler.autolimits and joint.range[0] < joint.range[1]:
         return True
     return False
 
