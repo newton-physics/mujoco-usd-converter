@@ -9,6 +9,10 @@
 - Fixed mesh geoms with a `pos`, `quat`, or enclosing `frame` misplacing meshes that have a `refpos` or `refquat`
   - The reference pose was applied in the parent body's frame rather than the geom's frame
 
+## Dependencies
+
+- Updated `mujoco` to `>=3.17.0,<3.18` to align with Newton 1.8
+
 # 0.8.0
 
 ## Fixes
