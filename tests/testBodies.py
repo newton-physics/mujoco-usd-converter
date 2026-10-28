@@ -195,8 +195,8 @@ class TestBodies(ConverterTestCase):
 
         An attached model keeps its own compiler, so its inertiagrouprange decides whether a
         visual geom contributes mass. The PhysicsScene describes only the top level model's
-        inertia settings, so an attached body inferring its mass with others is baked even when
-        its mass comes solely from colliders.
+        inertia settings, so an attached body compiled with others is baked even when its mass
+        comes solely from colliders, unless it compiles to no mass at all.
         """
         model = pathlib.Path("./tests/data/mass_bake_compiler.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
@@ -213,10 +213,37 @@ class TestBodies(ConverterTestCase):
         self.assertTrue(visual.HasAPI(UsdPhysics.MassAPI))
         self.assertAlmostEqual(UsdPhysics.MassAPI(visual).GetMassAttr().Get(), 3.0, places=5)
 
-        # the collider's 0.1 is raised to the attached model's boundmass
-        bounded: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/second_bounded_mass")
-        self.assertTrue(bounded.HasAPI(UsdPhysics.MassAPI))
-        self.assertAlmostEqual(UsdPhysics.MassAPI(bounded).GetMassAttr().Get(), 0.5, places=5)
+        massless: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/mount/attached_visual_mass/attached_massless")
+        self.assertTrue(massless.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(massless.HasAPI(UsdPhysics.MassAPI))
+
+        collider: Usd.Prim = stage.GetPrimAtPath("/mass_bake_compiler/Geometry/mount/attached_visual_mass/attached_massless/attached_collider_mass")
+        self.assertTrue(collider.HasAPI(UsdPhysics.MassAPI))
+        self.assertAlmostEqual(UsdPhysics.MassAPI(collider).GetMassAttr().Get(), 0.1, places=5)
+
+    def test_mass_baked_when_the_attached_model_ignores_or_bounds_it(self):
+        """Bake attached bodies whose compiler ignores geom mass or bounds an explicit inertial.
+
+        The attached model sets inertiafromgeom="false" and boundmass="0.5", so MuJoCo ignores
+        the geom mass of one body and raises the explicit inertial mass of another. Neither the
+        geom mass nor the source inertial describes the compiled 0.5.
+        """
+        model = pathlib.Path("./tests/data/mass_bake_inertiafromgeom.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        mount: Usd.Prim = stage.GetPrimAtPath("/mass_bake_inertiafromgeom/Geometry/mount")
+        self.assertTrue(mount.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(mount.HasAPI(UsdPhysics.MassAPI))
+
+        for path in ("mount/g_geom_only", "e_explicit"):
+            with self.subTest(path=path):
+                prim: Usd.Prim = stage.GetPrimAtPath(f"/mass_bake_inertiafromgeom/Geometry/{path}")
+                self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+                mass_api = UsdPhysics.MassAPI(prim)
+                self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 0.5, places=5)
+                self.assertTrue(Gf.IsClose(mass_api.GetDiagonalInertiaAttr().Get(), Gf.Vec3f(0.01, 0.01, 0.01), 1e-6))
 
     def test_mass_not_baked_when_the_model_cannot_compile(self):
         """Warn and carry on when a body needs its mass baked but the model will not compile.

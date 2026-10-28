@@ -10,6 +10,5 @@
       <geom type="box" size="0.1 0.1 0.1" contype="0" conaffinity="0" group="3" mass="2.0"/>
       <attach model="child" body="visual_mass" prefix="attached_"/>
     </body>
-    <attach model="child" body="bounded_mass" prefix="second_"/>
   </worldbody>
 </mujoco>

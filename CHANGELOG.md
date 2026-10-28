@@ -24,7 +24,8 @@
   - As in MuJoCo, an `auto` limit is only active when the lower bound of its `range` is less than the upper bound
 - Fixed the mass of attached bodies whose model has different inertia compiler settings than the top level model
   - Whether a non-colliding geom contributes mass was decided with the top level `inertiafromgeom` and `inertiagrouprange` rather than the attached model's own
-  - The PhysicsScene describes only the top level model's `inertiaFromGeom`, `inertiaGroupRange`, `boundMass`, `boundInertia`, and `balanceInertia`, so attached bodies with geoms that use other values now have MuJoCo's compiled mass properties authored
+  - The PhysicsScene describes only the top level model's `inertiaFromGeom`, `inertiaGroupRange`, `boundMass`, `boundInertia`, and `balanceInertia`, so attached bodies compiled with other values, including bodies with an explicit `<inertial>`, now have MuJoCo's compiled mass properties authored
+  - MuJoCo's USD decoder still infers every body's mass from its geoms when the PhysicsScene's `mjc:compiler:inertiaFromGeom` is `true`
 
 # 0.8.0
 
