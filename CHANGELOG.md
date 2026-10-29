@@ -27,6 +27,10 @@
   - The PhysicsScene describes only the top level model's `inertiaFromGeom`, `inertiaGroupRange`, `boundMass`, `boundInertia`, and `balanceInertia`, so attached bodies compiled with other values, including bodies with an explicit `<inertial>`, now have MuJoCo's compiled mass properties authored
   - MuJoCo's USD decoder still infers every body's mass from its geoms when the PhysicsScene's `mjc:compiler:inertiaFromGeom` is `true`
 
+## Dependencies
+
+- Updated `mujoco` to `>=3.16.0,<3.18` to align with Newton 1.8
+
 # 0.8.0
 
 ## Fixes
