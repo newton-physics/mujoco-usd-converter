@@ -1,0 +1,14 @@
+<mujoco model="mass_bake_inertiafromgeom">
+  <compiler inertiafromgeom="true" boundmass="0"/>
+  <asset>
+    <model name="child" file="mass_bake_inertiafromgeom_child.xml"/>
+  </asset>
+  <worldbody>
+    <body name="mount">
+      <geom type="sphere" size="0.1" mass="1"/>
+      <joint type="hinge"/>
+      <attach model="child" body="geom_only" prefix="g_"/>
+    </body>
+    <attach model="child" body="explicit" prefix="e_"/>
+  </worldbody>
+</mujoco>

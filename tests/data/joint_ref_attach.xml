@@ -1,0 +1,11 @@
+<mujoco model="joint_ref_attach">
+  <asset>
+    <model name="radian_model" file="joint_ref_radian.xml"/>
+  </asset>
+  <worldbody>
+    <body name="mount">
+      <geom type="box" size="0.05 0.05 0.05"/>
+      <attach model="radian_model" body="body1" prefix="attached_"/>
+    </body>
+  </worldbody>
+</mujoco>

@@ -67,27 +67,27 @@ def convert_joints(parent: Usd.Prim, body: mujoco.MjsBody, data: ConversionData)
 
         data.references[Tokens.PhysicsJoints][joint.name] = joint_prim.GetPrim()
 
-        apply_mjc_joint_api(joint_prim.GetPrim(), joint)
+        apply_mjc_joint_api(joint_prim.GetPrim(), joint, data)
 
 
-def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
+def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint, data: ConversionData):
     prim.ApplyAPI("MjcJointAPI")
     prim.ApplyAPI("NewtonJointAPI")
 
-    limited_token = mj_limited_to_token(joint.actfrclimited)
+    limited_token = mj_limited_to_token(joint.actfrclimited, joint.actfrcrange, joint, data)
     set_schema_attribute(prim, "mjc:actuatorfrclimited", limited_token)
     set_schema_attribute(prim, "mjc:actuatorfrcrange:min", joint.actfrcrange[0])
     set_schema_attribute(prim, "mjc:actuatorfrcrange:max", joint.actfrcrange[1])
     set_schema_attribute(prim, "mjc:actuatorgravcomp", bool(joint.actgravcomp))
     set_schema_attribute(prim, "mjc:group", joint.group)
     set_schema_attribute(prim, "mjc:margin", joint.margin)
-    set_schema_attribute(prim, "mjc:ref", joint.ref)
+    set_schema_attribute(prim, "mjc:ref", to_mjc_angle(joint, joint.ref, data))
     set_schema_attribute(prim, "mjc:solimpfriction", list(joint.solimp_friction))
     set_schema_attribute(prim, "mjc:solimplimit", list(joint.solimp_limit))
     set_schema_attribute(prim, "mjc:solreffriction", list(joint.solref_friction))
     set_schema_attribute(prim, "mjc:solreflimit", list(joint.solref_limit))
     set_schema_attribute(prim, "mjc:springdamper", list(joint.springdamper))
-    set_schema_attribute(prim, "mjc:springref", joint.springref)
+    set_schema_attribute(prim, "mjc:springref", to_mjc_angle(joint, joint.springref, data))
     set_schema_attribute(prim, "mjc:stiffness", joint.stiffness[0])
 
     set_schema_attribute(prim, "newton:armature", joint.armature)
@@ -100,6 +100,20 @@ def apply_mjc_joint_api(prim: Usd.Prim, joint: mujoco.MjsJoint):
     # inertia at qpos0, so the asset would bake a configuration-dependent value into a
     # static attribute. mjc:solreflimit above carries the source values exactly and is
     # authoritative for SolverMuJoCo. See newton-physics/newton#3762.
+
+
+def to_mjc_angle(joint: mujoco.MjsJoint, value: float, data: ConversionData) -> float:
+    """Convert a hinge angle from the joint's compiler units to the units of mjc:compiler:angle.
+
+    The PhysicsScene declares the units of the top level model, or without a PhysicsScene the schema
+    default of degrees applies. An attached model keeps its own compiler, so its units may differ.
+    """
+    if joint.type != mujoco.mjtJoint.mjJNT_HINGE:
+        return value
+    scene_degree = data.spec.compiler.degree if data.scene else True
+    if joint.compiler.degree == scene_degree:
+        return value
+    return np.degrees(value) if scene_degree else np.radians(value)
 
 
 def to_newton_angular_gain(joint: mujoco.MjsJoint, value: float) -> float:
@@ -118,7 +132,7 @@ def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
         return True
     elif joint.limited == mujoco.mjtLimited.mjLIMITED_FALSE:
         return False
-    elif data.spec.compiler.autolimits and joint.range[0] != joint.range[1]:
+    elif joint.compiler.autolimits and joint.range[0] < joint.range[1]:
         return True
     return False
 
@@ -126,7 +140,7 @@ def is_limited(joint: mujoco.MjsJoint, data: ConversionData) -> bool:
 def get_limits(joint: mujoco.MjsJoint, data: ConversionData) -> tuple[float, float]:
     if not is_limited(joint, data):
         return [None, None]
-    if joint.type == mujoco.mjtJoint.mjJNT_SLIDE or data.spec.compiler.degree:
+    if joint.type == mujoco.mjtJoint.mjJNT_SLIDE or joint.compiler.degree:
         return joint.range
     # for all other joint types, we need to convert the limits to degrees
     return [np.degrees(joint.range[0]), np.degrees(joint.range[1])]

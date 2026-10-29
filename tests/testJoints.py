@@ -34,6 +34,107 @@ class TestJoints(ConverterTestCase):
         self.assertAlmostEqual(slide.GetAttribute("newton:damping").Get(), 0.1)
         self.assertFalse(slide.GetAttribute("mjc:damping").HasAuthoredValue())
 
+    def test_radian_ref_with_scene(self):
+        # the PhysicsScene declares mjc:compiler:angle = "radian", so the angles stay in radians
+        model = pathlib.Path("./tests/data/joint_ref_radian.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), 0.4)
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), 0.3)
+
+    def test_radian_ref_without_scene(self):
+        # nothing declares mjc:compiler:angle, so hinge angles use its default of degrees
+        model = pathlib.Path("./tests/data/joint_ref_radian.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=False).convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body1/hinge_joint")
+        self.assertTrue(hinge.IsValid())
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), math.degrees(0.4))
+        self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), math.degrees(0.3))
+
+        slide: Usd.Prim = stage.GetPrimAtPath("/joint_ref_radian/Geometry/body2/slide_joint")
+        self.assertTrue(slide.IsValid())
+        self.assertAlmostEqual(slide.GetAttribute("mjc:ref").Get(), 0.1)
+        self.assertAlmostEqual(slide.GetAttribute("mjc:springref").Get(), 0.2)
+
+    def test_attached_radian_ref(self):
+        # an attached model keeps its own compiler, so its radian angles are converted inside a degree model
+        model = pathlib.Path("./tests/data/joint_ref_attach.xml")
+        for scene in (True, False):
+            with self.subTest(scene=scene):
+                asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=scene).convert(model, self.tmpDir())
+                stage: Usd.Stage = Usd.Stage.Open(asset.path)
+                self.assertIsValidUsd(stage)
+
+                if scene:
+                    physics_scene: Usd.Prim = stage.GetPrimAtPath("/PhysicsScene")
+                    self.assertTrue(physics_scene.IsValid())
+                    self.assertFalse(physics_scene.GetAttribute("mjc:compiler:angle").HasAuthoredValue())
+
+                hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_attach/Geometry/mount/attached_body1/attached_hinge_joint")
+                self.assertTrue(hinge.IsValid())
+                self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), math.degrees(0.4))
+                self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), math.degrees(0.3))
+                revolute = UsdPhysics.RevoluteJoint(hinge)
+                self.assertAlmostEqual(revolute.GetLowerLimitAttr().Get(), math.degrees(-1.0), places=4)
+                self.assertAlmostEqual(revolute.GetUpperLimitAttr().Get(), math.degrees(1.0), places=4)
+
+    def test_attached_degree_ref_in_radian_model(self):
+        # the PhysicsScene declares the radians of the top level model, so the attached degrees are converted to radians
+        model = pathlib.Path("./tests/data/joint_ref_attach_radian.xml")
+        for scene in (True, False):
+            with self.subTest(scene=scene):
+                asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=scene).convert(model, self.tmpDir())
+                stage: Usd.Stage = Usd.Stage.Open(asset.path)
+                self.assertIsValidUsd(stage)
+
+                if scene:
+                    physics_scene: Usd.Prim = stage.GetPrimAtPath("/PhysicsScene")
+                    self.assertTrue(physics_scene.IsValid())
+                    self.assertEqual(physics_scene.GetAttribute("mjc:compiler:angle").Get(), "radian")
+
+                hinge: Usd.Prim = stage.GetPrimAtPath("/joint_ref_attach_radian/Geometry/mount/attached_body1/attached_custom_joint")
+                self.assertTrue(hinge.IsValid())
+                expected_ref = math.radians(0.1) if scene else 0.1
+                expected_springref = math.radians(0.2) if scene else 0.2
+                self.assertAlmostEqual(hinge.GetAttribute("mjc:ref").Get(), expected_ref)
+                self.assertAlmostEqual(hinge.GetAttribute("mjc:springref").Get(), expected_springref)
+                revolute = UsdPhysics.RevoluteJoint(hinge)
+                self.assertAlmostEqual(revolute.GetLowerLimitAttr().Get(), -45.0)
+                self.assertAlmostEqual(revolute.GetUpperLimitAttr().Get(), 45.0)
+
+    def test_attached_autolimits(self):
+        # the attached model keeps its own autolimits, so its auto limits with a range are limited inside a model without autolimits
+        model = pathlib.Path("./tests/data/autolimits_attach.xml")
+        for scene in (True, False):
+            with self.subTest(scene=scene):
+                asset: Sdf.AssetPath = mujoco_usd_converter.Converter(scene=scene).convert(model, self.tmpDir())
+                stage: Usd.Stage = Usd.Stage.Open(asset.path)
+                self.assertIsValidUsd(stage)
+                prims = {prim.GetName(): prim for prim in stage.Traverse()}
+
+                hinge = UsdPhysics.RevoluteJoint(prims["attached_hinge"])
+                self.assertAlmostEqual(hinge.GetLowerLimitAttr().Get(), -30.0)
+                self.assertAlmostEqual(hinge.GetUpperLimitAttr().Get(), 30.0)
+                unlimited = UsdPhysics.RevoluteJoint(prims["unlimited"])
+                self.assertFalse(unlimited.GetLowerLimitAttr().HasAuthoredValue())
+                self.assertFalse(unlimited.GetUpperLimitAttr().HasAuthoredValue())
+
+                # with a PhysicsScene, mjc:compiler:autoLimits = false would reject the auto limits, so they are resolved
+                expected = "true" if scene else "auto"
+                self.assertEqual(prims["attached_hinge"].GetAttribute("mjc:actuatorfrclimited").Get(), expected)
+                self.assertEqual(prims["attached_tendon"].GetAttribute("mjc:limited").Get(), expected)
+                self.assertEqual(prims["attached_tendon"].GetAttribute("mjc:actuatorfrclimited").Get(), expected)
+                for attr in ("mjc:ctrlLimited", "mjc:forceLimited", "mjc:actLimited"):
+                    self.assertEqual(prims["attached_actuator"].GetAttribute(attr).Get(), expected)
+                    self.assertEqual(prims["unlimited_actuator"].GetAttribute(attr).Get(), "auto")
+
     def test_hinge_joints(self):
         model = pathlib.Path("./tests/data/hinge_joints.xml")
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
@@ -387,6 +488,13 @@ class TestJoints(ConverterTestCase):
         auto_unlimited_same_range = UsdPhysics.RevoluteJoint(stage.GetPrimAtPath("/joint_limits/Geometry/body7/body8/auto_unlimited_same_range"))
         self.assertFalse(auto_unlimited_same_range.GetLowerLimitAttr().HasAuthoredValue())
         self.assertFalse(auto_unlimited_same_range.GetUpperLimitAttr().HasAuthoredValue())
+
+        # Auto-limited joint with a reversed range should be unlimited, as MuJoCo compiles it
+        auto_unlimited_reversed_range = UsdPhysics.RevoluteJoint(
+            stage.GetPrimAtPath("/joint_limits/Geometry/body9/body10/auto_unlimited_reversed_range")
+        )
+        self.assertFalse(auto_unlimited_reversed_range.GetLowerLimitAttr().HasAuthoredValue())
+        self.assertFalse(auto_unlimited_reversed_range.GetUpperLimitAttr().HasAuthoredValue())
 
     def test_no_autolimits(self):
         # Test with autolimits="false"

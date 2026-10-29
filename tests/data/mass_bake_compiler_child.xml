@@ -1,0 +1,19 @@
+<!--
+    Attached into mass_bake_compiler.xml, whose compiler excludes group 3 from inertia.
+    This model counts group 3.
+-->
+<mujoco model="mass_bake_compiler_child">
+  <worldbody>
+    <body name="visual_mass">
+      <geom type="box" size="0.1 0.1 0.1" mass="1.0"/>
+      <geom type="box" size="0.1 0.1 0.1" contype="0" conaffinity="0" group="3" mass="2.0"/>
+      <!-- compiles to no mass, so there is nothing to bake -->
+      <body name="massless" pos="0 0 1">
+        <body name="collider_mass">
+          <joint type="hinge"/>
+          <geom type="box" size="0.1 0.1 0.1" mass="0.1"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

@@ -1,0 +1,11 @@
+<mujoco model="orientation_attach">
+  <asset>
+    <model name="child" file="orientation_attach_child.xml"/>
+  </asset>
+  <worldbody>
+    <body name="mount" euler="30 0 0">
+      <geom name="mount_geom" type="box" size="0.05 0.05 0.05" euler="0 45 0"/>
+      <attach model="child" body="body" prefix="attached_"/>
+    </body>
+  </worldbody>
+</mujoco>

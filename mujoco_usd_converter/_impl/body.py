@@ -28,10 +28,17 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
 
     Bodies whose mass comes solely from colliders are left alone: their mass is described as
     the source expressed it, and baking would override an author's implicit intent.
+
+    An attached model keeps its own compiler, while the PhysicsScene describes only the top
+    level model's inertia settings. A body compiled with other settings is baked, including
+    one with an explicit inertial, which those settings may ignore or bound.
     """
-    if data.spec.compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
+    compiler = body.compiler
+    if has_own_inertia_settings(compiler, data.spec.compiler):
+        return True
+    if body.explicitinertial or compiler.inertiafromgeom == mujoco.mjtInertiaFromGeom.mjINERTIAFROMGEOM_FALSE:
         return False
-    lower, upper = data.spec.compiler.inertiagrouprange
+    lower, upper = compiler.inertiagrouprange
     for geom in body.geoms:
         if geom.contype != 0 or geom.conaffinity != 0:
             continue  # a collider; USD accumulates its mass
@@ -43,6 +50,16 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
         elif geom.density > 0.0:
             return True
     return False
+
+
+def has_own_inertia_settings(compiler: mujoco.MjsCompiler, top_level: mujoco.MjsCompiler) -> bool:
+    return (
+        compiler.inertiafromgeom != top_level.inertiafromgeom
+        or not np.array_equal(compiler.inertiagrouprange, top_level.inertiagrouprange)
+        or compiler.boundmass != top_level.boundmass
+        or compiler.boundinertia != top_level.boundinertia
+        or compiler.balanceinertia != top_level.balanceinertia
+    )
 
 
 def get_model_body_id(body: mujoco.MjsBody, model: mujoco.MjModel, data: ConversionData) -> int | None:
@@ -63,22 +80,25 @@ def get_model_body_id(body: mujoco.MjsBody, model: mujoco.MjModel, data: Convers
     return index
 
 
-def bake_body_mass(body: mujoco.MjsBody, body_over: Usd.Prim, data: ConversionData) -> None:
+def bake_body_mass(body: mujoco.MjsBody, body_over: Usd.Prim, data: ConversionData) -> bool:
     """Author MuJoCo's compiled mass, centre of mass and inertia on the body prim.
 
-    See :func:`requires_mass_bake` for when a body needs this.
+    See :func:`requires_mass_bake` for when a body needs this. Returns whether they were authored,
+    which they are not for a massless body or when the model cannot be compiled.
     """
     try:
         model = data.get_model()
     except Exception as e:
         Tf.Warn(f"Unable to compile the model to bake mass for body '{body.name}': {e}")
-        return
+        return False
 
     body_id = get_model_body_id(body, model, data)
     if body_id is None:
         Tf.Warn(f"Unable to locate body '{body.name}' in the compiled model; mass not baked.")
-        return
+        return False
     compiled = model.body(body_id)
+    if compiled.mass[0] == 0.0:
+        return False
 
     mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
     mass_api.CreateMassAttr().Set(float(compiled.mass[0]))
@@ -87,6 +107,7 @@ def bake_body_mass(body: mujoco.MjsBody, body_over: Usd.Prim, data: ConversionDa
     if inertia != Gf.Vec3f(0, 0, 0):
         mass_api.CreatePrincipalAxesAttr().Set(convert_quatf(compiled.iquat).GetNormalized())
         mass_api.CreateDiagonalInertiaAttr().Set(inertia)
+    return True
 
 
 def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: ConversionData) -> UsdGeom.Xform:
@@ -129,7 +150,8 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
         if body.gravcomp != 0:
             body_over.CreateAttribute("mjc:body:gravcomp", Sdf.ValueTypeNames.Float, custom=True).Set(body.gravcomp)
 
-        if body.explicitinertial:
+        baked = requires_mass_bake(body, data) and bake_body_mass(body, body_over, data)
+        if not baked and body.explicitinertial:
             mass_api: UsdPhysics.MassAPI = UsdPhysics.MassAPI.Apply(body_over)
             mass_api.CreateMassAttr().Set(body.mass)
             mass_api.CreateCenterOfMassAttr().Set(convert_vec3d(body.ipos))
@@ -148,8 +170,6 @@ def convert_body(parent: Usd.Prim, name: str, body: mujoco.MjsBody, data: Conver
                 if not np.isnan(body.fullinertia[0]):
                     body_over.ApplyAPI("NewtonMassAPI")
                     set_schema_attribute(body_over, "newton:inertia", Vt.DoubleArray.FromNumpy(body.fullinertia))
-        elif requires_mass_bake(body, data):
-            bake_body_mass(body, body_over, data)
 
         convert_joints(parent=body_over, body=body, data=data)
 

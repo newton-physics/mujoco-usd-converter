@@ -1,0 +1,19 @@
+<!--
+    Attached into mass_bake_inertiafromgeom.xml, which infers mass from geoms and does not bound it.
+    This model ignores geom masses and raises every body to a mass of at least 0.5.
+    boundinertia is required for geom_only, which has no inertial and so no inertia of its own.
+-->
+<mujoco model="mass_bake_inertiafromgeom_child">
+  <compiler inertiafromgeom="false" boundmass="0.5" boundinertia="0.01"/>
+  <worldbody>
+    <body name="geom_only">
+      <geom type="sphere" size="0.1" mass="0.2"/>
+      <joint type="hinge"/>
+    </body>
+    <body name="explicit" pos="1 0 0">
+      <inertial pos="0 0 0" mass="0.1" diaginertia="0.01 0.01 0.01"/>
+      <geom type="sphere" size="0.1" mass="1"/>
+      <joint type="hinge"/>
+    </body>
+  </worldbody>
+</mujoco>

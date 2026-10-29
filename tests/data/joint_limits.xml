@@ -27,5 +27,14 @@
                 <geom type="box" size="0.1 0.1 0.1"/>
             </body>
         </body>
+
+        <!-- Auto-limited joint with a reversed range (should be unlimited) -->
+        <body name="body9">
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <body name="body10">
+                <joint name="auto_unlimited_reversed_range" type="hinge" limited="auto" range="10 -10"/>
+                <geom type="box" size="0.1 0.1 0.1"/>
+            </body>
+        </body>
     </worldbody>
 </mujoco>
