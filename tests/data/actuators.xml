@@ -2,7 +2,7 @@
   <worldbody>
     <!-- Fixed base -->
     <body name="base" pos="0 0 1">
-      <geom name="base_geom" type="plane" size="0 0 0.05" rgba="0.5 0.5 0.5 1"/>
+      <geom name="base_geom" type="box" size="0.5 0.5 0.05" rgba="0.5 0.5 0.5 1"/>
       <site name="base_site" pos="0 0 0"/>
 
       <!-- Movable box with slide joint -->
