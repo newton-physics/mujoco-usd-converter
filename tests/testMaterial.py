@@ -41,7 +41,7 @@ class TestMaterial(ConverterTestCase):
 
     def test_metallic_material(self):
         shader = self._get_shader("BlueMetallic")
-        self.assertEqual(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(0, 0, 1))
+        self.assertTrue(Gf.IsClose(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(0, 0, 1), 1e-6))
         self.assertEqual(self._get_input_value(shader, "opacity"), 1)
         self.assertAlmostEqual(self._get_input_value(shader, "roughness"), 0.7)
         self.assertAlmostEqual(self._get_input_value(shader, "metallic"), 0.8)
@@ -54,8 +54,8 @@ class TestMaterial(ConverterTestCase):
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
-        self.assertEqual(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(1, 0, 0))
-        self.assertEqual(self._get_input_value(shader, "emissiveColor"), Gf.Vec3f(0.5, 0, 0))
+        self.assertTrue(Gf.IsClose(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(1, 0, 0), 1e-6))
+        self.assertTrue(Gf.IsClose(self._get_input_value(shader, "emissiveColor"), Gf.Vec3f(0.5, 0, 0), 1e-6))
 
     def test_textured_material(self):
         shader = self._get_shader("Grid")

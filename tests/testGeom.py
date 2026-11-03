@@ -47,7 +47,7 @@ class TestGeom(ConverterTestCase):
         self.assertEqual(capsule.GetHeightAttr().Get(), 0.4)
 
     def test_plane(self):
-        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/Plane")
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/Plane")
         plane: UsdGeom.Plane = UsdGeom.Plane(prim)
         self.assertTrue(plane)
         self.assertEqual(plane.GetAxisAttr().Get(), UsdGeom.Tokens.z)

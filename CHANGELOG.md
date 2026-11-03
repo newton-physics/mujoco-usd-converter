@@ -1,5 +1,9 @@
 # Unreleased
 
+## Features
+
+- Added support for Python 3.13
+
 ## Fixes
 
 - Fixed meshes with `refpos` or `refquat` being displaced and rotated relative to MuJoCo
@@ -30,6 +34,8 @@
 ## Dependencies
 
 - Updated `mujoco` to `>=3.16.0,<3.18` to align with Newton 1.8
+- Updated to `usd-exchange>=3.0.1`, which uses OpenUSD 26.08
+  - `usd-exchange` 2.x and OpenUSD 25.05 are no longer supported
 
 # 0.8.0
 

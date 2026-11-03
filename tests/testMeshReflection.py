@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
-import omni.asset_validator
+import usd_validation_nvidia
 from pxr import Gf, Sdf, Usd, UsdGeom
 
 import mujoco_usd_converter
@@ -16,7 +16,7 @@ class TestMeshReflection(ConverterTestCase):
         asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
         stage: Usd.Stage = Usd.Stage.Open(asset.path)
         # the test data contains unwelded meshes, so we disable the weld checker
-        self.validationEngine.disable_rule(omni.asset_validator.WeldChecker)
+        self.validationEngine.disable_rule(usd_validation_nvidia.WeldChecker)
         self.assertIsValidUsd(stage)
 
         geom: Usd.Prim = stage.GetPrimAtPath("/reflected_meshes/Geometry/body/bodyRegular/complexCube")
