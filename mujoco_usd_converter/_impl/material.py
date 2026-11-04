@@ -5,7 +5,7 @@ import shutil
 
 import mujoco
 import usdex.core
-from pxr import Sdf, Tf, Usd, UsdShade
+from pxr import Gf, Sdf, Tf, Usd, UsdShade
 
 from .data import ConversionData, Tokens
 from .numpy import convert_color
@@ -61,8 +61,9 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     emission_scalar = material.emission
     if emission_scalar > 0.0:
-        surface_shader: UsdShade.Shader = usdex.core.computeEffectivePreviewSurfaceShader(material_prim)
-        surface_shader.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(emission_scalar * color)
+        # sRgbToLinear can return slightly negative components, which the emissive helpers reject
+        emissive_color = Gf.Vec3f(*(max(0.0, c) for c in emission_scalar * color))
+        usdex.core.addEmissiveColorToPreviewMaterial(material_prim, emissive_color)
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
         texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
