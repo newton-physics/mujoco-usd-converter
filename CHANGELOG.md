@@ -1,7 +1,19 @@
 # Unreleased
 
+## Breaking Changes
+
+- Visual materials now include an OpenPBR (MaterialX) shader, so their Material Interface inputs have changed
+  - `diffuseColor` is now `color`, and emissive materials have an `emissiveLuminance` input
+  - Use `--no-openpbr` to author the previous `UsdPreviewSurface` only materials
+
 ## Features
 
+- Added OpenPBR (MaterialX) shaders to visual materials, alongside the existing `UsdPreviewSurface` shaders
+  - Both shaders are driven by a shared Material Interface, so renderers with MaterialX support render the OpenPBR shader and all others fall back to `UsdPreviewSurface`
+  - Materials without `shininess` keep the `UsdPreviewSurface` default roughness of 0.5 in both shaders
+  - Emissive colors use an OpenPBR `emission_luminance` of 1000 nits, the `usd-exchange` default
+  - OpenPBR limits emissive colors to 1.0, so brighter colors are normalized and the excess is carried by the luminance
+  - Added the `--no-openpbr` CLI flag and `openpbr` converter argument to author only `UsdPreviewSurface` shaders
 - Added support for Python 3.13
 
 ## Fixes

@@ -12,6 +12,9 @@ from .numpy import convert_color
 
 __all__ = ["convert_materials"]
 
+# in nits (cd/m^2), usdex's default, a clearly visible emission in most scenes
+_EMISSIVE_LUMINANCE = 1000.0
+
 
 def convert_materials(data: ConversionData):
     if not len(data.spec.materials):
@@ -56,18 +59,30 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
     if material.metallic != -1.0:
         material_kwargs["metallic"] = material.metallic
 
-    # FUTURE: use UsdMtlx
-    material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
+    if data.openpbr:
+        # definePbrMaterial defaults roughness to 0.3, so keep the UsdPreviewSurface default when MuJoCo has none
+        material_kwargs.setdefault("roughness", 0.5)
+        material_prim = usdex.core.definePbrMaterial(parent, name, **material_kwargs)
+    else:
+        material_prim = usdex.core.definePreviewMaterial(parent, name, **material_kwargs)
+    if not material_prim:
+        Tf.RaiseRuntimeError(f'Failed to convert material "{name}"')
 
     emission_scalar = material.emission
     if emission_scalar > 0.0:
         # sRgbToLinear can return slightly negative components, which the emissive helpers reject
         emissive_color = Gf.Vec3f(*(max(0.0, c) for c in emission_scalar * color))
-        usdex.core.addEmissiveColorToPreviewMaterial(material_prim, emissive_color)
+        if data.openpbr:
+            # OpenPBR limits emission_color to 1.0, so any brighter emission is carried by the luminance instead
+            scale = max(1.0, *emissive_color)
+            usdex.core.addEmissiveColorToPbrMaterial(material_prim, emissive_color / scale, _EMISSIVE_LUMINANCE * scale)
+        else:
+            usdex.core.addEmissiveColorToPreviewMaterial(material_prim, emissive_color)
 
     if main_texture_name := material.textures[mujoco.mjtTextureRole.mjTEXROLE_RGB]:
         texture_path: Sdf.AssetPath = convert_texture(data.spec.texture(main_texture_name), data)
-        if texture_path and not usdex.core.addColorTextureToPreviewMaterial(material_prim, texture_path):
+        add_texture = usdex.core.addColorTextureToPbrMaterial if data.openpbr else usdex.core.addColorTextureToPreviewMaterial
+        if texture_path and not add_texture(material_prim, texture_path):
             Tf.Warn(f"Failed to add diffuse texture to material prim '{material_prim.GetPrim().GetPath()}'")
     elif any(material.textures):
         # FUTURE: secondary texture layers
@@ -75,12 +90,11 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     # FUTURE: primvars driving surface color and opacity (asset: spot_arm)
 
-    if not material_prim:
-        Tf.RaiseRuntimeError(f'Failed to convert material "{name}"')
-
-    result = usdex.core.addPreviewMaterialInterface(material_prim)
-    if not result:
-        Tf.RaiseRuntimeError(f'Failed to add material instance to material prim "{material_prim.GetPath()}"')
+    # PBR materials already have a Material Interface
+    if not data.openpbr:
+        result = usdex.core.addPreviewMaterialInterface(material_prim)
+        if not result:
+            Tf.RaiseRuntimeError(f'Failed to add material instance to material prim "{material_prim.GetPath()}"')
 
     material_prim.GetPrim().SetInstanceable(True)
 

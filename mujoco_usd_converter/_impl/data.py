@@ -35,6 +35,7 @@ class ConversionData:
     geom_targets: dict[str, Sdf.Path]
     name_cache: usdex.core.NameCache
     scene: bool
+    openpbr: bool
     comment: str
 
     def get_model(self) -> mujoco.MjModel:

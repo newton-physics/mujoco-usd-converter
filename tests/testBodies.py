@@ -282,6 +282,7 @@ class TestBodies(ConverterTestCase):
             geom_targets={},
             name_cache=usdex.core.NameCache(),
             scene=False,
+            openpbr=True,
             comment="",
         )
         compiled = data.get_model()

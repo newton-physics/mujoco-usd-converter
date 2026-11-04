@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import usdex.core
 import usdex.test
-from pxr import Sdf, Tf, Usd
+from pxr import Sdf, Tf, Usd, UsdShade
 
 from mujoco_usd_converter._impl.cli import run
 from tests.util.ConverterTestCase import ConverterTestCase
@@ -38,6 +38,16 @@ class TestCli(ConverterTestCase):
             self.assertTrue((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").exists())
             stage = Usd.Stage.Open((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").as_posix())
             self.assertFalse(stage.GetPrimAtPath("/PhysicsScene").IsValid())
+
+    def test_no_openpbr(self):
+        model = "tests/data/bright_emission.xml"
+        model_name = pathlib.Path(model).stem
+        with patch("sys.argv", ["mujoco_usd_converter", model, self.tmpDir(), "--no-openpbr"]):
+            self.assertEqual(run(), 0, f"Failed to convert {model}")
+            stage = Usd.Stage.Open((pathlib.Path(self.tmpDir()) / f"{model_name}.usda").as_posix())
+            material = UsdShade.Material(stage.GetPrimAtPath(f"/{model_name}/Materials/BrightOrange"))
+            self.assertTrue(material)
+            self.assertFalse(material.GetSurfaceOutput("mtlx"))
 
     def test_comment(self):
         model = "tests/data/worldgeom.xml"
