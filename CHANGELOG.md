@@ -2,6 +2,7 @@
 
 ## Breaking Changes
 
+- Renamed `inputs:DiffuseTexture` to `inputs:ColorTexture` on textured materials, following `usd-exchange` 3
 - Visual materials now include an OpenPBR (MaterialX) shader, so their Material Interface inputs have changed
   - `diffuseColor` is now `color`, and emissive materials have an `emissiveLuminance` input
   - Use `--no-openpbr` to author the previous `UsdPreviewSurface` only materials
