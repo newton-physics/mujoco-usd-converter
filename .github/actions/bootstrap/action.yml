@@ -27,3 +27,4 @@ runs:
       with:
         enable-cache: ${{ inputs.enable-uv-cache }}
         cache-dependency-glob: ${{ inputs.cache-dependency-glob }}
+        python-version: ${{ inputs.python-version }}
