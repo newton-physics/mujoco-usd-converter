@@ -32,9 +32,10 @@ class Converter:
         layer_structure: bool = True
         scene: bool = True
         comment: str = ""
+        openpbr: bool = True
 
-    def __init__(self, layer_structure: bool = True, scene: bool = True, comment: str = ""):
-        self.params = self.Params(layer_structure=layer_structure, scene=scene, comment=comment)
+    def __init__(self, layer_structure: bool = True, scene: bool = True, comment: str = "", openpbr: bool = True):
+        self.params = self.Params(layer_structure=layer_structure, scene=scene, comment=comment, openpbr=openpbr)
 
     def convert(self, input_file: str, output_dir: str) -> Sdf.AssetPath:
         """
@@ -76,6 +77,7 @@ class Converter:
             geom_targets={},
             name_cache=usdex.core.NameCache(),
             scene=self.params.scene,
+            openpbr=self.params.openpbr,
             comment=self.params.comment,
         )
 

@@ -1,0 +1,9 @@
+<mujoco model="bright_emission">
+    <asset>
+        <material name="BrightOrange" rgba="1 0.5 0 1" emission="2"/>
+    </asset>
+
+    <worldbody>
+        <geom type="box" material="BrightOrange" size="0.1 0.1 0.1"/>
+    </worldbody>
+</mujoco>

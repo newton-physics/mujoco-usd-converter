@@ -126,6 +126,90 @@ class TestMaterial(ConverterTestCase):
         emissive_color = self._get_input_value(shader, "emissiveColor")
         self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.2), diffuse_color, 1e-6))
 
+    def _get_openpbr_input_value(self, material_name: str, input_name: str):
+        material_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/{material_name}")
+        shader = usdex.core.computeEffectiveMtlxSurfaceShader(UsdShade.Material(material_prim))
+        self.assertEqual(shader.GetShaderId(), "ND_open_pbr_surface_surfaceshader")
+        return self._get_input_value(shader, input_name)
+
+    def test_openpbr_material(self):
+        """OpenPBR inputs should be driven by the same Material Interface as the UsdPreviewSurface inputs."""
+        self.assertTrue(Gf.IsClose(self._get_openpbr_input_value("BlueMetallic", "base_color"), Gf.Vec3f(0, 0, 1), 1e-6))
+        self.assertAlmostEqual(self._get_openpbr_input_value("BlueMetallic", "base_metalness"), 0.8)
+        self.assertAlmostEqual(self._get_openpbr_input_value("BlueMetallic", "specular_roughness"), 0.7)
+        self.assertEqual(self._get_openpbr_input_value("BlueMetallic", "geometry_opacity"), 1)
+
+    def test_openpbr_default_roughness(self):
+        """Materials without shininess should keep the UsdPreviewSurface default roughness in both shaders."""
+        self.assertAlmostEqual(self._get_input_value(self._get_shader("GreenSpecular"), "roughness"), 0.5)
+        self.assertAlmostEqual(self._get_openpbr_input_value("GreenSpecular", "specular_roughness"), 0.5)
+
+    def test_openpbr_emission(self):
+        """Emissive colors should drive the OpenPBR emission at the default luminance."""
+        self.assertTrue(Gf.IsClose(self._get_openpbr_input_value("RedEmissive", "emission_color"), Gf.Vec3f(0.5, 0, 0), 1e-6))
+        self.assertAlmostEqual(self._get_openpbr_input_value("RedEmissive", "emission_luminance"), 1000.0)
+
+    def test_openpbr_texture(self):
+        """Textures should drive both shaders from the same Material Interface input."""
+        material = UsdShade.Material(self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/Grid"))
+        self.assertEqual(material.GetInput("ColorTexture").Get().path, "./Textures/grid.png")
+        shader = usdex.core.computeEffectiveMtlxSurfaceShader(material)
+        source = shader.GetInput("base_color").GetConnectedSource()
+        self.assertTrue(source)
+        self.assertEqual(UsdShade.Shader(source[0].GetPrim()).GetShaderId(), "ND_tiledimage_color3")
+
+
+class TestPreviewMaterial(ConverterTestCase):
+    """Disabling OpenPBR should author visual materials with only a UsdPreviewSurface shader."""
+
+    def setUp(self):
+        super().setUp()
+        model_path = pathlib.Path("./tests/data/materials.xml")
+        self.model_name = model_path.stem
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*will discard textures at render time")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter(openpbr=False).convert(model_path, self.tmpDir())
+        self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(self.stage)
+
+    def test_preview_only(self):
+        """Every material should have a UsdPreviewSurface shader and no MaterialX shader."""
+        materials = [UsdShade.Material(prim) for prim in self.stage.GetPrimAtPath(f"/{self.model_name}/Materials").GetChildren()]
+        self.assertGreater(len(materials), 0)
+        for material in materials:
+            self.assertTrue(usdex.core.computeEffectivePreviewSurfaceShader(material), msg=material.GetPath())
+            self.assertFalse(material.GetSurfaceOutput("mtlx"), msg=material.GetPath())
+            self.assertFalse(material.GetPrim().HasAPI("MaterialXConfigAPI"), msg=material.GetPath())
+
+    def test_preview_values(self):
+        """UsdPreviewSurface values should come from the Material Interface."""
+        material = UsdShade.Material(self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/RedEmissive"))
+        shader = usdex.core.computeEffectivePreviewSurfaceShader(material)
+        diffuse = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("diffuseColor"))[0]
+        emissive = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emissiveColor"))[0]
+        self.assertEqual(diffuse.GetPrim(), material.GetPrim())
+        self.assertTrue(Gf.IsClose(diffuse.Get(), Gf.Vec3f(1, 0, 0), 1e-6))
+        self.assertTrue(Gf.IsClose(emissive.Get(), Gf.Vec3f(0.5, 0, 0), 1e-6))
+
+
+class TestBrightEmission(ConverterTestCase):
+    def test_openpbr_bright_emission(self):
+        """Emissive colors brighter than 1.0 should be normalized, with the excess carried by the OpenPBR emission luminance."""
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(pathlib.Path("./tests/data/bright_emission.xml"), self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+        material = UsdShade.Material(stage.GetPrimAtPath("/bright_emission/Materials/BrightOrange"))
+        shader = usdex.core.computeEffectiveMtlxSurfaceShader(material)
+        emission_color = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emission_color"))[0].Get()
+        luminance = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emission_luminance"))[0].Get()
+        self.assertAlmostEqual(max(emission_color), 1.0, places=6)
+        self.assertGreater(luminance, 1000.0)
+        expected = 2 * usdex.core.sRgbToLinear(Gf.Vec3f(1, 0.5, 0))
+        self.assertTrue(Gf.IsClose(emission_color * (luminance / 1000.0), expected, 1e-5))
+
 
 class TestBuiltinTexture(ConverterTestCase):
     """Only procedural builtin textures are skipped; file backed textures in the same model still convert."""
