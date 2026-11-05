@@ -54,8 +54,11 @@ class TestMaterial(ConverterTestCase):
 
     def test_emissive_material(self):
         shader = self._get_shader("RedEmissive")
-        self.assertTrue(Gf.IsClose(self._get_input_value(shader, "diffuseColor"), Gf.Vec3f(1, 0, 0), 1e-6))
-        self.assertTrue(Gf.IsClose(self._get_input_value(shader, "emissiveColor"), Gf.Vec3f(0.5, 0, 0), 1e-6))
+        diffuse_color = usdex.core.linearToSrgb(self._get_input_value(shader, "diffuseColor"))
+        self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.8, 0.2, 0.1), 1e-6))
+        # MuJoCo displays emission times the authored sRGB color
+        emissive_color = usdex.core.linearToSrgb(self._get_input_value(shader, "emissiveColor"))
+        self.assertTrue(Gf.IsClose(emissive_color, Gf.Vec3f(0.4, 0.1, 0.05), 1e-6))
 
     def test_textured_material(self):
         shader = self._get_shader("Grid")
@@ -117,14 +120,14 @@ class TestMaterial(ConverterTestCase):
         diffuse_color = usdex.core.linearToSrgb(diffuse_color)
         self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.1, 0.7, 0.0), 1e-6))
         emissive_color = self._get_input_value(shader, "emissiveColor")
-        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.1), diffuse_color, 1e-6))
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color), 0.1 * diffuse_color, 1e-6))
 
         shader = self._get_shader("SkyBlue")
         diffuse_color = self._get_input_value(shader, "diffuseColor")
         diffuse_color = usdex.core.linearToSrgb(diffuse_color)
         self.assertTrue(Gf.IsClose(diffuse_color, Gf.Vec3f(0.3, 0.8, 0.9), 1e-6))
         emissive_color = self._get_input_value(shader, "emissiveColor")
-        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color / 0.2), diffuse_color, 1e-6))
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive_color), 0.2 * diffuse_color, 1e-6))
 
     def _get_openpbr_input_value(self, material_name: str, input_name: str):
         material_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/{material_name}")
@@ -146,7 +149,8 @@ class TestMaterial(ConverterTestCase):
 
     def test_openpbr_emission(self):
         """Emissive colors should drive the OpenPBR emission at the default luminance."""
-        self.assertTrue(Gf.IsClose(self._get_openpbr_input_value("RedEmissive", "emission_color"), Gf.Vec3f(0.5, 0, 0), 1e-6))
+        emission_color = usdex.core.linearToSrgb(self._get_openpbr_input_value("RedEmissive", "emission_color"))
+        self.assertTrue(Gf.IsClose(emission_color, Gf.Vec3f(0.4, 0.1, 0.05), 1e-6))
         self.assertAlmostEqual(self._get_openpbr_input_value("RedEmissive", "emission_luminance"), 1000.0)
 
     def test_openpbr_texture(self):
@@ -191,8 +195,8 @@ class TestPreviewMaterial(ConverterTestCase):
         diffuse = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("diffuseColor"))[0]
         emissive = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emissiveColor"))[0]
         self.assertEqual(diffuse.GetPrim(), material.GetPrim())
-        self.assertTrue(Gf.IsClose(diffuse.Get(), Gf.Vec3f(1, 0, 0), 1e-6))
-        self.assertTrue(Gf.IsClose(emissive.Get(), Gf.Vec3f(0.5, 0, 0), 1e-6))
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(diffuse.Get()), Gf.Vec3f(0.8, 0.2, 0.1), 1e-6))
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emissive.Get()), Gf.Vec3f(0.4, 0.1, 0.05), 1e-6))
 
 
 class TestBrightEmission(ConverterTestCase):
@@ -207,7 +211,7 @@ class TestBrightEmission(ConverterTestCase):
         luminance = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emission_luminance"))[0].Get()
         self.assertAlmostEqual(max(emission_color), 1.0, places=6)
         self.assertGreater(luminance, 1000.0)
-        expected = 2 * usdex.core.sRgbToLinear(Gf.Vec3f(1, 0.5, 0))
+        expected = usdex.core.sRgbToLinear(2 * Gf.Vec3f(0.8, 0.4, 0.2))
         self.assertTrue(Gf.IsClose(emission_color * (luminance / 1000.0), expected, 1e-5))
 
 

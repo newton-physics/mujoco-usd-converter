@@ -40,8 +40,8 @@ def convert_materials(data: ConversionData):
 
 
 def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
-    color, opacity = convert_color(material.rgba)
-    color = usdex.core.sRgbToLinear(color)
+    srgb_color, opacity = convert_color(material.rgba)
+    color = usdex.core.sRgbToLinear(srgb_color)
 
     # Build kwargs for material properties
     material_kwargs = {
@@ -70,8 +70,9 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
 
     emission_scalar = material.emission
     if emission_scalar > 0.0:
-        # sRgbToLinear can return slightly negative components, which the emissive helpers reject
-        emissive_color = Gf.Vec3f(*(max(0.0, c) for c in emission_scalar * color))
+        # MuJoCo scales the authored sRGB color by emission, so the product is converted to linear rather than the color.
+        # sRgbToLinear can return slightly negative components, which the emissive helpers reject.
+        emissive_color = Gf.Vec3f(*(max(0.0, c) for c in usdex.core.sRgbToLinear(emission_scalar * srgb_color)))
         if data.openpbr:
             # OpenPBR limits emission_color to 1.0, so any brighter emission is carried by the luminance instead
             scale = max(1.0, *emissive_color)

@@ -3,7 +3,7 @@
 
     <asset>
         <texture name="grid_texture" type="2d" file="grid.png"/>
-        <material name="RedEmissive" rgba="1 0 0 1" emission="0.5"/>
+        <material name="RedEmissive" rgba="0.8 0.2 0.1 1" emission="0.5"/>
         <material name="GreenSpecular" rgba="0 1 0 1" specular="0.8"/>
         <material name="BlueMetallic" rgba="0 0 1 1" metallic="0.8" shininess="0.3" specular="0"/>
         <material name="Grid" texture="grid_texture" specular="0"/>

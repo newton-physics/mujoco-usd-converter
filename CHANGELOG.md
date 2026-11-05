@@ -43,6 +43,9 @@
   - Whether a non-colliding geom contributes mass was decided with the top level `inertiafromgeom` and `inertiagrouprange` rather than the attached model's own
   - The PhysicsScene describes only the top level model's `inertiaFromGeom`, `inertiaGroupRange`, `boundMass`, `boundInertia`, and `balanceInertia`, so attached bodies compiled with other values, including bodies with an explicit `<inertial>`, now have MuJoCo's compiled mass properties authored
   - MuJoCo's USD decoder still infers every body's mass from its geoms when the PhysicsScene's `mjc:compiler:inertiaFromGeom` is `true`
+- Fixed emissive colors being brighter than in MuJoCo
+  - MuJoCo displays `emission` times the authored sRGB `rgba`, so that product is now converted to linear, rather than scaling the linear `rgba` by `emission`
+  - Previously an `emission` below 1 was converted too bright, and colors reached white at a different `emission` than in MuJoCo
 
 ## Dependencies
 
