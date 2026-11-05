@@ -1,6 +1,6 @@
 <mujoco model="bright_emission">
     <asset>
-        <material name="BrightOrange" rgba="1 0.5 0 1" emission="2"/>
+        <material name="BrightOrange" rgba="0.8 0.4 0.2 1" emission="2"/>
     </asset>
 
     <worldbody>
