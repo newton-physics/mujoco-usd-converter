@@ -1,3 +1,12 @@
+# Unreleased
+
+## Fixes
+
+- Added a warning when a joint is `joint1` of multiple joint equalities
+  - A joint equality is authored onto its `joint1` follower joint, which can only mimic one joint, so only the last of these equalities is preserved
+  - Models that couple several joints to one driven joint by listing it as `joint1` of each equality lose all but one coupling in USD
+  - List the driven joint as `joint2` of each equality, which makes it the leader, to preserve every coupling
+
 # 0.9.0
 
 ## Breaking Changes
