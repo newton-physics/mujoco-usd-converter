@@ -1,3 +1,11 @@
+# Unreleased
+
+## Fixes
+
+- Fixed small rotations of bodies, geoms, sites, cameras, lights, and frames being lost or rounded
+  - Orientations were narrowed to single precision before being composed, so rotations below about 0.03 degrees were authored as identity
+  - Orientations are now composed in double precision and only the authored `xformOp:orient` is single precision
+
 # 0.9.0
 
 ## Breaking Changes
