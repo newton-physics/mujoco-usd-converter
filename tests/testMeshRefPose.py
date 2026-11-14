@@ -71,6 +71,14 @@ class TestMeshRefPose(ConverterTestCase):
         self.assertRotationsAlmostEqual(Gf.Rotation(orient), Gf.Rotation(Gf.Vec3d(1, 0, 0), 270), 1e-4)
         self.assertTrue(Gf.IsClose(scale, Gf.Vec3f(0.1, 0.3, 0.2), 1e-6))
 
+    def test_small_ref_quat_is_composed(self):
+        # the geom inherits the mesh orientation through its reference, and a 1e-4 rad rotation
+        # has a real component that rounds to 1 in single precision, so composing it must not drop it
+        stage = self.__convert(pathlib.Path("./tests/data/mesh_ref_pose_small_rotation.xml"))
+        _, _, orient, _ = usdex.core.getLocalTransformComponentsQuat(self.__get_mesh(stage, "smallRefQuatGeom").GetPrim())
+        # the mesh frame is the inverse of the refquat, and the geom has an identity pose
+        self.assertRotationsAlmostEqual(orient, Gf.Quatf(Gf.Quatd(1, 0, 0, -0.00005).GetNormalized()), 1e-9)
+
     def test_sheared_ref_pose_is_baked_into_points(self):
         quat = np.array([0.9, 0.3, 0.1, 0.2])
         rotation = np.empty(9)

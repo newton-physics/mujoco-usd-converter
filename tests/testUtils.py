@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 The Newton Developers
 # SPDX-License-Identifier: Apache-2.0
-import mujoco
-import numpy as np
-from pxr import Gf, Tf, Usd, UsdGeom
+import math
+import pathlib
 
-from mujoco_usd_converter._impl.utils import set_schema_attribute, set_transform
+import usdex.core
+from pxr import Gf, Sdf, Tf, Usd
+
+import mujoco_usd_converter
+from mujoco_usd_converter._impl.utils import set_schema_attribute
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
@@ -57,27 +60,20 @@ class TestSetSchemaAttribute(ConverterTestCase):
 
 class TestSetTransform(ConverterTestCase):
 
-    def test_small_rotation_is_preserved(self):
-        # A 1e-4 rad rotation is representable as a Quatf, but its real component rounds to 1 in float precision
-        angle = 1e-4
-        quat = [np.cos(angle / 2), 0, 0, np.sin(angle / 2)]
-        for orientation in ("body", "frame", "fromto"):
-            with self.subTest(orientation=orientation):
-                spec = mujoco.MjSpec()
-                if orientation == "body":
-                    mjc_object = spec.worldbody.add_body(quat=quat)
-                elif orientation == "frame":
-                    mjc_object = spec.worldbody.add_frame(quat=quat).add_body()
-                else:
-                    # a capsule along +z tilted by angle about the x axis
-                    mjc_object = spec.worldbody.add_geom(
-                        type=mujoco.mjtGeom.mjGEOM_CAPSULE, size=[0.01, 0, 0], fromto=[0, 0, 0, 0, -np.sin(angle), np.cos(angle)]
-                    )
-                stage = Usd.Stage.CreateInMemory()
-                prim = UsdGeom.Xform.Define(stage, "/Prim")
-                set_transform(prim, mjc_object, spec)
-                orient = prim.GetPrim().GetAttribute("xformOp:orient").Get()
-                self.assertIsInstance(orient, Gf.Quatf)
-                # measure the angle with atan2, since acos of the float real component cannot resolve it
-                authored_angle = 2 * np.arctan2(orient.GetImaginary().GetLength(), orient.GetReal())
-                self.assertAlmostEqual(authored_angle, angle, delta=1e-9)
+    def test_small_rotations_are_preserved(self):
+        # a 1e-4 rad rotation is representable as a Quatf, but its real component rounds to 1 in single precision
+        model = pathlib.Path("./tests/data/small_rotations.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        expected = {
+            "quatBody": Gf.Quatd(1, 0, 0, 0.00005).GetNormalized(),
+            "framedBody": Gf.Quatd(1, 0, 0, 0.00005).GetNormalized(),
+            "fromtoBody/fromtoGeom": Gf.Rotation(Gf.Vec3d.XAxis(), math.degrees(math.atan(0.0001))).GetQuat(),
+        }
+        for name, quat in expected.items():
+            with self.subTest(prim=name):
+                prim = stage.GetPrimAtPath(f"/small_rotations/Geometry/{name}")
+                _, _, orient, _ = usdex.core.getLocalTransformComponentsQuat(prim)
+                self.assertRotationsAlmostEqual(orient, Gf.Quatf(quat), 1e-9)

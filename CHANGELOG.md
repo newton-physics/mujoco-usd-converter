@@ -2,9 +2,9 @@
 
 ## Fixes
 
-- Fixed small rotations of bodies, geoms, sites, cameras, lights, and frames being lost or rounded
-  - Orientations were narrowed to single precision before being composed, so rotations below about 0.03 degrees were authored as identity
-  - Orientations are now composed in double precision and only the authored `xformOp:orient` is single precision
+- Fixed small rotations of bodies, geoms, sites, cameras, lights, frames, and mesh `refquat` being lost or rounded
+  - Rotations below about 0.03 degrees were authored as identity, and slightly larger ones were quantized, such as the 0.05 degree `quat` of the Booster T1 `AL1` and `AR1` bodies, which was authored about 11% too large
+  - Some authored `xformOp:orient` and `physics:localRot0` quaternions flip sign (`q` becomes `-q`), which represents the same rotation
 
 # 0.9.0
 

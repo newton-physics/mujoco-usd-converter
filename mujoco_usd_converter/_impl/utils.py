@@ -57,7 +57,8 @@ def set_transform(
 ) -> None:
     # get the current transform (including any inherited via references)
     pos, pivot, orient, scale = usdex.core.getLocalTransformComponentsQuat(prim)
-    # Gf.Rotation derives its angle from the real quaternion component, so a Quatf input loses near-identity rotations
+    # Gf.Rotation takes its angle from acos of the real component, which is exactly 1 for a small rotation authored as a Quatf.
+    # Normalizing in double precision pushes the real component below 1, so the angle survives. Widening alone would not.
     current_transform = Gf.Transform(
         translation=pos, rotation=Gf.Rotation(Gf.Quatd(orient).GetNormalized()), scale=Gf.Vec3d(scale), pivotPosition=pivot
     )
@@ -126,7 +127,7 @@ def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatd:
         # Calculate angle between z-axis and vector
         ang = np.arctan2(s, vec[2])
 
-        # Construct quaternion
+        # Construct the quaternion in double precision, since the cosine of a small half angle rounds to 1 in single precision
         return Gf.Quatd(
             np.cos(ang / 2.0),
             cross[0] * np.sin(ang / 2.0),
@@ -148,6 +149,8 @@ def get_orientation(
         # an attached model keeps its own compiler, so its angle units and euler sequence may differ from the spec's
         compiler = mjc_object.compiler
         quat = Gf.Quatd(*spec.resolve_orientation(degree=compiler.degree, sequence=compiler.eulerseq, orientation=mjc_object.alt))
+    # MJCF quaternions need not be normalized, so a small rotation like "1 0 0 0.00005" has a real component of exactly 1.
+    # Normalizing in double precision pushes it below 1, so Gf.Rotation's acos sees the angle. Single precision would round it back.
     return quat.GetNormalized()
 
 
