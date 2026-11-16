@@ -2,6 +2,10 @@
 
 ## Fixes
 
+- Added a warning when a joint is `joint1` of multiple joint equalities
+  - A joint equality is authored onto its `joint1` follower joint, which can only mimic one joint, so only the last of these equalities is preserved
+  - Models that couple several joints to one driven joint by listing it as `joint1` of each equality lose all but one coupling in USD
+  - List the driven joint as `joint2` of each equality, which makes it the leader, to preserve every coupling
 - Fixed small rotations of bodies, geoms, sites, cameras, lights, frames, and mesh `refquat` being lost or rounded
   - Rotations below about 0.03 degrees were authored as identity, and slightly larger ones were quantized, such as the 0.05 degree `quat` of the Booster T1 `AL1` and `AR1` bodies, which was authored about 11% too large
   - Some authored `xformOp:orient` and `physics:localRot0` quaternions flip sign (`q` becomes `-q`), which represents the same rotation
