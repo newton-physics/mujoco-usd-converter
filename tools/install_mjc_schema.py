@@ -18,8 +18,8 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
 
         `uv.lock` is TOML, but for our purposes we only need to scan `[[package]]` blocks:
           [[package]]
-          name = "mujoco"
-          version = "3.4.0"
+          name = "mujoco-core"
+          version = "4.0.1"
         """
         pkg_start_re = re.compile(r"^\s*\[\[package\]\]\s*$")
         name_re = re.compile(r'^\s*name\s*=\s*"([^"]+)"\s*$')
@@ -78,7 +78,7 @@ class MjcPhysicsSchemaBuildHook(BuildHookInterface):
         """Download the MJC schema files from GitHub"""
 
         # Get the mujoco version from the uv.lock file
-        mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco")
+        mujoco_version = self.__read_uv_lock_package_version(Path("uv.lock"), "mujoco-core")
 
         # Get the schema url from the mujoco version
         schema_url = f"https://raw.githubusercontent.com/google-deepmind/mujoco/refs/tags/{mujoco_version}/src/experimental/usd/mjcPhysics"

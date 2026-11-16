@@ -4,6 +4,10 @@
 
 - Removed support for Python 3.10, which Newton no longer supports after 1.7
 
+## Features
+
+- Added `mjc:flag:sleep` and `mjc:option:sleep_tolerance` authoring, which MuJoCo 4.0 added to the MjcPhysics schema
+
 ## Fixes
 
 - Fixed bodies with a collider that MuJoCo gives no mass being heavier than in MuJoCo
@@ -14,6 +18,12 @@
   - USD cannot express a massless body, so a body that MuJoCo compiles as massless, such as one made only of zero density colliders, still has its mass inferred from its colliders by UsdPhysics readers
 - Fixed MuJoCo's USD decoder ignoring an `inertiagrouprange` that keeps one end at its default, such as `"0 1"`
   - The decoder applies `mjc:compiler:inertiaGroupRange:min` and `mjc:compiler:inertiaGroupRange:max` only when both are authored, so both are now authored whenever the range differs from the default
+
+## Dependencies
+
+- Updated to `mujoco-core>=4.0.1,<4.1` to align with Newton 1.9
+  - MuJoCo 4.0 moved its Python bindings into `mujoco-core`, which only depends on `numpy`
+  - The converter no longer installs MuJoCo Studio or the `glfw`, `pyopengl`, `absl-py`, `etils`, and `websockets` dependencies of the `mujoco` package; install `mujoco` alongside the converter to use its viewer or renderers
 
 # 0.9.1
 
