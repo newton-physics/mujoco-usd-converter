@@ -1,0 +1,14 @@
+<mujoco model="mesh_ref_pose_small_rotation">
+    <compiler meshdir="assets"/>
+
+    <asset>
+        <!-- a 1e-4 rad rotation, whose quaternion real component rounds to 1 in single precision -->
+        <mesh name="smallRefQuat" file="complex_cube.obj" scale="0.1 0.1 0.1" refquat="1 0 0 0.00005"/>
+    </asset>
+
+    <worldbody>
+        <body name="body">
+            <geom name="smallRefQuatGeom" type="mesh" mesh="smallRefQuat"/>
+        </body>
+    </worldbody>
+</mujoco>

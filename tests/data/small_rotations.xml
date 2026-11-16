@@ -1,0 +1,17 @@
+<mujoco model="small_rotations">
+    <!-- each orientation is a 1e-4 rad rotation, whose quaternion real component rounds to 1 in single precision -->
+    <worldbody>
+        <body name="quatBody" quat="1 0 0 0.00005">
+            <geom type="sphere" size="0.1"/>
+        </body>
+        <frame quat="1 0 0 0.00005">
+            <body name="framedBody" pos="1 0 0">
+                <geom type="sphere" size="0.1"/>
+            </body>
+        </frame>
+        <body name="fromtoBody" pos="2 0 0">
+            <!-- tilted 1e-4 rad from the z axis, about the x axis -->
+            <geom name="fromtoGeom" type="capsule" size="0.01" fromto="0 0 0 0 -0.0001 1"/>
+        </body>
+    </worldbody>
+</mujoco>

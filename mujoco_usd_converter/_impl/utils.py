@@ -10,7 +10,7 @@ from pxr import Gf, Tf, Usd, UsdGeom
 
 from .._version import __version__
 from .data import ConversionData
-from .numpy import convert_quatf, convert_vec3d
+from .numpy import convert_quatd, convert_vec3d
 
 __all__ = ["get_authoring_metadata", "get_fromto_vectors", "mj_limited_to_token", "set_purpose", "set_schema_attribute", "set_transform"]
 
@@ -57,7 +57,11 @@ def set_transform(
 ) -> None:
     # get the current transform (including any inherited via references)
     pos, pivot, orient, scale = usdex.core.getLocalTransformComponentsQuat(prim)
-    current_transform = Gf.Transform(translation=pos, rotation=Gf.Rotation(orient), scale=Gf.Vec3d(scale), pivotPosition=pivot)
+    # Gf.Rotation takes its angle from acos of the real component, which is exactly 1 for a small rotation authored as a Quatf.
+    # Normalizing in double precision pushes the real component below 1, so the angle survives. Widening alone would not.
+    current_transform = Gf.Transform(
+        translation=pos, rotation=Gf.Rotation(Gf.Quatd(orient).GetNormalized()), scale=Gf.Vec3d(scale), pivotPosition=pivot
+    )
 
     # check for a local frame not represented in the prim hierarchy
     frame_transform: Gf.Transform = get_frame_transform(mjc_object, spec)
@@ -98,7 +102,7 @@ def set_transform(
         frame_transform,
     )
 
-    # extract the translation, orientation, and scale so we can set them as components
+    # extract the translation, orientation, and scale so we can set them as components, narrowing only after composition
     pos = final_transform.GetTranslation()
     orient = Gf.Quatf(final_transform.GetRotation().GetQuat())
     scale = Gf.Vec3f(final_transform.GetScale())
@@ -106,7 +110,7 @@ def set_transform(
     usdex.core.setLocalTransform(prim, pos, orient, scale)
 
 
-def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
+def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatd:
     z_axis = Gf.Vec3d(0, 0, 1)
     vec.Normalize()
 
@@ -115,7 +119,7 @@ def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
     s = cross.GetLength()
 
     if s < 1e-10:
-        return Gf.Quatf(0, 1, 0, 0)
+        return Gf.Quatd(0, 1, 0, 0)
     else:
         # Normalize cross product
         cross.Normalize()
@@ -123,8 +127,8 @@ def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
         # Calculate angle between z-axis and vector
         ang = np.arctan2(s, vec[2])
 
-        # Construct quaternion
-        return Gf.Quatf(
+        # Construct the quaternion in double precision, since the cosine of a small half angle rounds to 1 in single precision
+        return Gf.Quatd(
             np.cos(ang / 2.0),
             cross[0] * np.sin(ang / 2.0),
             cross[1] * np.sin(ang / 2.0),
@@ -135,16 +139,18 @@ def vec_to_quat(vec: Gf.Vec3d) -> Gf.Quatf:
 def get_orientation(
     mjc_object: mujoco.MjsBody | mujoco.MjsGeom | mujoco.MjsJoint | mujoco.MjsCamera | mujoco.MjsLight | mujoco.MjsSite | mujoco.MjsFrame,
     spec: mujoco.MjSpec,
-) -> Gf.Quatf:
+) -> Gf.Quatd:
     orient_type = mujoco.mjtOrientation.mjORIENTATION_QUAT
     if hasattr(mjc_object, "alt"):
         orient_type = mjc_object.alt.type
     if orient_type == mujoco.mjtOrientation.mjORIENTATION_QUAT:
-        quat = convert_quatf(mjc_object.quat)
+        quat = convert_quatd(mjc_object.quat)
     else:
         # an attached model keeps its own compiler, so its angle units and euler sequence may differ from the spec's
         compiler = mjc_object.compiler
-        quat = Gf.Quatf(*spec.resolve_orientation(degree=compiler.degree, sequence=compiler.eulerseq, orientation=mjc_object.alt))
+        quat = Gf.Quatd(*spec.resolve_orientation(degree=compiler.degree, sequence=compiler.eulerseq, orientation=mjc_object.alt))
+    # MJCF quaternions need not be normalized, so a small rotation like "1 0 0 0.00005" has a real component of exactly 1.
+    # Normalizing in double precision pushes it below 1, so Gf.Rotation's acos sees the angle. Single precision would round it back.
     return quat.GetNormalized()
 
 
