@@ -208,7 +208,10 @@ class TestJoints(ConverterTestCase):
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.z)
         self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(-0.1, 1.1, 0), 1e-6))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
-        self.assertRotationsAlmostEqual(Gf.Rotation(joint.GetLocalRot0Attr().Get()), Gf.Rotation(Gf.Quatf(-0.70710677, Gf.Vec3f(0, 0, -0.70710677))))
+        # |w| == |z|, so the sign of the extracted quaternion is decided by platform-specific rounding
+        local_rot0 = joint.GetLocalRot0Attr().Get()
+        local_rot0 = -local_rot0 if local_rot0.GetReal() < 0 else local_rot0
+        self.assertRotationsAlmostEqual(Gf.Rotation(local_rot0), Gf.Rotation(Gf.Quatf(0.70710677, Gf.Vec3f(0, 0, 0.70710677))))
         self.assertRotationsAlmostEqual(joint.GetLocalRot1Attr().Get(), Gf.Quatf(1, Gf.Vec3f(0, 0, 0)))
         self.assertAlmostEqual(joint.GetLowerLimitAttr().Get(), -90)
         self.assertAlmostEqual(joint.GetUpperLimitAttr().Get(), 0)
@@ -228,9 +231,12 @@ class TestJoints(ConverterTestCase):
         self.assertEqual(joint.GetAxisAttr().Get(), UsdPhysics.Tokens.x)
         self.assertTrue(Gf.IsClose(joint.GetLocalPos0Attr().Get(), Gf.Vec3f(0, 1.1, 0.1), 1e-6))
         self.assertEqual(joint.GetLocalPos1Attr().Get(), Gf.Vec3f(0, 0.1, 0))
+        # |y| == |z|, so the sign of the extracted quaternion is decided by platform-specific rounding
+        local_rot0 = joint.GetLocalRot0Attr().Get()
+        local_rot0 = -local_rot0 if local_rot0.GetReal() < 0 else local_rot0
         self.assertRotationsAlmostEqual(
-            Gf.Rotation(joint.GetLocalRot0Attr().Get()),
-            Gf.Rotation(Gf.Quatf(-0.37174803, Gf.Vec3f(-0.37174803, -0.6015009, -0.6015009))),
+            Gf.Rotation(local_rot0),
+            Gf.Rotation(Gf.Quatf(0.37174803, Gf.Vec3f(0.37174803, 0.6015009, 0.6015009))),
         )
         self.assertRotationsAlmostEqual(
             Gf.Rotation(joint.GetLocalRot1Attr().Get()),
