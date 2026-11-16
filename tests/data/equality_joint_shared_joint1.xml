@@ -1,0 +1,36 @@
+<mujoco model="equality_joint_shared_joint1">
+  <worldbody>
+    <body name="body0" pos="0 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="driver" type="hinge" axis="1 0 0"/>
+    </body>
+    <body name="body1" pos="1 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="finger_a" type="hinge" axis="1 0 0"/>
+    </body>
+    <body name="body2" pos="2 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="finger_b" type="hinge" axis="1 0 0"/>
+    </body>
+    <body name="body3" pos="3 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="leader" type="hinge" axis="1 0 0"/>
+    </body>
+    <body name="body4" pos="4 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="follower_a" type="hinge" axis="1 0 0"/>
+    </body>
+    <body name="body5" pos="5 0 0.5">
+      <geom type="box" size="0.05 0.05 0.5"/>
+      <joint name="follower_b" type="hinge" axis="1 0 0"/>
+    </body>
+  </worldbody>
+  <equality>
+    <!-- driver is joint1 of both equalities, so it would need to mimic two joints -->
+    <joint name="driver_finger_a" joint1="driver" joint2="finger_a" polycoef="0 1 0 0 0"/>
+    <joint name="driver_finger_b" joint1="driver" joint2="finger_b" polycoef="0 -1 0 0 0" solref="0.005 1"/>
+    <!-- leader is joint2 of both equalities, so each follower mimics it -->
+    <joint name="follower_a_leader" joint1="follower_a" joint2="leader" polycoef="0 1 0 0 0"/>
+    <joint name="follower_b_leader" joint1="follower_b" joint2="leader" polycoef="0 -1 0 0 0"/>
+  </equality>
+</mujoco>

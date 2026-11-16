@@ -411,6 +411,46 @@ class TestEqualities(ConverterTestCase):
             else:
                 self.assertFalse(self.__has_authored_value(property), f"Property {property.GetName()} is authored")
 
+    def test_joint_equality_shared_joint1(self):
+        model = pathlib.Path("./tests/data/equality_joint_shared_joint1.xml")
+
+        # Only the driver needs to mimic more than one joint; the leader's two followers each mimic it.
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [
+                (
+                    Tf.TF_DIAGNOSTIC_WARNING_TYPE,
+                    ".*Joint 'driver' is joint1 of multiple joint equalities, but can only mimic one joint. "
+                    "Its equality with joint 'finger_a' is replaced by its equality with joint 'finger_b'",
+                ),
+            ],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        # The last equality wins on the driver
+        driver: Usd.Prim = stage.GetPrimAtPath("/equality_joint_shared_joint1/Geometry/body0/driver")
+        self.assertTrue(driver.HasAPI("NewtonMimicAPI"))
+        self.assertTrue(driver.HasAPI("MjcEqualityJointAPI"))
+        targets = driver.GetRelationship("newton:mimicJoint").GetTargets()
+        self.assertEqual(["/equality_joint_shared_joint1/Geometry/body2/finger_b"], [str(x) for x in targets])
+        self.assertAlmostEqual(driver.GetAttribute("newton:mimicCoef1").Get(), -1.0)
+        self.assertEqual(list(driver.GetAttribute("mjc:solref").Get()), [0.005, 1.0])
+
+        for name in ("finger_a", "finger_b", "leader"):
+            joint = next(prim for prim in stage.Traverse() if prim.GetName() == name)
+            self.assertFalse(joint.HasAPI("NewtonMimicAPI"), f"{name} should not mimic any joint")
+
+        for name, coef1 in (("follower_a", 1.0), ("follower_b", -1.0)):
+            follower = next(prim for prim in stage.Traverse() if prim.GetName() == name)
+            self.assertTrue(follower.HasAPI("NewtonMimicAPI"))
+            targets = follower.GetRelationship("newton:mimicJoint").GetTargets()
+            self.assertEqual(["/equality_joint_shared_joint1/Geometry/body3/leader"], [str(x) for x in targets])
+            self.assertAlmostEqual(follower.GetAttribute("newton:mimicCoef1").Get(), coef1)
+
     def test_connect_equality_schema(self):
         # Test that connect equality attributes are authored correctly
         model = pathlib.Path("./tests/data/equality_connect_attributes.xml")

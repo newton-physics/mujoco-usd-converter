@@ -22,8 +22,9 @@ def convert_equalities(data: ConversionData):
     source_names = [get_equality_name(equality) for equality in data.spec.equalities]
     safe_names = data.name_cache.getPrimNames(physics_scope, source_names)
     xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
+    mimic_leaders: dict[str, str] = {}
     for equality, source_name, safe_name in zip(data.spec.equalities, source_names, safe_names):
-        equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data, xform_cache)
+        equality_prim, prim_created = convert_equality(physics_scope, safe_name, equality, data, xform_cache, mimic_leaders)
         if prim_created and equality_prim.IsValid() and source_name != safe_name:
             usdex.core.setDisplayName(equality_prim, source_name)
 
@@ -76,6 +77,7 @@ def convert_equality(
     equality: mujoco.MjsEquality,
     data: ConversionData,
     xform_cache: UsdGeom.XformCache,
+    mimic_leaders: dict[str, str],
 ) -> tuple[Usd.Prim, bool]:
     equality_prim = Usd.Prim()
     if equality.type == mujoco.mjtEq.mjEQ_WELD:
@@ -169,6 +171,14 @@ def convert_equality(
         else:
             Tf.Warn(f"Joint '{equality.name2}' not found for equality '{equality.name}'")
             return equality_prim, False
+
+        # NewtonMimicAPI is single-apply, so a follower can only mimic one leader
+        if previous_leader := mimic_leaders.get(equality.name1):
+            Tf.Warn(
+                f"Joint '{equality.name1}' is joint1 of multiple joint equalities, but can only mimic one joint. "
+                f"Its equality with joint '{previous_leader}' is replaced by its equality with joint '{equality.name2}'"
+            )
+        mimic_leaders[equality.name1] = equality.name2
 
         # NewtonMimicAPI authors coef0 in the follower joint's position units, which is
         # degrees for an angular joint. MuJoCo's polycoef[0] is always radians -- unlike
