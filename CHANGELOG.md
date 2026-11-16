@@ -18,6 +18,8 @@
   - USD cannot express a massless body, so a body that MuJoCo compiles as massless, such as one made only of zero density colliders, still has its mass inferred from its colliders by UsdPhysics readers
 - Fixed MuJoCo's USD decoder ignoring an `inertiagrouprange` that keeps one end at its default, such as `"0 1"`
   - The decoder applies `mjc:compiler:inertiaGroupRange:min` and `mjc:compiler:inertiaGroupRange:max` only when both are authored, so both are now authored whenever the range differs from the default
+- Added a warning for MuJoCo 4.0's joint and tendon `springyield` attribute, which is not supported
+  - The MjcPhysics schema has no plasticity attributes, so these joints and tendons are converted as purely elastic
 
 ## Dependencies
 
