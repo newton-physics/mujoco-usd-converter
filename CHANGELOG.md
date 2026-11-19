@@ -1,3 +1,9 @@
+# Unreleased
+
+## Breaking Changes
+
+- Removed support for Python 3.10, which Newton no longer supports after 1.7
+
 # 0.9.1
 
 ## Fixes

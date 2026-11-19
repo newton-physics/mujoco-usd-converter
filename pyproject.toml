@@ -5,7 +5,7 @@ description = "A MuJoCo to OpenUSD Data Converter"
 authors = [{name = "Newton Developers"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "mujoco>=3.16.0,<3.18",
     "usd-exchange>=3.0.1", # locked to USD 26.08
@@ -146,7 +146,7 @@ artifacts = [
 [tool.ruff]
 line-length = 150
 exclude = [".venv", "dist"]
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = [
@@ -179,4 +179,4 @@ ignore = [
 [tool.black]
 line-length = 150
 exclude = "(.venv|dist)"
-target-version = ['py310']
+target-version = ['py311']
