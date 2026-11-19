@@ -261,6 +261,27 @@ class TestScene(ConverterTestCase):
         self.assertAlmostEqual(scene.GetAttribute("mjc:compiler:setTotalMass").Get(), -1)
         self.assertEqual(scene.GetAttribute("mjc:compiler:useThread").Get(), True)
 
+    def test_inertia_group_range_authors_both_ends(self):
+        """Author both ends of a non-default inertiaGroupRange, even one matching its schema default.
+
+        MuJoCo's USD decoder ignores the range unless both of its ends are authored.
+        """
+        for model, expected in (
+            (pathlib.Path("./tests/data/mass_bake_inertiagrouprange.xml"), (0, 1)),
+            (pathlib.Path("./tests/data/bodies.xml"), None),
+        ):
+            with self.subTest(model=model.stem):
+                asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+                stage: Usd.Stage = Usd.Stage.Open(asset.path)
+                self.assertIsValidUsd(stage)
+                scene: Usd.Prim = stage.GetPseudoRoot().GetChild("PhysicsScene")
+                range_attrs = [scene.GetAttribute(f"mjc:compiler:inertiaGroupRange:{end}") for end in ("min", "max")]
+                if expected is None:
+                    self.assertFalse(any(attr.HasAuthoredValue() for attr in range_attrs))
+                else:
+                    self.assertTrue(all(attr.HasAuthoredValue() for attr in range_attrs))
+                    self.assertEqual(tuple(attr.Get() for attr in range_attrs), expected)
+
     def test_scene_discrete_integrator(self):
         model = pathlib.Path("./tests/data/scene_discrete_integrator.xml")
         with usdex.test.ScopedDiagnosticChecker(

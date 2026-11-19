@@ -6,11 +6,14 @@
 
 ## Fixes
 
-- Fixed bodies with a massless collider being heavier than in MuJoCo
+- Fixed bodies with a collider that MuJoCo gives no mass being heavier than in MuJoCo
+  - UsdPhysics accumulates mass from every collider, so a collider outside `inertiagrouprange` added mass that MuJoCo ignores
   - UsdPhysics reads a zero `physics:mass` or `physics:density` as unspecified, so a collider with `mass="0"` or `density="0"`, such as a zero density collision proxy, was given mass from its volume at the default density
-  - Bodies with such a collider in `inertiagrouprange` now have MuJoCo's compiled mass properties authored, as for bodies whose mass comes from a visual geom
+  - Bodies with such a collider now have MuJoCo's compiled mass properties authored, as for bodies whose mass comes from a visual geom
   - Colliders with `density="0"` now author `physics:density = 0`, as `mass="0"` already authored `physics:mass = 0`, which MuJoCo's USD decoder reads as massless
   - USD cannot express a massless body, so a body that MuJoCo compiles as massless, such as one made only of zero density colliders, still has its mass inferred from its colliders by UsdPhysics readers
+- Fixed MuJoCo's USD decoder ignoring an `inertiagrouprange` that keeps one end at its default, such as `"0 1"`
+  - The decoder applies `mjc:compiler:inertiaGroupRange:min` and `mjc:compiler:inertiaGroupRange:max` only when both are authored, so both are now authored whenever the range differs from the default
 
 # 0.9.1
 

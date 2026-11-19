@@ -1,0 +1,22 @@
+<mujoco model="mass_bake_inertiagrouprange">
+  <compiler inertiagrouprange="0 1"/>
+  <worldbody>
+    <!-- MuJoCo ignores colliders outside inertiagrouprange, which USD would still accumulate: the bodies are baked -->
+    <body name="excluded_collider" pos="0 0 1">
+      <freejoint/>
+      <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+      <geom type="sphere" size="0.3" group="2"/>
+    </body>
+    <body name="excluded_massless_collider" pos="1 0 1">
+      <freejoint/>
+      <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+      <geom type="sphere" size="0.3" group="2" density="0"/>
+    </body>
+    <!-- every collider is counted, so mass is left to USD accumulation -->
+    <body name="counted_colliders" pos="2 0 1">
+      <freejoint/>
+      <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+      <geom type="sphere" size="0.3" group="1" mass="1.0"/>
+    </body>
+  </worldbody>
+</mujoco>

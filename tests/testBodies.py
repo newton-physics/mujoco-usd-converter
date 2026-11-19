@@ -186,6 +186,28 @@ class TestBodies(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
 
+    def test_mass_baked_when_a_collider_is_outside_the_inertia_group_range(self):
+        """Bake bodies with a collider that MuJoCo excludes from inertia by its group.
+
+        MuJoCo gives no mass to a geom outside ``inertiagrouprange``, but USD accumulates mass
+        from every collider, whether its mass is authored or inferred from its volume.
+        """
+        model = pathlib.Path("./tests/data/mass_bake_inertiagrouprange.xml")
+        asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir(model.stem))
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
+
+        for name in ("excluded_collider", "excluded_massless_collider"):
+            with self.subTest(body=name):
+                prim: Usd.Prim = stage.GetPrimAtPath(f"/mass_bake_inertiagrouprange/Geometry/{name}")
+                self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+                # 2.0 from the box; MuJoCo ignores the sphere in group 2.
+                self.assertAlmostEqual(UsdPhysics.MassAPI(prim).GetMassAttr().Get(), 2.0, places=5)
+
+        prim: Usd.Prim = stage.GetPrimAtPath("/mass_bake_inertiagrouprange/Geometry/counted_colliders")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
     def test_mass_baked_onto_the_right_body_through_attach(self):
         """Bake each body's own mass when attaching has shifted the compiled body ids.
 

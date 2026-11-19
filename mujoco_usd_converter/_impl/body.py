@@ -26,11 +26,12 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
     MuJoCo infers body mass from every geom in ``inertiagrouprange``, including non-colliding
     ones. USD accumulates only from enabled colliders, so such a body needs explicit mass.
 
-    A collider that MuJoCo counts as massless needs it too. USD reads a zero mass or density
-    as unspecified and infers the collider's mass from its volume.
+    A collider that MuJoCo gives no mass needs it too, whether it is outside
+    ``inertiagrouprange`` or massless. USD accumulates mass from every collider, and reads a
+    zero mass or density as unspecified, inferring the collider's mass from its volume.
 
-    Bodies whose mass comes solely from colliders that have mass are left alone: their mass is
-    described as the source expressed it, and baking would override an author's implicit intent.
+    Bodies whose mass comes solely from colliders that MuJoCo counts are left alone: their mass
+    is described as the source expressed it, and baking would override an author's implicit intent.
 
     An attached model keeps its own compiler, while the PhysicsScene describes only the top
     level model's inertia settings. A body compiled with other settings is baked, including
@@ -43,12 +44,11 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
         return False
     lower, upper = compiler.inertiagrouprange
     for geom in body.geoms:
-        if not lower <= geom.group <= upper:
-            continue  # MuJoCo does not count it
+        counted = lower <= geom.group <= upper
         if geom.contype != 0 or geom.conaffinity != 0:
-            if is_massless(geom):
-                return True  # a collider; USD infers mass for it
-        elif not is_massless(geom):
+            if not counted or is_massless(geom):
+                return True  # a collider; USD accumulates mass that MuJoCo does not
+        elif counted and not is_massless(geom):
             return True  # a visual; USD accumulates none of its mass
     return False
 
