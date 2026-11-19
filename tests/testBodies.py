@@ -161,6 +161,31 @@ class TestBodies(ConverterTestCase):
         self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
 
+    def test_mass_baked_when_a_collider_is_massless(self):
+        """A body with a collider that MuJoCo counts as massless carries explicit mass properties.
+
+        UsdPhysics reads a zero mass or density as unspecified and infers the collider's mass
+        from its volume, which would make the body heavier than in MuJoCo. The compiled values
+        are authored on the body instead, and override what a reader infers from its colliders.
+        """
+        for name in ("zero_density_collider", "zero_mass_collider"):
+            with self.subTest(body=name):
+                prim: Usd.Prim = self.stage.GetPrimAtPath(f"/bodies/Geometry/{name}")
+                self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+                mass_api = UsdPhysics.MassAPI(prim)
+                # 2.0 from the box; the sphere contributes nothing.
+                self.assertAlmostEqual(mass_api.GetMassAttr().Get(), 2.0, places=5)
+                self.assertEqual(mass_api.GetCenterOfMassAttr().Get(), Gf.Vec3f(0, 0, 0))
+                expected = 2.0 * (0.2**2 + 0.2**2) / 12
+                for actual in mass_api.GetDiagonalInertiaAttr().Get():
+                    self.assertAlmostEqual(actual, expected, places=5)
+
+    def test_mass_not_baked_for_a_massless_body(self):
+        """A body MuJoCo compiles as massless has no mass authored, as USD cannot express zero mass."""
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/bodies/Geometry/massless_collider")
+        self.assertTrue(prim.HasAPI(UsdPhysics.RigidBodyAPI))
+        self.assertFalse(prim.HasAPI(UsdPhysics.MassAPI))
+
     def test_mass_baked_onto_the_right_body_through_attach(self):
         """Bake each body's own mass when attaching has shifted the compiled body ids.
 

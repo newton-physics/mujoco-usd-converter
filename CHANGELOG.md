@@ -4,6 +4,14 @@
 
 - Removed support for Python 3.10, which Newton no longer supports after 1.7
 
+## Fixes
+
+- Fixed bodies with a massless collider being heavier than in MuJoCo
+  - UsdPhysics reads a zero `physics:mass` or `physics:density` as unspecified, so a collider with `mass="0"` or `density="0"`, such as a zero density collision proxy, was given mass from its volume at the default density
+  - Bodies with such a collider in `inertiagrouprange` now have MuJoCo's compiled mass properties authored, as for bodies whose mass comes from a visual geom
+  - Colliders with `density="0"` now author `physics:density = 0`, as `mass="0"` already authored `physics:mass = 0`, which MuJoCo's USD decoder reads as massless
+  - USD cannot express a massless body, so a body that MuJoCo compiles as massless, such as one made only of zero density colliders, still has its mass inferred from its colliders by UsdPhysics readers
+
 # 0.9.1
 
 ## Fixes

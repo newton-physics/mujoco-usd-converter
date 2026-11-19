@@ -21,13 +21,16 @@ def convert_bodies(data: ConversionData):
 
 
 def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
-    """Whether this body's mass depends on a geom that USD cannot accumulate mass from.
+    """Whether this body's mass depends on a geom whose contribution USD cannot accumulate.
 
     MuJoCo infers body mass from every geom in ``inertiagrouprange``, including non-colliding
     ones. USD accumulates only from enabled colliders, so such a body needs explicit mass.
 
-    Bodies whose mass comes solely from colliders are left alone: their mass is described as
-    the source expressed it, and baking would override an author's implicit intent.
+    A collider that MuJoCo counts as massless needs it too. USD reads a zero mass or density
+    as unspecified and infers the collider's mass from its volume.
+
+    Bodies whose mass comes solely from colliders that have mass are left alone: their mass is
+    described as the source expressed it, and baking would override an author's implicit intent.
 
     An attached model keeps its own compiler, while the PhysicsScene describes only the top
     level model's inertia settings. A body compiled with other settings is baked, including
@@ -40,16 +43,18 @@ def requires_mass_bake(body: mujoco.MjsBody, data: ConversionData) -> bool:
         return False
     lower, upper = compiler.inertiagrouprange
     for geom in body.geoms:
-        if geom.contype != 0 or geom.conaffinity != 0:
-            continue  # a collider; USD accumulates its mass
         if not lower <= geom.group <= upper:
-            continue  # MuJoCo does not count it either
-        if not np.isnan(geom.mass):
-            if geom.mass > 0.0:
-                return True
-        elif geom.density > 0.0:
-            return True
+            continue  # MuJoCo does not count it
+        if geom.contype != 0 or geom.conaffinity != 0:
+            if is_massless(geom):
+                return True  # a collider; USD infers mass for it
+        elif not is_massless(geom):
+            return True  # a visual; USD accumulates none of its mass
     return False
+
+
+def is_massless(geom: mujoco.MjsGeom) -> bool:
+    return geom.mass == 0.0 if not np.isnan(geom.mass) else geom.density == 0.0
 
 
 def has_own_inertia_settings(compiler: mujoco.MjsCompiler, top_level: mujoco.MjsCompiler) -> bool:
