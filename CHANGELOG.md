@@ -26,6 +26,8 @@
 - Updated to `mujoco-core>=4.0.1,<4.1` to align with Newton 1.9
   - MuJoCo 4.0 moved its Python bindings into `mujoco-core`, which only depends on `numpy`
   - The converter no longer installs MuJoCo Studio or the `glfw`, `pyopengl`, `absl-py`, `etils`, and `websockets` dependencies of the `mujoco` package; install `mujoco` alongside the converter to use its viewer or renderers
+  - When upgrading an environment that has `mujoco` 3.x installed, run `pip uninstall -y mujoco` first, because `mujoco` and `mujoco-core` install into the same `mujoco` package and the leftover 3.x files make `import mujoco` fail
+  - If the converter was already upgraded, repair the environment with `pip uninstall -y mujoco && pip install --force-reinstall --no-deps mujoco-core`
 
 # 0.9.1
 
