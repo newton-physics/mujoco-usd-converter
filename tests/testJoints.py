@@ -3,13 +3,27 @@
 import math
 import pathlib
 
-from pxr import Gf, Sdf, Usd, UsdPhysics
+import usdex.core
+import usdex.test
+from pxr import Gf, Sdf, Tf, Usd, UsdPhysics
 
 import mujoco_usd_converter
 from tests.util.ConverterTestCase import ConverterTestCase
 
 
 class TestJoints(ConverterTestCase):
+
+    def test_springyield_warns(self):
+        # The MjcPhysics schema has no plasticity attributes, so the joint converts as purely elastic
+        model = pathlib.Path("./tests/data/joint_springyield.xml")
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*springyield is not supported.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)
 
     def test_newton_damping_is_per_degree(self):
         # MuJoCo authors joint damping per radian, but NewtonJointAPI authors it per degree,

@@ -1,0 +1,8 @@
+<mujoco model="joint_springyield">
+    <worldbody>
+        <body name="body" pos="0 0 1">
+            <joint name="plastic_joint" type="hinge" axis="0 0 1" stiffness="10" springyield="0.2"/>
+            <geom type="box" size="0.1 0.1 0.1"/>
+        </body>
+    </worldbody>
+</mujoco>

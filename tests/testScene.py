@@ -97,6 +97,7 @@ class TestScene(ConverterTestCase):
             "mjc:flag:fwdinv",
             "mjc:flag:invdiscrete",
             "mjc:flag:override",
+            "mjc:flag:sleep",
         ]
 
         for attr_name in enable_flag_attrs:
@@ -125,6 +126,7 @@ class TestScene(ConverterTestCase):
         self.assertAlmostEqual(list(scene.GetAttribute("mjc:option:o_solref").Get()), [0.01, 0.8])
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_initpoints").Get(), 60)
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_iterations").Get(), 20)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:option:sleep_tolerance").Get(), 0.005)
         self.assertEqual(scene.GetAttribute("mjc:option:solver").Get(), "cg")
         self.assertFalse(scene.GetAttribute("mjc:option:timestep").HasAuthoredValue())
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:timestep").Get(), 0.002)
@@ -211,6 +213,7 @@ class TestScene(ConverterTestCase):
             "mjc:flag:fwdinv",
             "mjc:flag:invdiscrete",
             "mjc:flag:override",
+            "mjc:flag:sleep",
         ]
 
         for attr_name in default_disabled_flags:
@@ -238,6 +241,7 @@ class TestScene(ConverterTestCase):
         self.assertAlmostEqual(list(scene.GetAttribute("mjc:option:o_solref").Get()), [0.02, 1])
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_initpoints").Get(), 40)
         self.assertEqual(scene.GetAttribute("mjc:option:sdf_iterations").Get(), 10)
+        self.assertAlmostEqual(scene.GetAttribute("mjc:option:sleep_tolerance").Get(), 0.001)
         self.assertEqual(scene.GetAttribute("mjc:option:solver").Get(), "newton")
         self.assertFalse(scene.GetAttribute("mjc:option:timestep").HasAuthoredValue())
         self.assertAlmostEqual(scene.GetAttribute("mjc:option:timestep").Get(), 0.002)

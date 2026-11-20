@@ -549,3 +549,15 @@ class TestTendons(ConverterTestCase):
         self.assertTrue(tendon.IsValid())
         self.assertEqual(tendon.GetTypeName(), "MjcTendon")
         self.assertEqual(tendon.GetAttribute("mjc:springlength").Get(), [0.3, 0.3])
+
+    def test_springyield_warns(self):
+        # The MjcPhysics schema has no plasticity attributes, so the tendon converts as purely elastic
+        model = pathlib.Path("./tests/data/tendon_springyield.xml")
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, ".*springyield is not supported.*")],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter().convert(model, self.tmpDir())
+        stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(stage)

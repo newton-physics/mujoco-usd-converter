@@ -18,7 +18,7 @@
           jacobian="sparse" solver="CG"
           iterations="200" ls_iterations="100"
           noslip_iterations="10" ccd_iterations="100"
-          sdf_initpoints="60" sdf_iterations="20"
+          sdf_initpoints="60" sdf_iterations="20" sleep_tolerance="0.005"
           gravity="0 0 -5" wind="1 2 3" magnetic="0.1 0.2 0.3"
           actuatorgroupdisable="1 3 5">
     <flag constraint="disable" equality="disable"
@@ -32,7 +32,7 @@
           nativeccd="disable" island="disable"
           energy="enable" fwdinv="enable"
           invdiscrete="enable" multiccd="disable"
-          override="enable"/>
+          override="enable" sleep="enable"/>
   </option>
 
   <worldbody>

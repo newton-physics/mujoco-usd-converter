@@ -173,3 +173,5 @@ class Converter:
         # massscale 0 derives the mass factor from scale, so it only matters with a non-unit scale
         if any(any(x != 1.0 for x in frame.scale) or frame.massscale not in (0.0, 1.0) for frame in spec.frames):
             Tf.Warn("frame scale is not supported")
+        if any(joint.springyield for joint in spec.joints) or any(tendon.springyield for tendon in spec.tendons):
+            Tf.Warn("springyield is not supported")

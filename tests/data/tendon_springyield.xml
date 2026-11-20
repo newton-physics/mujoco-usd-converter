@@ -1,0 +1,16 @@
+<mujoco model="tendon_springyield">
+    <worldbody>
+        <site name="anchor" pos="0 0 2"/>
+        <body name="body" pos="0 0 1">
+            <freejoint/>
+            <geom type="box" size="0.1 0.1 0.1"/>
+            <site name="attachment" pos="0 0 0.1"/>
+        </body>
+    </worldbody>
+    <tendon>
+        <spatial name="plastic_tendon" stiffness="5" springyield="0.1">
+            <site site="anchor"/>
+            <site site="attachment"/>
+        </spatial>
+    </tendon>
+</mujoco>
