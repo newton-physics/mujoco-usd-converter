@@ -164,6 +164,16 @@ class TestGeom(ConverterTestCase):
         self.assertAlmostEqual(mass_api.GetDensityAttr().Get(), 3000)
         self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
 
+    def test_zero_density(self):
+        """Author a zero density, which MuJoCo's USD decoder reads as a massless geom."""
+        prim: Usd.Prim = self.stage.GetPrimAtPath("/geoms/Geometry/geom_body/zero_density")
+        self.assertTrue(prim.HasAPI(UsdPhysics.CollisionAPI))
+        self.assertTrue(prim.HasAPI(UsdPhysics.MassAPI))
+        mass_api = UsdPhysics.MassAPI(prim)
+        self.assertTrue(mass_api.GetDensityAttr().HasAuthoredValue())
+        self.assertEqual(mass_api.GetDensityAttr().Get(), 0)
+        self.assertFalse(mass_api.GetMassAttr().HasAuthoredValue())
+
     def test_mass_and_density(self):
         """When MJCF specifies both mass and density, only mass is authored in USD.
 

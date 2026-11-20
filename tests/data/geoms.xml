@@ -29,6 +29,7 @@
             <geom name="guide_mesh_collider" type="mesh" mesh="box_mesh" group="3"/>
             <geom name="explicit_mass" type="box" size="0.1 0.1 0.1" mass="10.0"/>
             <geom name="explicit_density" type="box" size="0.1 0.1 0.1" density="3000"/>
+            <geom name="zero_density" type="box" size="0.1 0.1 0.1" density="0"/>
             <geom name="mass_and_density" type="capsule" size="0.1 0.2" mass="15.0" density="4000"/>
             <geom name="shell_inertia" type="capsule" size="0.1 0.2" shellinertia="true"/>
             <geom name="all_collision_properties" type="box" size="0.1 0.1 0.1" group="1" condim="4" gap="0.02" margin="0.03" priority="2" shellinertia="true" solimp="0.95 0.99 0.001" solmix="0.9" solref="0.05 1"/>

@@ -107,8 +107,12 @@ def convert_scene(data: ConversionData):
     set_schema_attribute(scene_prim, "mjc:compiler:fitAABB", data.spec.compiler.fitaabb)
     set_schema_attribute(scene_prim, "mjc:compiler:fuseStatic", data.spec.compiler.fusestatic)
     set_schema_attribute(scene_prim, "mjc:compiler:inertiaFromGeom", get_inertia_from_geom_token(data.spec.compiler.inertiafromgeom))
-    set_schema_attribute(scene_prim, "mjc:compiler:inertiaGroupRange:max", int(data.spec.compiler.inertiagrouprange[1]))
-    set_schema_attribute(scene_prim, "mjc:compiler:inertiaGroupRange:min", int(data.spec.compiler.inertiagrouprange[0]))
+    # MuJoCo's USD decoder ignores the range unless both of its ends are authored
+    range_attrs = [scene_prim.GetAttribute(f"mjc:compiler:inertiaGroupRange:{end}") for end in ("min", "max")]
+    inertia_group_range = [int(x) for x in data.spec.compiler.inertiagrouprange]
+    if inertia_group_range != [attr.Get() for attr in range_attrs]:
+        for attr, value in zip(range_attrs, inertia_group_range):
+            attr.Set(value)
     set_schema_attribute(scene_prim, "mjc:compiler:saveInertial", data.spec.compiler.saveinertial)
     set_schema_attribute(scene_prim, "mjc:compiler:setTotalMass", data.spec.compiler.settotalmass)
     set_schema_attribute(scene_prim, "mjc:compiler:useThread", data.spec.compiler.usethread)

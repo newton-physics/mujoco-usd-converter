@@ -63,5 +63,18 @@
             <inertial pos="0.1 0.2 0.3" mass="2" diaginertia="0 0 0"/>
             <geom type="box" size="0.1 0.1 0.1"/>
         </body>
+        <!-- a collider MuJoCo counts as massless, which USD would infer mass for: the body is baked -->
+        <body name="zero_density_collider" pos="8 0 0">
+            <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+            <geom type="sphere" size="0.3" density="0"/>
+        </body>
+        <body name="zero_mass_collider" pos="9 0 0">
+            <geom type="box" size="0.1 0.1 0.1" mass="2.0"/>
+            <geom type="sphere" size="0.3" mass="0"/>
+        </body>
+        <!-- MuJoCo compiles this body as massless, which a body MassAPI cannot express -->
+        <body name="massless_collider" pos="10 0 0">
+            <geom type="capsule" size="0.01 0.25" density="0"/>
+        </body>
     </worldbody>
 </mujoco>
