@@ -1,8 +1,8 @@
-# Unreleased
+# 0.10.0
 
 ## Breaking Changes
 
-- Removed support for Python 3.10, which Newton no longer supports after 1.7
+- Removed support for Python 3.10, which MuJoCo 4.0 and Newton releases after 1.7 no longer support
 
 ## Features
 
