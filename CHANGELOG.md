@@ -1,3 +1,13 @@
+# Unreleased
+
+## Fixes
+
+- Fixed out-of-range material values stopping the conversion or being written unclamped
+  - `shininess`, `metallic`, and the alpha of `rgba` outside `[0, 1]` are clamped to the range with a warning, instead of stopping the conversion with a `usd-exchange` error
+  - `rgba` color channels outside `[0, 1]` are clamped with a warning, instead of being written as out-of-range colors
+  - The warning names the material and attribute as written in the MJCF; the `shininess` warning explains that MuJoCo's `shininess` is a normalized value of the OpenGL shininess, so `roughness` is `1 - shininess`
+  - Negative `emission` values are ignored with a warning, where they were previously ignored silently
+
 # 0.10.0
 
 ## Breaking Changes

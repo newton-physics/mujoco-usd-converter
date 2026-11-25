@@ -39,8 +39,30 @@ def convert_materials(data: ConversionData):
     data.content[Tokens.Materials] = usdex.core.addAssetContent(data.content[Tokens.Contents], Tokens.Materials, format="usda")
 
 
+def _clamp_unit_range(value: float, material_name: str, attribute: str, note: str = "") -> float:
+    """
+    Clamp a MuJoCo material value to [0, 1], warning when it was out of range.
+
+    MuJoCo loads and simulates materials with out-of-range values, but the USD material helpers either reject them
+    (opacity, roughness, metallic) or would author them as-is (color), so every attribute is clamped consistently.
+    """
+    clamped = min(1.0, max(0.0, value))
+    if clamped != value:
+        # MuJoCo stores these as float32, so format to avoid noise such as -0.30000001192092896
+        message = f"Material '{material_name}': {attribute}={value:.6g} is outside the valid range [0, 1] and was clamped to {clamped:.6g}."
+        if note:
+            message = f"{message} {note}"
+        Tf.Warn(message)
+    return clamped
+
+
 def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, data: ConversionData) -> UsdShade.Material:
+    # warnings name the material as authored in the MJCF, which `name` (a USD safe prim name) may differ from
+    source_name = material.name or name
+
     srgb_color, opacity = convert_color(material.rgba)
+    srgb_color = Gf.Vec3f(*(_clamp_unit_range(c, source_name, f"rgba.{channel}") for c, channel in zip(srgb_color, "rgb")))
+    opacity = _clamp_unit_range(opacity, source_name, "rgba.a (opacity)")
     color = usdex.core.sRgbToLinear(srgb_color)
 
     # Build kwargs for material properties
@@ -53,11 +75,21 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
     # mujoco also includes a roughness attribute, but it is
     # not used in practice
     if material.shininess != -1.0:
-        material_kwargs["roughness"] = 1.0 - material.shininess
+        shininess = _clamp_unit_range(
+            material.shininess,
+            source_name,
+            "shininess",
+            note=(
+                "MuJoCo's shininess is a normalized value: it is multiplied by 128 to give the OpenGL shininess exponent "
+                "(which only accepts 0 to 128), so values outside [0, 1] have no valid OpenGL equivalent. "
+                "The USD roughness is derived as 1 - shininess."
+            ),
+        )
+        material_kwargs["roughness"] = 1.0 - shininess
 
     # Only add metallic if it's not the default -1.0
     if material.metallic != -1.0:
-        material_kwargs["metallic"] = material.metallic
+        material_kwargs["metallic"] = _clamp_unit_range(material.metallic, source_name, "metallic")
 
     if data.openpbr:
         # definePbrMaterial defaults roughness to 0.3, so keep the UsdPreviewSurface default when MuJoCo has none
@@ -69,7 +101,10 @@ def convert_material(parent: Usd.Prim, name: str, material: mujoco.MjsMaterial, 
         Tf.RaiseRuntimeError(f'Failed to convert material "{name}"')
 
     emission_scalar = material.emission
-    if emission_scalar > 0.0:
+    if emission_scalar < 0.0:
+        # emissive colors must be non-negative, so a negative emission cannot be represented
+        Tf.Warn(f"Material '{source_name}': emission={emission_scalar:.6g} is outside the valid range (0 or more) and was ignored.")
+    elif emission_scalar > 0.0:
         # MuJoCo scales the authored sRGB color by emission, so the product is converted to linear rather than the color.
         # sRgbToLinear can return slightly negative components, which the emissive helpers reject.
         emissive_color = Gf.Vec3f(*(max(0.0, c) for c in usdex.core.sRgbToLinear(emission_scalar * srgb_color)))

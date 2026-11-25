@@ -215,6 +215,163 @@ class TestBrightEmission(ConverterTestCase):
         self.assertTrue(Gf.IsClose(emission_color * (luminance / 1000.0), expected, 1e-5))
 
 
+class TestOutOfRangeMaterial(ConverterTestCase):
+    """Out-of-range material values should be clamped with a warning rather than aborting or passing through."""
+
+    openpbr = True
+
+    # The checker matches diagnostics in order, so these follow the material order of the MJCF, and the attribute order within a material:
+    # rgba (r, g, b, a), shininess, metallic, emission. Any other warning, such as one for an in-range material, fails the test.
+    _SHININESS_NOTE = r".*multiplied by 128.*OpenGL.*1 - shininess.*"
+    _EXPECTED_WARNINGS = (
+        r".*'HighShininess': shininess=1.5 .*clamped to 1\..*" + _SHININESS_NOTE,
+        r".*'LowShininess': shininess=-0.3 .*clamped to 0\..*" + _SHININESS_NOTE,
+        r".*'HighMetallic': metallic=1.5 .*clamped to 1\.",
+        r".*'LowMetallic': metallic=-0.5 .*clamped to 0\.",
+        r".*'HighOpacity': rgba\.a \(opacity\)=1.4 .*clamped to 1\.",
+        r".*'LowOpacity': rgba\.a \(opacity\)=-0.2 .*clamped to 0\.",
+        r".*'HighRed': rgba\.r=1.5 .*clamped to 1\.",
+        r".*'HighGreen': rgba\.g=1.5 .*clamped to 1\.",
+        r".*'HighBlue': rgba\.b=1.5 .*clamped to 1\.",
+        r".*'LowRed': rgba\.r=-0.5 .*clamped to 0\.",
+        r".*'LowGreen': rgba\.g=-0.5 .*clamped to 0\.",
+        r".*'LowBlue': rgba\.b=-0.5 .*clamped to 0\.",
+        r".*'NegativeEmission': emission=-1 is outside the valid range.*ignored\.",
+        r".*'ClampedEmission': rgba\.r=1.5 .*clamped to 1\.",
+        r".*'AllOutOfRange': rgba\.r=1.5 .*clamped to 1\.",
+        r".*'AllOutOfRange': rgba\.g=-0.5 .*clamped to 0\.",
+        r".*'AllOutOfRange': rgba\.b=2 .*clamped to 1\.",
+        r".*'AllOutOfRange': rgba\.a \(opacity\)=1.4 .*clamped to 1\.",
+        r".*'AllOutOfRange': shininess=2 .*clamped to 1\..*" + _SHININESS_NOTE,
+        r".*'AllOutOfRange': metallic=-2 .*clamped to 0\.",
+        r".*'AllOutOfRange': emission=-3 is outside the valid range.*ignored\.",
+        # the MJCF name is reported even though the USD prim name had to be made safe
+        r".*'my material\.1': shininess=1.5 .*clamped to 1\..*" + _SHININESS_NOTE,
+    )
+
+    def setUp(self):
+        super().setUp()
+        model_path = pathlib.Path("./tests/data/out_of_range_materials.xml")
+        self.model_name = model_path.stem
+        with usdex.test.ScopedDiagnosticChecker(
+            self,
+            [(Tf.TF_DIAGNOSTIC_WARNING_TYPE, pattern) for pattern in self._EXPECTED_WARNINGS],
+            level=usdex.core.DiagnosticsLevel.eWarning,
+        ):
+            asset: Sdf.AssetPath = mujoco_usd_converter.Converter(openpbr=self.openpbr).convert(model_path, self.tmpDir())
+        self.stage: Usd.Stage = Usd.Stage.Open(asset.path)
+        self.assertIsValidUsd(self.stage)
+
+    def _get_shader(self, material_name: str) -> UsdShade.Shader:
+        material_prim = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/{material_name}")
+        self.assertTrue(material_prim, msg=material_name)
+        return usdex.core.computeEffectivePreviewSurfaceShader(UsdShade.Material(material_prim))
+
+    def _get_input_value(self, material_name: str, input_name: str):
+        shader = self._get_shader(material_name)
+        return UsdShade.Utils.GetValueProducingAttributes(shader.GetInput(input_name))[0].Get()
+
+    def _get_srgb_color(self, material_name: str) -> Gf.Vec3f:
+        return usdex.core.linearToSrgb(self._get_input_value(material_name, "diffuseColor"))
+
+    def _assert_color(self, material_name: str, expected: Gf.Vec3f):
+        self.assertTrue(Gf.IsClose(self._get_srgb_color(material_name), expected, 1e-5), msg=material_name)
+
+    def test_shininess_is_clamped(self):
+        self.assertAlmostEqual(self._get_input_value("HighShininess", "roughness"), 0.0)
+        self.assertAlmostEqual(self._get_input_value("LowShininess", "roughness"), 1.0)
+
+    def test_metallic_is_clamped(self):
+        self.assertAlmostEqual(self._get_input_value("HighMetallic", "metallic"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("LowMetallic", "metallic"), 0.0)
+
+    def test_opacity_is_clamped(self):
+        self.assertAlmostEqual(self._get_input_value("HighOpacity", "opacity"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("LowOpacity", "opacity"), 0.0)
+
+    def test_color_is_clamped(self):
+        # each channel is clamped independently, on both sides, leaving the others untouched
+        self._assert_color("HighRed", Gf.Vec3f(1.0, 0.2, 0.2))
+        self._assert_color("HighGreen", Gf.Vec3f(0.2, 1.0, 0.2))
+        self._assert_color("HighBlue", Gf.Vec3f(0.2, 0.2, 1.0))
+        self._assert_color("LowRed", Gf.Vec3f(0.0, 0.2, 0.2))
+        self._assert_color("LowGreen", Gf.Vec3f(0.2, 0.0, 0.2))
+        self._assert_color("LowBlue", Gf.Vec3f(0.2, 0.2, 0.0))
+
+    def test_invalid_emission_is_ignored(self):
+        for material_name in ("NegativeEmission", "AllOutOfRange"):
+            self.assertFalse(self._get_shader(material_name).GetInput("emissiveColor"), msg=material_name)
+
+    def test_emission_uses_clamped_color(self):
+        # MuJoCo emits emission times the color, so the clamped color 1.0 * 0.5 is used rather than the authored 1.5 * 0.5
+        emissive_color = usdex.core.linearToSrgb(self._get_input_value("ClampedEmission", "emissiveColor"))
+        self.assertTrue(Gf.IsClose(emissive_color, Gf.Vec3f(0.5, 0.1, 0.1), 1e-5))
+
+    def test_all_attributes_are_clamped_together(self):
+        self._assert_color("AllOutOfRange", Gf.Vec3f(1.0, 0.0, 1.0))
+        self.assertAlmostEqual(self._get_input_value("AllOutOfRange", "opacity"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("AllOutOfRange", "roughness"), 0.0)
+        self.assertAlmostEqual(self._get_input_value("AllOutOfRange", "metallic"), 0.0)
+
+    def test_unsafe_material_name(self):
+        # the material still converts when its name is not a valid prim name
+        materials = self.stage.GetPrimAtPath(f"/{self.model_name}/Materials").GetChildren()
+        displayed = [usdex.core.getDisplayName(prim) for prim in materials]
+        self.assertIn("my material.1", displayed)
+
+    def test_bounds_are_valid(self):
+        # the bounds are inclusive, so these convert unchanged without a warning (any warning fails setUp)
+        self._assert_color("LowerBounds", Gf.Vec3f(0.0, 0.0, 0.0))
+        self.assertAlmostEqual(self._get_input_value("LowerBounds", "opacity"), 0.0)
+        self.assertAlmostEqual(self._get_input_value("LowerBounds", "roughness"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("LowerBounds", "metallic"), 0.0)
+        self.assertFalse(self._get_shader("LowerBounds").GetInput("emissiveColor"))
+
+        self._assert_color("UpperBounds", Gf.Vec3f(1.0, 1.0, 1.0))
+        self.assertAlmostEqual(self._get_input_value("UpperBounds", "opacity"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("UpperBounds", "roughness"), 0.0)
+        self.assertAlmostEqual(self._get_input_value("UpperBounds", "metallic"), 1.0)
+
+    def test_unset_values_are_valid(self):
+        # MuJoCo's -1 sentinels for shininess & metallic are not out of range
+        self._assert_color("Defaults", Gf.Vec3f(1.0, 1.0, 1.0))
+        self.assertAlmostEqual(self._get_input_value("Defaults", "opacity"), 1.0)
+        self.assertAlmostEqual(self._get_input_value("Defaults", "roughness"), 0.5)
+
+    def test_valid_values_are_unchanged(self):
+        self.assertAlmostEqual(self._get_input_value("Valid", "roughness"), 0.75)
+        self.assertAlmostEqual(self._get_input_value("Valid", "metallic"), 1.0)
+
+    def test_openpbr_values_are_clamped(self):
+        """The OpenPBR inputs share the Material Interface, so they hold the clamped values too."""
+        if not self.openpbr:
+            self.skipTest("OpenPBR is disabled")
+        material = UsdShade.Material(self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/AllOutOfRange"))
+        shader = usdex.core.computeEffectiveMtlxSurfaceShader(material)
+
+        def value(input_name: str):
+            return UsdShade.Utils.GetValueProducingAttributes(shader.GetInput(input_name))[0].Get()
+
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(value("base_color")), Gf.Vec3f(1.0, 0.0, 1.0), 1e-5))
+        self.assertAlmostEqual(value("geometry_opacity"), 1.0)
+        self.assertAlmostEqual(value("specular_roughness"), 0.0)
+        self.assertAlmostEqual(value("base_metalness"), 0.0)
+
+    def test_openpbr_emission_uses_clamped_color(self):
+        if not self.openpbr:
+            self.skipTest("OpenPBR is disabled")
+        material = UsdShade.Material(self.stage.GetPrimAtPath(f"/{self.model_name}/Materials/ClampedEmission"))
+        shader = usdex.core.computeEffectiveMtlxSurfaceShader(material)
+        emission_color = UsdShade.Utils.GetValueProducingAttributes(shader.GetInput("emission_color"))[0].Get()
+        self.assertTrue(Gf.IsClose(usdex.core.linearToSrgb(emission_color), Gf.Vec3f(0.5, 0.1, 0.1), 1e-5))
+
+
+class TestOutOfRangePreviewMaterial(TestOutOfRangeMaterial):
+    """The UsdPreviewSurface only path (openpbr=False) uses different usd-exchange helpers, so it must clamp identically."""
+
+    openpbr = False
+
+
 class TestBuiltinTexture(ConverterTestCase):
     """Only procedural builtin textures are skipped; file backed textures in the same model still convert."""
 
