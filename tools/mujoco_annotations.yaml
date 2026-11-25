@@ -1,0 +1,791 @@
+# 'mujoco' Manual Annotations
+# This file contains manual evaluation results for the mujoco-usd-converter benchmark
+#
+# Format:
+#   asset_name:
+#     evaluation_date: "YYYY/MM/DD" (asset-level evaluation date)
+#     evaluator: "Name or identifier of person who evaluated"
+#     notes: "Additional notes about the evaluation"
+#     xml_files: Array of XML files to convert for this asset
+#       - filename: "model.xml"
+#         model_name: "asset_model"
+#         description: "Description of this model variant"
+#         verified: "Yes" | "Unknown" | "Partial"
+#         verified_in_newton: "Yes" | "Unknown" | "No"
+#         evaluation_date: "YYYY/MM/DD"
+#         evaluator: "Name or identifier of person who evaluated this variant"
+#         notes: "Additional notes about this variant"
+#     _metadata: (auto-generated)
+#       has_scene_xml: true/false
+#       total_xml_files: N
+#
+# Asset names correspond to directory names in the 'mujoco' repository:
+# https://github.com/google-deepmind/mujoco
+adhesion:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: adhesion
+    description: 'Model variant: active_adhesion'
+    evaluation_date: ''
+    evaluator: ''
+    filename: active_adhesion.xml
+    model_name: active_adhesion
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+balloons:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: balloons
+    description: 'Model variant: balloons'
+    evaluation_date: ''
+    evaluator: ''
+    filename: balloons.xml
+    model_name: balloons
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+car:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: car
+    description: 'Model variant: car'
+    evaluation_date: ''
+    evaluator: ''
+    filename: car.xml
+    model_name: car
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+cards:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: cards
+    description: 'Model variant: cards'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cards.xml
+    model_name: cards
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+cube:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: cube
+    description: 'Model variant: cube_3x3x3'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cube_3x3x3.xml
+    model_name: cube_3x3x3
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+flex:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 31
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: flex
+    description: 'Model variant: basket'
+    evaluation_date: ''
+    evaluator: ''
+    filename: basket.xml
+    model_name: basket
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: bunny'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bunny.xml
+    model_name: bunny
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: bunny_multicell'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bunny_multicell.xml
+    model_name: bunny_multicell
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: bunny_quadratic'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bunny_quadratic.xml
+    model_name: bunny_quadratic
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: bunny_with_uv'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bunny_with_uv.xml
+    model_name: bunny_with_uv
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: cloth_sdf'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cloth_sdf.xml
+    model_name: cloth_sdf
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: flag'
+    evaluation_date: ''
+    evaluator: ''
+    filename: flag.xml
+    model_name: flag
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: floppy'
+    evaluation_date: ''
+    evaluator: ''
+    filename: floppy.xml
+    model_name: floppy
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: gripper'
+    evaluation_date: ''
+    evaluator: ''
+    filename: gripper.xml
+    model_name: gripper
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: gripper_2d'
+    evaluation_date: ''
+    evaluator: ''
+    filename: gripper_2d.xml
+    model_name: gripper_2d
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: gripper_trilinear'
+    evaluation_date: ''
+    evaluator: ''
+    filename: gripper_trilinear.xml
+    model_name: gripper_trilinear
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: hollow_vs_solid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: hollow_vs_solid.xml
+    model_name: hollow_vs_solid
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: jelly'
+    evaluation_date: ''
+    evaluator: ''
+    filename: jelly.xml
+    model_name: jelly
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: mannequin'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mannequin.xml
+    model_name: mannequin
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: pancake'
+    evaluation_date: ''
+    evaluator: ''
+    filename: pancake.xml
+    model_name: pancake
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: pinch'
+    evaluation_date: ''
+    evaluator: ''
+    filename: pinch.xml
+    model_name: pinch
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: plate'
+    evaluation_date: ''
+    evaluator: ''
+    filename: plate.xml
+    model_name: plate
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: poncho'
+    evaluation_date: ''
+    evaluator: ''
+    filename: poncho.xml
+    model_name: poncho
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: poncho_edgeequality'
+    evaluation_date: ''
+    evaluator: ''
+    filename: poncho_edgeequality.xml
+    model_name: poncho_edgeequality
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: press'
+    evaluation_date: ''
+    evaluator: ''
+    filename: press.xml
+    model_name: press
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: pulley'
+    evaluation_date: ''
+    evaluator: ''
+    filename: pulley.xml
+    model_name: pulley
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: quadratic'
+    evaluation_date: ''
+    evaluator: ''
+    filename: quadratic.xml
+    model_name: quadratic
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: softbox'
+    evaluation_date: ''
+    evaluator: ''
+    filename: softbox.xml
+    model_name: softbox
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: sphere_full'
+    evaluation_date: ''
+    evaluator: ''
+    filename: sphere_full.xml
+    model_name: sphere_full
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: sphere_passive'
+    evaluation_date: ''
+    evaluator: ''
+    filename: sphere_passive.xml
+    model_name: sphere_passive
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: sphere_radial'
+    evaluation_date: ''
+    evaluator: ''
+    filename: sphere_radial.xml
+    model_name: sphere_radial
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: sphere_trilinear'
+    evaluation_date: ''
+    evaluator: ''
+    filename: sphere_trilinear.xml
+    model_name: sphere_trilinear
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: strain'
+    evaluation_date: ''
+    evaluator: ''
+    filename: strain.xml
+    model_name: strain
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: trampoline'
+    evaluation_date: ''
+    evaluator: ''
+    filename: trampoline.xml
+    model_name: trampoline
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: flex
+    description: 'Model variant: trilinear'
+    evaluation_date: ''
+    evaluator: ''
+    filename: trilinear.xml
+    model_name: trilinear
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+hammock:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: hammock
+    description: 'Model variant: hammock'
+    evaluation_date: ''
+    evaluator: ''
+    filename: hammock.xml
+    model_name: hammock
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+humanoid:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 4
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: humanoid
+    description: 'Model variant: 100_humanoids'
+    evaluation_date: ''
+    evaluator: ''
+    filename: 100_humanoids.xml
+    model_name: 100_humanoids
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: humanoid
+    description: 'Model variant: 22_humanoids'
+    evaluation_date: ''
+    evaluator: ''
+    filename: 22_humanoids.xml
+    model_name: 22_humanoids
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: humanoid
+    description: 'Model variant: humanoid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: humanoid.xml
+    model_name: humanoid
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: humanoid
+    description: 'Model variant: humanoid100'
+    evaluation_date: ''
+    evaluator: ''
+    filename: humanoid100.xml
+    model_name: humanoid100
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+mug:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: mug
+    description: 'Model variant: mug'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mug.xml
+    model_name: mug
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+plugin:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 15
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: plugin
+    description: 'Model variant: pid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: pid.xml
+    model_name: pid
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: belt'
+    evaluation_date: ''
+    evaluator: ''
+    filename: belt.xml
+    model_name: belt
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: cable'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cable.xml
+    model_name: cable
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: coil'
+    evaluation_date: ''
+    evaluator: ''
+    filename: coil.xml
+    model_name: coil
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: bowl'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bowl.xml
+    model_name: bowl
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: cow'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cow.xml
+    model_name: cow
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: gear'
+    evaluation_date: ''
+    evaluator: ''
+    filename: gear.xml
+    model_name: gear
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: mesh'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mesh.xml
+    model_name: mesh
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: mug'
+    evaluation_date: ''
+    evaluator: ''
+    filename: mug.xml
+    model_name: mug
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: nutbolt'
+    evaluation_date: ''
+    evaluator: ''
+    filename: nutbolt.xml
+    model_name: nutbolt
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: primitives'
+    evaluation_date: ''
+    evaluator: ''
+    filename: primitives.xml
+    model_name: primitives
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: torus'
+    evaluation_date: ''
+    evaluator: ''
+    filename: torus.xml
+    model_name: torus
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: plugin
+    description: 'Model variant: touch_grid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: touch_grid.xml
+    model_name: touch_grid
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+replicate:
+  _metadata:
+    has_scene_xml: true
+    total_xml_files: 13
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: replicate
+    description: 'Model variant: bowl'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bowl.xml
+    model_name: bowl
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: bunnies'
+    evaluation_date: ''
+    evaluator: ''
+    filename: bunnies.xml
+    model_name: bunnies
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: container'
+    evaluation_date: ''
+    evaluator: ''
+    filename: container.xml
+    model_name: container
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: cylinder'
+    evaluation_date: ''
+    evaluator: ''
+    filename: cylinder.xml
+    model_name: cylinder
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: helix'
+    evaluation_date: ''
+    evaluator: ''
+    filename: helix.xml
+    model_name: helix
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: leaves'
+    evaluation_date: ''
+    evaluator: ''
+    filename: leaves.xml
+    model_name: leaves
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: newton_cradle'
+    evaluation_date: ''
+    evaluator: ''
+    filename: newton_cradle.xml
+    model_name: newton_cradle
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: particle'
+    evaluation_date: ''
+    evaluator: ''
+    filename: particle.xml
+    model_name: particle
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: particle_free'
+    evaluation_date: ''
+    evaluator: ''
+    filename: particle_free.xml
+    model_name: particle_free
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: particle_free2d'
+    evaluation_date: ''
+    evaluator: ''
+    filename: particle_free2d.xml
+    model_name: particle_free2d
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: stonehenge'
+    evaluation_date: ''
+    evaluator: ''
+    filename: stonehenge.xml
+    model_name: stonehenge
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: replicate
+    description: 'Model variant: tendon'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tendon.xml
+    model_name: tendon
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+sleep:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 3
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: sleep
+    description: 'Model variant: 100_humanoids'
+    evaluation_date: ''
+    evaluator: ''
+    filename: 100_humanoids.xml
+    model_name: 100_humanoids
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: sleep
+    description: 'Model variant: dominos'
+    evaluation_date: ''
+    evaluator: ''
+    filename: dominos.xml
+    model_name: dominos
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+  - asset: sleep
+    description: 'Model variant: humanoid'
+    evaluation_date: ''
+    evaluator: ''
+    filename: humanoid.xml
+    model_name: humanoid
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+slider_crank:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: slider_crank
+    description: 'Model variant: slider_crank'
+    evaluation_date: ''
+    evaluator: ''
+    filename: slider_crank.xml
+    model_name: slider_crank
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+tactile:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: tactile
+    description: 'Model variant: tactile'
+    evaluation_date: ''
+    evaluator: ''
+    filename: tactile.xml
+    model_name: tactile
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
+tendon_arm:
+  _metadata:
+    has_scene_xml: false
+    total_xml_files: 1
+  evaluation_date: ''
+  evaluator: ''
+  notes: ''
+  xml_files:
+  - asset: tendon_arm
+    description: 'Model variant: arm26'
+    evaluation_date: ''
+    evaluator: ''
+    filename: arm26.xml
+    model_name: arm26
+    notes: ''
+    verified: Unknown
+    verified_in_newton: Unknown
