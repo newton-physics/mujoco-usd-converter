@@ -1,0 +1,56 @@
+<mujoco model="out_of_range_materials">
+    <asset>
+        <!-- shininess -->
+        <material name="HighShininess" shininess="1.5"/>
+        <material name="LowShininess" shininess="-0.3"/>
+        <!-- metallic -->
+        <material name="HighMetallic" metallic="1.5"/>
+        <material name="LowMetallic" metallic="-0.5"/>
+        <!-- opacity -->
+        <material name="HighOpacity" rgba="0.5 0.2 0.2 1.4"/>
+        <material name="LowOpacity" rgba="0.5 0.2 0.2 -0.2"/>
+        <!-- color, every channel on both sides -->
+        <material name="HighRed" rgba="1.5 0.2 0.2 1"/>
+        <material name="HighGreen" rgba="0.2 1.5 0.2 1"/>
+        <material name="HighBlue" rgba="0.2 0.2 1.5 1"/>
+        <material name="LowRed" rgba="-0.5 0.2 0.2 1"/>
+        <material name="LowGreen" rgba="0.2 -0.5 0.2 1"/>
+        <material name="LowBlue" rgba="0.2 0.2 -0.5 1"/>
+        <!-- emission -->
+        <material name="NegativeEmission" rgba="0.5 0.5 0.5 1" emission="-1"/>
+        <!-- emission derives from the clamped color: 0.5 * (1.0, 0.2, 0.2) -->
+        <material name="ClampedEmission" rgba="1.5 0.2 0.2 1" emission="0.5"/>
+        <!-- every attribute out of range at once, each is reported -->
+        <material name="AllOutOfRange" rgba="1.5 -0.5 2 1.4" shininess="2" metallic="-2" emission="-3"/>
+        <!-- the warning names the MJCF material, not the USD prim name -->
+        <material name="my material.1" shininess="1.5"/>
+        <!-- inclusive bounds and unset values are valid and must not warn -->
+        <material name="LowerBounds" rgba="0 0 0 0" shininess="0" metallic="0" emission="0"/>
+        <material name="UpperBounds" rgba="1 1 1 1" shininess="1" metallic="1"/>
+        <material name="Defaults"/>
+        <material name="Valid" rgba="0.5 0.5 0.5 1" shininess="0.25" metallic="1"/>
+    </asset>
+
+    <worldbody>
+        <geom type="box" material="HighShininess" size="0.1 0.1 0.1" pos="0 0 0"/>
+        <geom type="box" material="LowShininess" size="0.1 0.1 0.1" pos="1 0 0"/>
+        <geom type="box" material="HighMetallic" size="0.1 0.1 0.1" pos="3 0 0"/>
+        <geom type="box" material="LowMetallic" size="0.1 0.1 0.1" pos="4 0 0"/>
+        <geom type="box" material="HighOpacity" size="0.1 0.1 0.1" pos="6 0 0"/>
+        <geom type="box" material="LowOpacity" size="0.1 0.1 0.1" pos="7 0 0"/>
+        <geom type="box" material="HighRed" size="0.1 0.1 0.1" pos="9 0 0"/>
+        <geom type="box" material="HighGreen" size="0.1 0.1 0.1" pos="10 0 0"/>
+        <geom type="box" material="HighBlue" size="0.1 0.1 0.1" pos="11 0 0"/>
+        <geom type="box" material="LowRed" size="0.1 0.1 0.1" pos="12 0 0"/>
+        <geom type="box" material="LowGreen" size="0.1 0.1 0.1" pos="13 0 0"/>
+        <geom type="box" material="LowBlue" size="0.1 0.1 0.1" pos="14 0 0"/>
+        <geom type="box" material="NegativeEmission" size="0.1 0.1 0.1" pos="15 0 0"/>
+        <geom type="box" material="ClampedEmission" size="0.1 0.1 0.1" pos="18 0 0"/>
+        <geom type="box" material="AllOutOfRange" size="0.1 0.1 0.1" pos="19 0 0"/>
+        <geom type="box" material="my material.1" size="0.1 0.1 0.1" pos="20 0 0"/>
+        <geom type="box" material="LowerBounds" size="0.1 0.1 0.1" pos="21 0 0"/>
+        <geom type="box" material="UpperBounds" size="0.1 0.1 0.1" pos="22 0 0"/>
+        <geom type="box" material="Defaults" size="0.1 0.1 0.1" pos="23 0 0"/>
+        <geom type="box" material="Valid" size="0.1 0.1 0.1" pos="24 0 0"/>
+    </worldbody>
+</mujoco>
